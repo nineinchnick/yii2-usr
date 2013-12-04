@@ -1,0 +1,23 @@
+{
+    "name": "nineinchnick/yii2-usr",
+    "description": "Yii 2.0 framework module for user authentication, password reset, registration and profile updating.",
+	"version": "0.9.8",
+    "license": "MIT",
+	"type": "yii2-module",
+    "authors": [
+        {
+            "name": "Jan Waś",
+            "email": "janek.jan@gmail.com",
+			"homepage": "http://niix.pl/"
+        }
+    ],
+    "require": {
+		"yiisoft/yii2": "*",
+		"yiisoft/yii2-bootstrap": "*",
+		"yiisoft/yii2-swiftmailer": "*"
+    },
+	"suggest": {
+		"hybridauth/hybridauth": "*",
+		"sonata-project/google-authenticator": "*"
+	}
+}
