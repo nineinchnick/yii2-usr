@@ -22,6 +22,5 @@
 	},
 	"autoload": {
         "psr-0": { "nineinchnick\\yii2-usr": "" }
-    },
-
+    }
 }
