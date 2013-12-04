@@ -1,5 +1,9 @@
 <?php
 
+namespace nineinchnick\usr\models;
+
+use Yii;
+
 /**
  * BasePasswordForm class.
  * BasePasswordForm is the base class for forms used to set new password.
@@ -15,8 +19,8 @@ abstract class BasePasswordForm extends BaseUsrForm
 	{
 		if ($this->_passwordStrengthRules === null) {
 			$this->_passwordStrengthRules = array(
-				array('newPassword', 'length', 'min' => 8, 'message' => Yii::t('UsrModule.usr', 'New password must contain at least 8 characters.')),
-				array('newPassword', 'match', 'pattern' => '/^.*(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).*$/', 'message'	=> Yii::t('UsrModule.usr', 'New password must contain at least one lower and upper case character and a digit.')),
+				array('newPassword', 'string', 'min' => 8, 'message' => Yii::t('usr', 'New password must contain at least 8 characters.')),
+				array('newPassword', 'match', 'pattern' => '/^.*(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).*$/', 'message'	=> Yii::t('usr', 'New password must contain at least one lower and upper case character and a digit.')),
 			);
 		}
 		return $this->_passwordStrengthRules;
@@ -42,7 +46,7 @@ abstract class BasePasswordForm extends BaseUsrForm
 			),
 			$this->passwordStrengthRules,
 			array(
-				array('newVerify', 'compare', 'compareAttribute'=>'newPassword', 'message' => Yii::t('UsrModule.usr', 'Please type the same new password twice to verify it.')),
+				array('newVerify', 'compare', 'compareAttribute'=>'newPassword', 'message' => Yii::t('usr', 'Please type the same new password twice to verify it.')),
 			)
 		);
 		return $rules;
@@ -62,8 +66,8 @@ abstract class BasePasswordForm extends BaseUsrForm
 	public function attributeLabels()
 	{
 		return array_merge(parent::attributeLabels(), array(
-			'newPassword'	=> Yii::t('UsrModule.usr','New password'),
-			'newVerify'		=> Yii::t('UsrModule.usr','Verify'),
+			'newPassword'	=> Yii::t('usr','New password'),
+			'newVerify'		=> Yii::t('usr','Verify'),
 		));
 	}
 
@@ -84,7 +88,7 @@ abstract class BasePasswordForm extends BaseUsrForm
 		// check if new password hasn't been used before
 		if ($identity instanceof IPasswordHistoryIdentity) {
 			if (($lastUsed = $identity->getPasswordDate($this->newPassword)) !== null) {
-				$this->addError('newPassword',Yii::t('UsrModule.usr','New password has been used before, last set on {date}.', array('{date}'=>$lastUsed)));
+				$this->addError('newPassword',Yii::t('usr','New password has been used before, last set on {date}.', array('{date}'=>$lastUsed)));
 				return false;
 			}
 			return true;
@@ -93,7 +97,7 @@ abstract class BasePasswordForm extends BaseUsrForm
 		$newIdentity = clone $identity;
 		$newIdentity->password = $this->newPassword;
 		if ($newIdentity->authenticate()) {
-			$this->addError('newPassword',Yii::t('UsrModule.usr','New password must be different than the old one.'));
+			$this->addError('newPassword',Yii::t('usr','New password must be different than the old one.'));
 			return false;
 		}
 		return true;

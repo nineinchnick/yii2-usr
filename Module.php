@@ -1,13 +1,13 @@
 <?php
 
-namespace nineinchnick\yii2-usr;
+namespace nineinchnick\usr;
 
 /**
  * @author Jan Was <jwas@nets.com.pl>
  */
 class Module extends \yii\base\Module
 {
-	const OTP_SECRET_PREFIX = 'UsrModule.oneTimePassword.';
+	const OTP_SECRET_PREFIX = 'nineinchnick.usr.Module.oneTimePassword.';
 	const OTP_COOKIE = 'otp';
 	const OTP_NONE = 'none';
 	const OTP_TIME = 'time';
@@ -70,25 +70,6 @@ class Module extends \yii\base\Module
 	 */
 	public $submitButtonCssClass = '';
 	/**
-	 * @var array configuration for PHPMailer, values which are arrays will trigger methods for each value instead of setting properties.
-	 * For a full reference, please resolve to PHPMailer documentation.
-	 */
-	public $mailerConfig = array(
-		'SetLanguage' => array('en'),
-		'SetFrom' => array('from@example.com', 'Administrator'),
-		'AddReplyTo' => array('replyto@example.com','Administrator'),
-		'IsMail' => array(),
-		// SMTP options
-		//'IsSMTP' => array(),
-		//'Host' => 'localhost',
-		//'Port' => 25,
-		//'Username' => 'login',
-		//'Password' => 'password',
-		// extension properties
-		'setPathViews' => array('usr.views.emails'),
-		'setPathLayouts' => array('usr.views.layouts'),
-	);
-	/**
 	 * @var boolean If true a link for generating passwords will be rendered under new password field.
 	 */
 	public $dicewareEnabled = true;
@@ -110,7 +91,7 @@ class Module extends \yii\base\Module
 	 */
 	public $hybridauthProviders = array();
 	/**
-	 * @var string If set to UsrModule::OTP_TIME or UsrModule::OTP_COUNTER, two step authentication is enabled using one time passwords.
+	 * @var string If set to nineinchnick\usr\Module::OTP_TIME or nineinchnick\usr\Module::OTP_COUNTER, two step authentication is enabled using one time passwords.
 	 * Time mode uses codes generated using current time and requires the user to use an external application, like Google Authenticator on Android.
 	 * Counter mode uses codes generated using a sequence and sends them to user's email.
 	 */
@@ -131,7 +112,7 @@ class Module extends \yii\base\Module
 	public $captcha;
 
 	/**
-	 * @var GoogleAuthenticator set if $oneTimePasswordMode is not UsrModule::OTP_NONE
+	 * @var GoogleAuthenticator set if $oneTimePasswordMode is not nineinchnick\usr\Module::OTP_NONE
 	 */
 	protected $_googleAuthenticator;
 	/**
@@ -147,23 +128,17 @@ class Module extends \yii\base\Module
 	public function init()
 	{
 		parent::init();
-		$this->setImport(array(
-			'usr.models.*',
-			'usr.components.*',
-		));
-		$this->setComponents(array(
-			'mailer' => array(
-				'class' => 'usr.extensions.mailer.EMailer',
-				'pathViews' => 'usr.views.emails',
-				'pathLayouts' => 'usr.views.layouts',
-			),
-		), false);
+		\Yii::setAlias('@usr', dirname(__FILE__));
+		\Yii::$app->i18n->translations['usr'] = [
+			'class' => 'yii\i18n\PhpMessageSource',
+			'sourceLanguage' => 'en-US',
+			'basePath' => '@usr/messages',
+		];
 		if (is_array($this->htmlCss)) {
 			foreach($this->htmlCss as $name=>$value) {
 				CHtml::$$name = $value;
 			}
 		}
-		$this->setupMailer();
 		if ($this->hybridauthEnabled()) {
 			$hybridauthConfig = array(
 				'base_url' => Yii::app()->createAbsoluteUrl('/'.$this->id.'/hybridauth/callback'),
@@ -171,24 +146,6 @@ class Module extends \yii\base\Module
 			);
 			require dirname(__FILE__) . '/extensions/Hybrid/Auth.php';
 			$this->_hybridauth = new Hybrid_Auth($hybridauthConfig);
-		}
-	}
-
-	public function setupMailer()
-	{
-		$mailerConfig = array_merge(array(
-			'IsHTML' => array(true),
-			'CharSet' => 'UTF-8',
-			'IsMail' => array(),
-			'setPathViews' => array('usr.views.emails'),
-			'setPathLayouts' => array('usr.views.layouts'),
-		), $this->mailerConfig);
-		foreach($mailerConfig as $key=>$value) {
-			if (is_array($value)) {
-				call_user_func_array(array($this->mailer, $key), $value);
-			} else {
-				$this->mailer->$key = $value;
-			}
 		}
 	}
 
@@ -214,7 +171,8 @@ class Module extends \yii\base\Module
 
 	public function createFormModel($class, $scenario='')
 	{
-		$form = new $class($scenario);
+		$namespacedClass = "nineinchnick\\usr\\models\\{$class}";
+		$form = new $namespacedClass($scenario);
 		$form->userIdentityClass = $this->userIdentityClass;
 		if ($form instanceof BasePasswordForm) {
 			$form->passwordStrengthRules = $this->passwordStrengthRules;
@@ -232,7 +190,7 @@ class Module extends \yii\base\Module
 				}
 				break;
 			case 'LoginForm':
-				if ($this->oneTimePasswordMode != UsrModule::OTP_NONE) {
+				if ($this->oneTimePasswordMode != self::OTP_NONE) {
 					$form->attachBehavior('oneTimePasswordBehavior', array(
 						'class' => 'OneTimePasswordFormBehavior',
 						'oneTimePasswordConfig' => array(

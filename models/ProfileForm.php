@@ -34,10 +34,10 @@ class ProfileForm extends BaseUsrForm
 	public function attributeLabels()
 	{
 		return array_merge($this->getBehaviorLabels(), array(
-			'username'		=> Yii::t('UsrModule.usr','Username'),
-			'email'			=> Yii::t('UsrModule.usr','Email'),
-			'firstName'		=> Yii::t('UsrModule.usr','First name'),
-			'lastName'		=> Yii::t('UsrModule.usr','Last name'),
+			'username'		=> Yii::t('usr','Username'),
+			'email'			=> Yii::t('usr','Email'),
+			'firstName'		=> Yii::t('usr','First name'),
+			'lastName'		=> Yii::t('usr','Last name'),
 		));
 	}
 
@@ -51,7 +51,7 @@ class ProfileForm extends BaseUsrForm
 				$this->_identity = $userIdentityClass::find(array('id'=>Yii::app()->user->getId()));
 			}
 			if ($this->_identity !== null && !($this->_identity instanceof IEditableIdentity)) {
-				throw new CException(Yii::t('UsrModule.usr','The {class} class must implement the {interface} interface.',array('{class}'=>get_class($this->_identity),'{interface}'=>'IEditableIdentity')));
+				throw new CException(Yii::t('usr','The {class} class must implement the {interface} interface.',array('{class}'=>get_class($this->_identity),'{interface}'=>'IEditableIdentity')));
 			}
 		}
 		return $this->_identity;
@@ -65,7 +65,7 @@ class ProfileForm extends BaseUsrForm
 		$userIdentityClass = $this->userIdentityClass;
 		$existingIdentity = $userIdentityClass::find(array($attribute => $this->$attribute));
 		if ($existingIdentity !== null && ($this->scenario == 'register' || (($identity=$this->getIdentity()) !== null && $existingIdentity->getId() != $identity->getId()))) {
-			$this->addError($attribute,Yii::t('UsrModule.usr','{attribute} has already been used by another user.', array('{attribute}'=>$this->$attribute)));
+			$this->addError($attribute,Yii::t('usr','{attribute} has already been used by another user.', array('{attribute}'=>$this->$attribute)));
 			return false;
 		}
 		return true;

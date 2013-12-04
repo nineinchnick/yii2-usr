@@ -70,8 +70,8 @@ class HybridauthForm extends BaseUsrForm
 	public function attributeLabels()
 	{
 		return array(
-			'provider'		=> Yii::t('UsrModule.usr','Provider'),
-			'openid_identifier'		=> Yii::t('UsrModule.usr','OpenID Identifier'),
+			'provider'		=> Yii::t('usr','Provider'),
+			'openid_identifier'		=> Yii::t('usr','OpenID Identifier'),
 		);
 	}
 
@@ -93,7 +93,7 @@ class HybridauthForm extends BaseUsrForm
 		$userIdentityClass = $this->userIdentityClass;
 		$fakeIdentity = new $userIdentityClass(null, null);
 		if (!($fakeIdentity instanceof IHybridauthIdentity))
-			throw new CException(Yii::t('UsrModule.usr','The {class} class must implement the {interface} interface.',array('{class}'=>get_class($identity),'{interface}'=>'IHybridauthIdentity')));
+			throw new CException(Yii::t('usr','The {class} class must implement the {interface} interface.',array('{class}'=>get_class($identity),'{interface}'=>'IHybridauthIdentity')));
 
 		$params = $this->getAttributes();
 		unset($params['provider']);
@@ -113,7 +113,7 @@ class HybridauthForm extends BaseUsrForm
 		$userIdentityClass = $this->userIdentityClass;
 		$identity = new $userIdentityClass(null, null);
 		if (!($identity instanceof IHybridauthIdentity))
-			throw new CException(Yii::t('UsrModule.usr','The {class} class must implement the {interface} interface.',array('{class}'=>get_class($identity),'{interface}'=>'IHybridauthIdentity')));
+			throw new CException(Yii::t('usr','The {class} class must implement the {interface} interface.',array('{class}'=>get_class($identity),'{interface}'=>'IHybridauthIdentity')));
 		$identity->setId($user_id);
 		$profile = $this->_hybridAuthAdapter->getUserProfile();
 		return $identity->addRemoteIdentity(strtolower($this->provider), $profile->identifier);

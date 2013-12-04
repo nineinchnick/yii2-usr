@@ -1,6 +1,8 @@
 <?php
 
-abstract class UsrController extends CController
+namespace nineinchnick\usr\controllers;
+
+abstract class UsrController extends \yii\web\Controller
 {
 	protected function displayFlashes()
 	{

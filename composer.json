@@ -19,8 +19,5 @@
 	"suggest": {
 		"hybridauth/hybridauth": "*",
 		"sonata-project/google-authenticator": "*"
-	},
-	"autoload": {
-        "psr-0": { "nineinchnick\\yii2-usr\\": "" }
-    }
+	}
 }

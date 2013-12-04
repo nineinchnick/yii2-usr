@@ -32,7 +32,7 @@ abstract class ExampleUserRemoteIdentity extends CActiveRecord
 		return array(
 			array('user_id, provider, identifier', 'required'),
 			array('user_id', 'numerical', 'integerOnly'=>true),
-			array('provider, identifier', 'length', 'max'=>100),
+			array('provider, identifier', 'string', 'max'=>100),
 			array('user_id', 'isUnique'),
 		);
 	}

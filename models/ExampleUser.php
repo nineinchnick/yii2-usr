@@ -2,6 +2,7 @@
 
 namespace nineinchnick\yii2-usr\models;
 
+use Yii;
 use \yii\helpers\Security;
 
 /**
@@ -52,7 +53,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements \yii\web\Iden
 			['activation_key, created_on, updated_on, last_visit_on, password_set_on, email_verified', 'default', 'setOnEmpty' => true, 'value' => null, 'on' => 'search'],
 			['username, email, is_active, is_disabled, email_verified', 'required', 'except' => 'search'],
 			['created_on, updated_on, last_visit_on, password_set_on', 'date', 'format' => ['yyyy-MM-dd', 'yyyy-MM-dd HH:mm', 'yyyy-MM-dd HH:mm:ss'], 'on' => 'search'],
-			['activation_key', 'length', 'max'=>128, 'on' => 'search'],
+			['activation_key', 'string', 'max'=>128, 'on' => 'search'],
 			['is_active, is_disabled, email_verified', 'boolean'],
 			['username, email', 'unique', 'except' => 'search'],
 		];

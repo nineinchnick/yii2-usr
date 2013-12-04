@@ -1,10 +1,14 @@
 <?php
 
+namespace nineinchnick\usr\models;
+
+use Yii;
+
 /**
  * BaseUsrForm class.
  * BaseUsrForm is the base class for forms extensible using behaviors, which can add attributes and rules.
  */
-abstract class BaseUsrForm extends CFormModel
+abstract class BaseUsrForm extends \yii\base\Model
 {
 	private static $_names=array();
 	private $_behaviors=array();

@@ -1,5 +1,9 @@
 <?php
 
+namespace nineinchnick\usr\models;
+
+use Yii;
+
 /**
  * LoginForm class.
  * LoginForm is the data structure for keeping
@@ -20,12 +24,12 @@ class LoginForm extends BasePasswordForm
 	 */
 	public function rules()
 	{
-		$rules = array_merge(array(
-			array('username, password', 'filter', 'filter'=>'trim'),
-			array('username, password', 'required'),
-			array('rememberMe', 'boolean'),
-			array('password', 'authenticate'),
-		), $this->rulesAddScenario(parent::rules(), 'reset'), $this->getBehaviorRules());
+		$rules = array_merge([
+			[['username', 'password'], 'filter', 'filter'=>'trim'],
+			[['username', 'password'], 'required'],
+			['rememberMe', 'boolean'],
+			['password', 'authenticate'],
+		], $this->rulesAddScenario(parent::rules(), 'reset'), $this->getBehaviorRules());
 
 		return $rules;
 	}
@@ -35,11 +39,11 @@ class LoginForm extends BasePasswordForm
 	 */
 	public function attributeLabels()
 	{
-		return array_merge($this->getBehaviorLabels(), parent::attributeLabels(), array(
-			'username'		=> Yii::t('UsrModule.usr','Username'),
-			'password'		=> Yii::t('UsrModule.usr','Password'),
-			'rememberMe'	=> Yii::t('UsrModule.usr','Remember me when logging in next time'),
-		));
+		return array_merge($this->getBehaviorLabels(), parent::attributeLabels(), [
+			'username'		=> Yii::t('usr','Username'),
+			'password'		=> Yii::t('usr','Password'),
+			'rememberMe'	=> Yii::t('usr','Remember me when logging in next time'),
+		]);
 	}
 
 	public function getIdentity()

@@ -137,27 +137,6 @@ Users can register by themselves. Their accounts are activated instantly or afte
 Users can register, but to allow them to log in an administrator must activate their accounts manually, optionally assigning an authorization profile.
 Email verification is optional and activation could trigger an email notification.
 
-# Configuration for Twitter Bootstrap
-
-If using the [bootstrap extension](http://www.yiiframework.com/extension/bootstrap), the following configuration may be used:
-
-~~~
-'usr' => array(
-		'layout' => '//layouts/centered',
-		'formClass'=>'bootstrap.widgets.TbActiveForm',
-		'detailViewClass'=>'bootstrap.widgets.TbDetailView',
-		'formCssClass'=>'form well',
-		'alertCssClassPrefix'=>'alert alert-',
-		'submitButtonCssClass'=>'btn btn-primary',
-		'htmlCss' => array(
-			'errorSummaryCss' => 'alert alert-error',
-			'errorMessageCss' => 'text-error',
-		),
-		// mail
-		...mail config...
-	),
-~~~
-
 # License
 
 MIT or BSD

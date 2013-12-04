@@ -38,9 +38,9 @@ class RecoveryForm extends BasePasswordForm
 	 */
 	public function attributeLabels() {
 		return array_merge($this->getBehaviorLabels(), parent::attributeLabels(), array(
-			'username'		=> Yii::t('UsrModule.usr','Username'),
-			'email'			=> Yii::t('UsrModule.usr','Email'),
-			'activationKey'	=> Yii::t('UsrModule.usr','Activation Key'),
+			'username'		=> Yii::t('usr','Username'),
+			'email'			=> Yii::t('usr','Email'),
+			'activationKey'	=> Yii::t('usr','Activation Key'),
 		));
 	}
 
@@ -50,7 +50,7 @@ class RecoveryForm extends BasePasswordForm
 			$userIdentityClass = $this->userIdentityClass;
 			$fakeIdentity = new $userIdentityClass(null, null);
 			if (!($fakeIdentity instanceof IActivatedIdentity)) {
-				throw new CException(Yii::t('UsrModule.usr','The {class} class must implement the {interface} interface.',array('{class}'=>$userIdentityClass, '{interface}'=>'IActivatedIdentity')));
+				throw new CException(Yii::t('usr','The {class} class must implement the {interface} interface.',array('{class}'=>$userIdentityClass, '{interface}'=>'IActivatedIdentity')));
 			}
 			$attributes = array();
 			if ($this->username !== null) $attributes['username'] = $this->username;
@@ -68,11 +68,11 @@ class RecoveryForm extends BasePasswordForm
 		$identity = $this->getIdentity();
 		if ($identity === null) {
 			if ($this->username !== null) {
-				$this->addError('username',Yii::t('UsrModule.usr','No user found matching this username.'));
+				$this->addError('username',Yii::t('usr','No user found matching this username.'));
 			} elseif ($this->email !== null) {
-				$this->addError('email',Yii::t('UsrModule.usr','No user found matching this email address.'));
+				$this->addError('email',Yii::t('usr','No user found matching this email address.'));
 			} else {
-				$this->addError('username',Yii::t('UsrModule.usr','Please specify username or email.'));
+				$this->addError('username',Yii::t('usr','Please specify username or email.'));
 			}
 			return false;
 		}
@@ -93,10 +93,10 @@ class RecoveryForm extends BasePasswordForm
 		switch($errorCode) {
 			default:
 			case $identity::ERROR_AKEY_INVALID:
-				$this->addError('activationKey',Yii::t('UsrModule.usr','Activation key is invalid.'));
+				$this->addError('activationKey',Yii::t('usr','Activation key is invalid.'));
 				return false;
 			case $identity::ERROR_AKEY_TOO_OLD:
-				$this->addError('activationKey',Yii::t('UsrModule.usr','Activation key is too old.'));
+				$this->addError('activationKey',Yii::t('usr','Activation key is too old.'));
 				return false;
 			case $identity::ERROR_AKEY_NONE:
 				return true;
