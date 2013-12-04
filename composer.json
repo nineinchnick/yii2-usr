@@ -21,6 +21,6 @@
 		"sonata-project/google-authenticator": "*"
 	},
 	"autoload": {
-        "psr-0": { "nineinchnick\\yii2-usr": "" }
+        "psr-0": { "nineinchnick\\yii2-usr\\": "" }
     }
 }
