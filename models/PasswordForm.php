@@ -1,5 +1,9 @@
 <?php
 
+namespace nineinchnick\usr\models;
+
+use Yii;
+
 /**
  * PasswordForm class.
  * PasswordForm is the data structure for keeping password form data. It is used by the 'register' and 'profile' actions of 'DefaultController'.
@@ -8,18 +12,18 @@ class PasswordForm extends BasePasswordForm
 {
 	public $password;
 
-	private $_identity;
+	private $_user;
 
 	/**
 	 * Declares the validation rules.
 	 */
 	public function rules()
 	{
-		$rules = array_merge(array(
-			array('password', 'filter', 'filter'=>'trim', 'except'=>'register'),
-			array('password', 'required', 'except'=>'register'),
-			array('password', 'authenticate', 'except'=>'register'),
-		), parent::rules());
+		$rules = array_merge([
+			['password', 'filter', 'filter'=>'trim', 'except'=>'register'],
+			['password', 'required', 'except'=>'register'],
+			['password', 'authenticate', 'except'=>'register'],
+		], parent::rules());
 
 		return $rules;
 	}
@@ -29,25 +33,24 @@ class PasswordForm extends BasePasswordForm
 	 */
 	public function attributeLabels()
 	{
-		return array_merge(parent::attributeLabels(), array(
+		return array_merge(parent::attributeLabels(), [
 			'password' => Yii::t('usr','Current password'),
-		));
+		]);
 	}
 
-	public function getIdentity()
+	public function getUser()
 	{
-		if($this->_identity===null) {
+		if($this->_user===null) {
 			if ($this->scenario === 'register')
-				return $this->_identity;
-			$userIdentityClass = $this->userIdentityClass;
-			$this->_identity = $userIdentityClass::find(array('id'=>Yii::app()->user->getId()));
+				return $this->_user;
+			$this->_user = Yii::$app->user->getIdentity();
 		}
-		return $this->_identity;
+		return $this->_user;
 	}
 
 	public function setIdentity($identity)
 	{
-		$this->_identity = $identity;
+		$this->_user = $identity;
 	}
 
 	/**
@@ -59,12 +62,11 @@ class PasswordForm extends BasePasswordForm
 		if($this->hasErrors()) {
 			return;
 		}
-		if (($identity=$this->getIdentity()) === null) {
+		if (($identity=$this->getUser()) === null) {
 			throw new CException('Current user has not been found in the database.');
 		}
-		$identity->password = $this->password;
-		if(!$identity->authenticate()) {
-			$this->addError('password',Yii::t('usr','Invalid password.'));
+		if(!$identity->validatePassword($this->$attribute)) {
+			$this->addError($attribute,Yii::t('usr','Invalid password.'));
 			return false;
 		}
 		return true;

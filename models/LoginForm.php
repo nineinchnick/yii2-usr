@@ -15,7 +15,7 @@ class LoginForm extends BasePasswordForm
 	public $password;
 	public $rememberMe;
 
-	private $_identity;
+	private $_user;
 
 	/**
 	 * Declares the validation rules.
@@ -46,14 +46,14 @@ class LoginForm extends BasePasswordForm
 		]);
 	}
 
-	public function getIdentity()
+	public function getUser()
 	{
-		if($this->_identity===null) {
-			$userIdentityClass = $this->userIdentityClass;
-			$this->_identity=new $userIdentityClass($this->username,$this->password);
-			$this->_identity->authenticate();
+		if($this->_user===null) {
+			$userClass = Yii::$app->user->identityClass;
+			if (($this->_user = $userClass::findByUsername($this->username)) === null)
+				$this->_user = false;
 		}
-		return $this->_identity;
+		return $this->_user;
 	}
 
 	/**
@@ -65,9 +65,9 @@ class LoginForm extends BasePasswordForm
 		if($this->hasErrors()) {
 			return;
 		}
-		$identity = $this->getIdentity();
-		if(!$identity->getIsAuthenticated()) {
-			$this->addError('password',Yii::t('UsrModule.usr','Invalid username or password.'));
+		$user = $this->getUser();
+		if(!$user || $user->validatePassword($this->$attribute)) {
+			$this->addError($attribute, Yii::t('usr','Invalid username or password.'));
 			return false;
 		}
 		return true;
@@ -80,7 +80,7 @@ class LoginForm extends BasePasswordForm
 	 */
 	public function passwordHasNotExpired($attribute, $params)
 	{
-		if (($behavior=$this->asa('expiredPasswordBehavior')) !== null) {
+		if (($behavior=$this->getBehavior('expiredPasswordBehavior')) !== null) {
 			return $behavior->passwordHasNotExpired($attribute, $params);
 		}
 		return true;
@@ -93,7 +93,7 @@ class LoginForm extends BasePasswordForm
 	 */
 	public function validOneTimePassword($attribute, $params)
 	{
-		if (($behavior=$this->asa('oneTimePasswordBehavior')) !== null) {
+		if (($behavior=$this->getBehavior('oneTimePasswordBehavior')) !== null) {
 			return $behavior->validOneTimePassword($attribute, $params);
 		}
 		return true;
@@ -108,9 +108,9 @@ class LoginForm extends BasePasswordForm
 		if($this->hasErrors()) {
 			return;
 		}
-		$identity = $this->getIdentity();
-		if (!$identity->resetPassword($this->newPassword)) {
-			$this->addError('newPassword',Yii::t('UsrModule.usr','Failed to reset the password.'));
+		$user = $this->getUser();
+		if (!$user || !$user->resetPassword($this->newPassword)) {
+			$this->addError('newPassword',Yii::t('usr','Failed to reset the password.'));
 			return false;
 		}
 		return true;
@@ -123,13 +123,16 @@ class LoginForm extends BasePasswordForm
 	 */
 	public function login($duration = 0)
 	{
-		$identity = $this->getIdentity();
-		if ($this->scenario === 'reset') {
-			$identity->password = $this->newPassword;
-			$identity->authenticate();
+		$user = $this->getUser();
+		if (!$user) {
+			$authenticated = false;
+		} elseif ($this->scenario === 'reset') {
+			$authenticated = $user->validatePassword($this->newPassword);
+		} else {
+			$authenticated = $user->validatePassword($this->password);
 		}
-		if($identity->getIsAuthenticated()) {
-			return Yii::app()->user->login($identity, $this->rememberMe ? $duration : 0);
+		if($authenticated) {
+			return Yii::$app->user->login($user, $this->rememberMe ? $duration : 0);
 		}
 		return false;
 	}

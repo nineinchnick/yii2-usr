@@ -1,7 +1,7 @@
 Usr module
 ==========
 
-Usr module is inspired by the popular Yii-user module but written from scratch. It provides basic user actions like:
+Usr provides basic user actions like:
 
 * logging in and out,
 * password recovery and reset if expired
@@ -9,18 +9,17 @@ Usr module is inspired by the popular Yii-user module but written from scratch. 
 * viewing and updating a minimal user profile along with changing password
 
 It's goal is to be easier to integrate into current projects by not requiring to modify existing user database table and model.
-Only the UserIdentity class is used to provide all business logic by implementing few provided interfaces.
+Only the User class is used to provide all business logic by implementing few provided interfaces.
 
-Key differences from yii-user:
+Key features:
 
 * smaller codebase, easier to read/review
 * use good password hashing
 * no need to modify current tables and models
-* bundled mailer class
 * built-in Hybridauth for logging using social site identities
 * built-in Google Authenticator for two step authentication using one time passwords
 
-Currently, there is no admin user managment provided and it is not planned. The reason for this is that the CRUDs vary much in every project and it should not be time-expensive to create another one for users utilizing interfaces implemented in UserIdentity for this module.
+Currently, there is no admin user managment provided and it is not planned. The reason for this is that the CRUDs vary much in every project and it should not be time-expensive to create another one for users utilizing interfaces implemented in User class for this module.
 Actions provided by this module does not require any more authorization than checking if a user is logged in. An admin interface on the other hand requires to define auth items to check for access.
 
 # Installation
@@ -34,13 +33,13 @@ return array(
     ......
     'modules'=>array(
         'usr'=>array(
-               'userIdentityClass' => 'UserIdentity',
+               'userClass' => 'User',
         ),
     ),
 )
 ~~~
 
-Requirements for the UserIdentity class are described in next chapter.
+Requirements for the User class are described in next chapter.
 
 If your application is using path-format URLs with some customized URL rules, you may need to add
 the following URLs in your application configuration in order to access UsrModule:
@@ -59,9 +58,9 @@ the following URLs in your application configuration in order to access UsrModul
 
 See UsrModule.php file for full options reference.
 
-# Identity interfaces 
+# User interfaces 
 
-To be able to use all features of the Usr module, the UserIdentity class must implement some or all of the following interfaces.
+To be able to use all features of the Usr module, the User class must implement some or all of the following interfaces.
 
 ## Editable
 
@@ -90,7 +89,7 @@ This interface allow saving and retrieving a secret used to generate one time pa
 
 # User model example
 
-A sample ExampleUserIdentity and corresponding ExampleUser and ExampleUserUsedPassword models along with database migrations are provided respectively in the 'components', 'models' and 'migrations' folders.
+A sample ExampleUser and ExampleUserUsedPassword models along with database migrations are provided respectively in the 'components', 'models' and 'migrations' folders.
 
 They could be used as-is by extending from or copying to be modified to better suit a project.
 

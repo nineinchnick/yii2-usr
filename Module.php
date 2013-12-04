@@ -41,11 +41,6 @@ class Module extends \yii\base\Module
 	 */
 	public $passwordStrengthRules;
 	/**
-	 * @var string Class name of user identity object used to authenticate user.
-	 * Must implement the IPasswordHistoryIdentity interface if passwordTimeout is set.
-	 */
-	public $userIdentityClass = 'CUserIdentity';
-	/**
 	 * @var string Class name for input form widgets.
 	 */
 	public $formClass = 'CActiveForm';
@@ -169,11 +164,12 @@ class Module extends \yii\base\Module
 		return $this->_googleAuthenticator;
 	}
 
-	public function createFormModel($class, $scenario='')
+	public function createFormModel($class, $scenario=null)
 	{
 		$namespacedClass = "nineinchnick\\usr\\models\\{$class}";
-		$form = new $namespacedClass($scenario);
-		$form->userIdentityClass = $this->userIdentityClass;
+		$form = new $namespacedClass;
+		if ($scenario !== null)
+			$form->setScenario($scenario);
 		if ($form instanceof BasePasswordForm) {
 			$form->passwordStrengthRules = $this->passwordStrengthRules;
 		}

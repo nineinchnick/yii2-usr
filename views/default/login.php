@@ -20,11 +20,14 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <div class="login">
 
+<?php $form = ActiveForm::begin(['id' => 'login-form']); ?>
+
 	<p class="note"><?= Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.') ?></p>
+
+	<?= $form->errorSummary($model) ?>
 
 	<div class="row">
 		<div class="col-lg-5">
-			<?php $form = ActiveForm::begin(['id' => 'login-form']); ?>
 				<?= $form->field($model, 'username') ?>
 				<?= $form->field($model, 'password')->passwordInput() ?>
 				<?= $form->field($model, 'rememberMe')->checkbox() ?>
@@ -57,8 +60,9 @@ $this->params['breadcrumbs'][] = $this->title;
 				<div class="form-group">
 					<?= Html::submitButton(Yii::t('usr', 'Log in'), ['class' => 'btn btn-primary']) ?>
 				</div>
-			<?php ActiveForm::end(); ?>
 		</div>
 	</div>
+
+<?php ActiveForm::end(); ?>
 
 </div><!-- form -->

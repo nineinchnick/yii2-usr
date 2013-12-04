@@ -1,14 +1,12 @@
-	<div class="control-group">
-		<?php echo $form->labelEx($model,'newPassword'); ?>
-		<?php echo $form->passwordField($model,'newPassword', array('autocomplete'=>'off')); ?>
-		<?php echo $form->error($model,'newPassword'); ?>
-<?php if ($this->module->dicewareEnabled): ?>
-		<p><a id="Users_generatePassword" href="#"><?php echo Yii::t('UsrModule.usr', 'Generate a password'); ?></a></p>
+				<?= $form->field($model, 'newPassword')->passwordInput() ?>
+
+<?php if ($module->dicewareEnabled): ?>
+		<p><a id="Users_generatePassword" href="#"><?= Yii::t('usr', 'Generate a password') ?></a></p>
 <?php
-$diceUrl = $this->createUrl('password');
-$diceLabel = Yii::t('UsrModule.usr', 'Use this password?\nTo copy it to the clipboard press Ctrl+C.');
-$passwordId = CHtml::activeId($model, 'newPassword');
-$verifyId = CHtml::activeId($model, 'newVerify');
+$diceUrl = yii\helpers\Html::url('password');
+$diceLabel = Yii::t('usr', 'Use this password?\nTo copy it to the clipboard press Ctrl+C.');
+$passwordId = yii\helpers\Html::getInputId($model, 'newPassword');
+$verifyId = yii\helpers\Html::getInputId($model, 'newVerify');
 $script = <<<JavaScript
 $('#Users_generatePassword').on('click',function(){
 	$.getJSON('{$diceUrl}', function(data){
@@ -20,13 +18,9 @@ $('#Users_generatePassword').on('click',function(){
 	return false;
 });
 JavaScript;
-Yii::app()->getClientScript()->registerScript(__CLASS__.'#diceware', $script);
+$this->registerJs($script);
 ?>
 <?php endif; ?>
-	</div>
 
-	<div class="control-group">
-		<?php echo $form->labelEx($model,'newVerify'); ?>
-		<?php echo $form->passwordField($model,'newVerify', array('autocomplete'=>'off')); ?>
-		<?php echo $form->error($model,'newVerify'); ?>
-	</div>
+				<?= $form->field($model, 'newVerify')->passwordInput() ?>
+

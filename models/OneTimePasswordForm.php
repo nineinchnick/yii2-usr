@@ -9,7 +9,7 @@ class OneTimePasswordForm extends CFormModel
 {
 	public $oneTimePassword;
 
-	private $_identity;
+	private $_user;
 
 	private $_mode;
 	private $_authenticator;
@@ -23,12 +23,12 @@ class OneTimePasswordForm extends CFormModel
 	 */
 	public function rules()
 	{
-		return array(
-			array('oneTimePassword', 'filter', 'filter'=>'trim'),
-			array('oneTimePassword', 'default', 'setOnEmpty'=>true, 'value' => null),
-			array('oneTimePassword', 'required'),
-			array('oneTimePassword', 'validOneTimePassword'),
-		);
+		return [
+			['oneTimePassword', 'filter', 'filter'=>'trim'],
+			['oneTimePassword', 'default'],
+			['oneTimePassword', 'required'],
+			['oneTimePassword', 'validOneTimePassword'],
+		];
 	}
 
 	/**
@@ -36,9 +36,9 @@ class OneTimePasswordForm extends CFormModel
 	 */
 	public function attributeLabels()
 	{
-		return array(
+		return [
 			'oneTimePassword' => Yii::t('usr','One Time Password'),
-		);
+		];
 	}
 
 	public function setMode($mode)
@@ -62,7 +62,7 @@ class OneTimePasswordForm extends CFormModel
 	public function getPreviousCode()
 	{
 		if ($this->_previousCode === null) {
-			list($this->_previousCode, $this->_previousCounter) = $this->getIdentity()->getOneTimePassword();
+			list($this->_previousCode, $this->_previousCounter) = $this->getUser()->getOneTimePassword();
 		}
 		return $this->_previousCode;
 	}
@@ -70,7 +70,7 @@ class OneTimePasswordForm extends CFormModel
 	public function getPreviousCounter()
 	{
 		if ($this->_previousCounter === null) {
-			list($this->_previousCode, $this->_previousCounter) = $this->getIdentity()->getOneTimePassword();
+			list($this->_previousCode, $this->_previousCounter) = $this->getUser()->getOneTimePassword();
 		}
 		return $this->_previousCounter;
 	}
@@ -86,16 +86,15 @@ class OneTimePasswordForm extends CFormModel
         return $encoder.$url;
 	}
 
-	public function getIdentity()
+	public function getUser()
 	{
-		if($this->_identity===null) {
-			$userIdentityClass = Yii::app()->controller->module->userIdentityClass;
-			$this->_identity = $userIdentityClass::find(array('id'=>Yii::app()->user->getId()));
-			if (!($this->_identity instanceof IOneTimePasswordIdentity)) {
-				throw new CException(Yii::t('usr','The {class} class must implement the {interface} interface.',array('{class}'=>get_class($this->_identity),'{interface}'=>'IOneTimePasswordIdentity')));
+		if($this->_user===null) {
+			$this->_user = Yii::$app->user->getIdentity();
+			if (!($this->_user instanceof IOneTimePasswordIdentity)) {
+				throw new CException(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>get_class($this->_user),'interface'=>'IOneTimePasswordIdentity']));
 			}
 		}
-		return $this->_identity;
+		return $this->_user;
 	}
 
 	public function validOneTimePassword($attribute,$params)

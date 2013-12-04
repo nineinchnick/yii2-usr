@@ -44,7 +44,7 @@ $this->pageTitle = Yii::app()->name.' - '.$title;
 		<?php echo $form->error($model,'email'); ?>
 	</div>
 
-<?php if($model->asa('captcha') !== null): ?>
+<?php if($model->getBehavior('captcha') !== null): ?>
 <?php $this->renderPartial('_captcha', array('form'=>$form, 'model'=>$model)); ?>
 <?php endif; ?>
 <?php endif; ?>

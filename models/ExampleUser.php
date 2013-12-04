@@ -1,6 +1,6 @@
 <?php
 
-namespace nineinchnick\yii2-usr\models;
+namespace nineinchnick\usr\models;
 
 use Yii;
 use \yii\helpers\Security;
@@ -47,15 +47,15 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements \yii\web\Iden
 	{
 		// password is unsafe on purpose, assign it manually after hashing only if not empty
 		return [
-			['username, email, firstname, lastname, is_active, is_disabled', 'filter', 'filter' => 'trim'],
-			['activation_key, created_on, updated_on, last_visit_on, password_set_on, email_verified', 'filter', 'filter' => 'trim', 'on' => 'search'],
-			['username, email, firstname, lastname, is_active, is_disabled', 'default', 'setOnEmpty' => true, 'value' => null],
-			['activation_key, created_on, updated_on, last_visit_on, password_set_on, email_verified', 'default', 'setOnEmpty' => true, 'value' => null, 'on' => 'search'],
-			['username, email, is_active, is_disabled, email_verified', 'required', 'except' => 'search'],
-			['created_on, updated_on, last_visit_on, password_set_on', 'date', 'format' => ['yyyy-MM-dd', 'yyyy-MM-dd HH:mm', 'yyyy-MM-dd HH:mm:ss'], 'on' => 'search'],
+			[['username', 'email', 'firstname', 'lastname', 'is_active', 'is_disabled'], 'filter', 'filter' => 'trim'],
+			[['activation_key', 'created_on', 'updated_on', 'last_visit_on', 'password_set_on', 'email_verified'], 'filter', 'filter' => 'trim', 'on' => 'search'],
+			[['username', 'email', 'firstname', 'lastname', 'is_active', 'is_disabled'], 'default'],
+			[['activation_key', 'created_on', 'updated_on', 'last_visit_on', 'password_set_on', 'email_verified'], 'default', 'on' => 'search'],
+			[['username', 'email', 'is_active', 'is_disabled', 'email_verified'], 'required', 'except' => 'search'],
+			[['created_on', 'updated_on', 'last_visit_on', 'password_set_on'], 'date', 'format' => ['yyyy-MM-dd', 'yyyy-MM-dd HH:mm', 'yyyy-MM-dd HH:mm:ss'], 'on' => 'search'],
 			['activation_key', 'string', 'max'=>128, 'on' => 'search'],
-			['is_active, is_disabled, email_verified', 'boolean'],
-			['username, email', 'unique', 'except' => 'search'],
+			[['is_active', 'is_disabled', 'email_verified'], 'boolean'],
+			[['username', 'email'], 'unique', 'except' => 'search'],
 		];
 	}
 
@@ -64,7 +64,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements \yii\web\Iden
 		return $this->hasMany(UserRemoteIdentity::className(), ['user_id' => 'id']);
 	}
 
-	public function getUserRemoteIdentities()
+	public function getUserUsedPasswords()
 	{
 		return $this->hasMany(UserUsedPassword::className(), ['user_id' => 'id'])->orderBy('set_on DESC');
 	}
@@ -132,7 +132,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements \yii\web\Iden
 
 	public static function findByUsername($username)
 	{
-		return self::find(array('username'=>$username));
+		return self::find(['username'=>$username]);
 	}
 
 	public function validatePassword($password)

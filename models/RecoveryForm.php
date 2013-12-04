@@ -19,16 +19,16 @@ class RecoveryForm extends BasePasswordForm
 	 * and password needs to be authenticated.
 	 */
 	public function rules() {
-		$rules = array_merge($this->getBehaviorRules(), array(
-			array('username, email', 'filter', 'filter'=>'trim'),
-			array('username, email', 'default', 'setOnEmpty'=>true, 'value' => null),
-			array('username, email', 'existingIdentity'),
+		$rules = array_merge($this->getBehaviorRules(), [
+			[['username', 'email'], 'filter', 'filter'=>'trim'],
+			[['username', 'email'], 'default'],
+			[['username', 'email'], 'existingIdentity'],
 
-			array('activationKey', 'filter', 'filter'=>'trim', 'on'=>'reset,verify'),
-			array('activationKey', 'default', 'setOnEmpty'=>true, 'value' => null, 'on'=>'reset,verify'),
-			array('activationKey', 'required', 'on'=>'reset,verify'),
-			array('activationKey', 'validActivationKey', 'on'=>'reset,verify'),
-		), $this->rulesAddScenario(parent::rules(), 'reset'));
+			['activationKey', 'filter', 'filter'=>'trim', 'on'=>['reset', 'verify']],
+			['activationKey', 'default', 'on'=>['reset', 'verify']],
+			['activationKey', 'required', 'on'=>['reset', 'verify']],
+			['activationKey', 'validActivationKey', 'on'=>['reset', 'verify']],
+		], $this->rulesAddScenario(parent::rules(), 'reset'));
 
 		return $rules;
 	}
@@ -37,11 +37,11 @@ class RecoveryForm extends BasePasswordForm
 	 * Declares attribute labels.
 	 */
 	public function attributeLabels() {
-		return array_merge($this->getBehaviorLabels(), parent::attributeLabels(), array(
+		return array_merge($this->getBehaviorLabels(), parent::attributeLabels(), [
 			'username'		=> Yii::t('usr','Username'),
 			'email'			=> Yii::t('usr','Email'),
 			'activationKey'	=> Yii::t('usr','Activation Key'),
-		));
+		]);
 	}
 
 	public function getIdentity() {
@@ -50,9 +50,9 @@ class RecoveryForm extends BasePasswordForm
 			$userIdentityClass = $this->userIdentityClass;
 			$fakeIdentity = new $userIdentityClass(null, null);
 			if (!($fakeIdentity instanceof IActivatedIdentity)) {
-				throw new CException(Yii::t('usr','The {class} class must implement the {interface} interface.',array('{class}'=>$userIdentityClass, '{interface}'=>'IActivatedIdentity')));
+				throw new CException(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>$userIdentityClass, 'interface'=>'IActivatedIdentity']));
 			}
-			$attributes = array();
+			$attributes = [];
 			if ($this->username !== null) $attributes['username'] = $this->username;
 			if ($this->email !== null) $attributes['email'] = $this->email;
 			if (!empty($attributes))

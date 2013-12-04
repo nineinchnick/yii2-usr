@@ -1,75 +1,57 @@
-<?php /*
-@var $this DefaultController
-@var $model ProfileForm */
+<?php
 
+use nineinchnick\usr\components;
+use yii\helpers\Html;
+use yii\widgets\ActiveForm;
+
+/**
+ * @var yii\web\View $this
+ * @var models\ProfileForm $model
+ * @var ActiveForm $form
+ * @var nineinchnick\usr\Module $module
+ */
 if ($model->scenario == 'register') {
-	$title = Yii::t('UsrModule.usr', 'Registration');
+	$this->title = Yii::t('usr', 'Registration');
 } else {
-	$title = Yii::t('UsrModule.usr', 'User profile');
+	$this->title = Yii::t('usr', 'User profile');
 }
-if (isset($this->breadcrumbs))
-	$this->breadcrumbs=array($this->module->id, $title);
-$this->pageTitle = Yii::app()->name.' - '.$title;
+$this->params['breadcrumbs'][] = $this->title;
 ?>
-<h1><?php echo $title; ?></h1>
 
-<?php $this->displayFlashes(); ?>
+<h1><?= Html::encode($this->title) ?></h1>
 
-<div class="<?php echo $this->module->formCssClass; ?>">
-<?php $form=$this->beginWidget($this->module->formClass, array(
-	'id'=>'profile-form',
-	'enableAjaxValidation'=>true,
-	'enableClientValidation'=>false,
-	'clientOptions'=>array(
-		'validateOnSubmit'=>true,
-	),
-	'focus'=>array($model,'username'),
-)); ?>
+<?= components\Alerts::widget() ?>
 
-	<p class="note"><?php echo Yii::t('UsrModule.usr', 'Fields marked with <span class="required">*</span> are required.'); ?></p>
+<div class="profile">
 
-	<?php echo $form->errorSummary($model); ?>
+<?php $form = ActiveForm::begin(['id' => 'profile-form']); ?>
 
-	<div class="control-group">
-		<?php echo $form->labelEx($model,'username'); ?>
-		<?php echo $form->textField($model,'username'); ?>
-		<?php echo $form->error($model,'username'); ?>
-	</div>
+	<p class="note"><?= Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.') ?></p>
 
-	<div class="control-group">
-		<?php echo $form->labelEx($model,'email'); ?>
-		<?php echo $form->textField($model,'email'); ?>
-		<?php echo $form->error($model,'email'); ?>
-	</div>
+	<?= $form->errorSummary($model) ?>
+
+	<div class="row">
+		<div class="col-lg-5">
+				<?= $form->field($model, 'username') ?>
+				<?= $form->field($model, 'email') ?>
 
 <?php if ($passwordForm->scenario !== 'register'): ?>
-	<div class="control-group">
-		<?php echo $form->labelEx($passwordForm,'password'); ?>
-		<?php echo $form->passwordField($passwordForm,'password', array('autocomplete'=>'off')); ?>
-		<?php echo $form->error($passwordForm,'password'); ?>
-	</div>
+				<?= $form->field($model, 'password')->passwordInput() ?>
 <?php endif; ?>
-<?php $this->renderPartial('_newpassword', array('form'=>$form, 'model'=>$passwordForm)); ?>
+<?php $this->render('_newpassword', array('form'=>$form, 'model'=>$passwordForm, 'module'=>$module)); ?>
 
-	<div class="control-group">
-		<?php echo $form->labelEx($model,'firstName'); ?>
-		<?php echo $form->textField($model,'firstName'); ?>
-		<?php echo $form->error($model,'firstName'); ?>
-	</div>
+				<?= $form->field($model, 'firstName') ?>
+				<?= $form->field($model, 'lastName') ?>
 
-	<div class="control-group">
-		<?php echo $form->labelEx($model,'lastName'); ?>
-		<?php echo $form->textField($model,'lastName'); ?>
-		<?php echo $form->error($model,'lastName'); ?>
-	</div>
-
-<?php if($model->asa('captcha') !== null): ?>
-<?php $this->renderPartial('_captcha', array('form'=>$form, 'model'=>$model)); ?>
+<?php if($model->getBehavior('captcha') !== null): ?>
+<?php $this->render('_captcha', array('form'=>$form, 'model'=>$model, 'module'=>$module)); ?>
 <?php endif; ?>
-
-	<div class="buttons">
-		<?php echo CHtml::submitButton(Yii::t('UsrModule.usr', 'Submit'), array('class'=>$this->module->submitButtonCssClass)); ?>
+				<div class="form-group">
+					<?= Html::submitButton(Yii::t('usr', 'Submit'), ['class' => 'btn btn-primary']) ?>
+				</div>
+		</div>
 	</div>
 
-<?php $this->endWidget(); ?>
+<?php ActiveForm::end(); ?>
+
 </div><!-- form -->

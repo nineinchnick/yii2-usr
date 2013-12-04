@@ -12,17 +12,6 @@ abstract class BaseUsrForm extends \yii\base\Model
 {
 	private static $_names=array();
 	private $_behaviors=array();
-	private $_userIdentityClass;
-
-	public function getUserIdentityClass()
-	{
-		return $this->_userIdentityClass;
-	}
-
-	public function setUserIdentityClass($value)
-	{
-		$this->_userIdentityClass = $value;
-	}
 
 	public function attachBehavior($name, $behavior)
 	{
@@ -53,7 +42,7 @@ abstract class BaseUsrForm extends \yii\base\Model
 					$names[]=$name;
 			}
 			foreach($this->_behaviors as $name=>$name) {
-				if (($behavior=$this->asa($name)) instanceof FormModelBehavior)
+				if (($behavior=$this->getBehavior($name)) instanceof FormModelBehavior)
 					$names = array_merge($names, $behavior->attributeNames());
 			}
 			return self::$_names[$className]=$names;
@@ -66,7 +55,7 @@ abstract class BaseUsrForm extends \yii\base\Model
 	{
 		$labels = array();
 		foreach($this->_behaviors as $name=>$foo) {
-			if (($behavior=$this->asa($name)) instanceof FormModelBehavior)
+			if (($behavior=$this->getBehavior($name)) instanceof FormModelBehavior)
 				$labels = array_merge($labels, $behavior->attributeLabels());
 		}
 		return $labels;
@@ -76,7 +65,7 @@ abstract class BaseUsrForm extends \yii\base\Model
 	{
 		$rules = array();
 		foreach($this->_behaviors as $name=>$foo) {
-			if (($behavior=$this->asa($name)) instanceof FormModelBehavior)
+			if (($behavior=$this->getBehavior($name)) instanceof FormModelBehavior)
 				$rules = array_merge($rules, $behavior->rules());
 		}
 		return $rules;

@@ -1,5 +1,9 @@
 <?php
 
+namespace nineinchnick\usr\models;
+
+use Yii;
+
 /**
  * ProfileForm class.
  * ProfileForm is the data structure for keeping
@@ -12,20 +16,28 @@ class ProfileForm extends BaseUsrForm
 	public $firstName;
 	public $lastName;
 
-	private $_identity;
+	private $_user;
 
 	/**
 	 * Declares the validation rules.
 	 */
 	public function rules()
 	{
-		return array_merge($this->getBehaviorRules(), array(
-			array('username, email, firstName, lastName', 'filter', 'filter'=>'trim'),
-			array('username, email, firstName, lastName', 'default', 'setOnEmpty'=>true, 'value' => null),
+		return array_merge($this->getBehaviorRules(), [
+			[['username', 'email', 'firstName', 'lastName'], 'filter', 'filter'=>'trim'],
+			[['username', 'email', 'firstName', 'lastName'], 'default'],
 
-			array('username, email', 'required'),
-			array('username, email', 'uniqueIdentity'),
-		));
+			[['username', 'email'], 'required'],
+			[['username', 'email'], 'uniqueIdentity'],
+		]);
+	}
+
+	public function scenarios()
+	{
+		return [
+			self::DEFAULT_SCENARIO => [],
+			'register' => [],
+		];
 	}
 
 	/**
@@ -33,28 +45,28 @@ class ProfileForm extends BaseUsrForm
 	 */
 	public function attributeLabels()
 	{
-		return array_merge($this->getBehaviorLabels(), array(
+		return array_merge($this->getBehaviorLabels(), [
 			'username'		=> Yii::t('usr','Username'),
 			'email'			=> Yii::t('usr','Email'),
 			'firstName'		=> Yii::t('usr','First name'),
 			'lastName'		=> Yii::t('usr','Last name'),
-		));
+		]);
 	}
 
-	public function getIdentity()
+	public function getUser()
 	{
-		if($this->_identity===null) {
-			$userIdentityClass = $this->userIdentityClass;
+		if($this->_user===null) {
 			if ($this->scenario == 'register') {
-				$this->_identity = new $userIdentityClass(null, null);
+				$userClass = Yii::$app->user->identityClass;
+				$this->_user = new $userClass;
 			} else {
-				$this->_identity = $userIdentityClass::find(array('id'=>Yii::app()->user->getId()));
+				$this->_user = Yii::$app->user->getIdentity();
 			}
-			if ($this->_identity !== null && !($this->_identity instanceof IEditableIdentity)) {
-				throw new CException(Yii::t('usr','The {class} class must implement the {interface} interface.',array('{class}'=>get_class($this->_identity),'{interface}'=>'IEditableIdentity')));
+			if ($this->_user !== null && !($this->_user instanceof IEditableIdentity)) {
+				throw new CException(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>get_class($this->_user),'interface'=>'IEditableIdentity']));
 			}
 		}
-		return $this->_identity;
+		return $this->_user;
 	}
 
 	public function uniqueIdentity($attribute,$params)
@@ -62,10 +74,10 @@ class ProfileForm extends BaseUsrForm
 		if($this->hasErrors()) {
 			return;
 		}
-		$userIdentityClass = $this->userIdentityClass;
-		$existingIdentity = $userIdentityClass::find(array($attribute => $this->$attribute));
-		if ($existingIdentity !== null && ($this->scenario == 'register' || (($identity=$this->getIdentity()) !== null && $existingIdentity->getId() != $identity->getId()))) {
-			$this->addError($attribute,Yii::t('usr','{attribute} has already been used by another user.', array('{attribute}'=>$this->$attribute)));
+		$userClass = Yii::$app->user->identityClass;
+		$existingIdentity = $userClass::find([$attribute => $this->$attribute]);
+		if ($existingIdentity !== null && ($this->scenario == 'register' || (($identity=$this->getUser()) !== null && $existingIdentity->getId() != $identity->getId()))) {
+			$this->addError($attribute,Yii::t('usr','{attribute} has already been used by another user.', ['attribute'=>$this->$attribute]));
 			return false;
 		}
 		return true;
@@ -77,9 +89,9 @@ class ProfileForm extends BaseUsrForm
 	 */
 	public function login()
 	{
-		$identity = $this->getIdentity();
+		$identity = $this->getUser();
 
-		return Yii::app()->user->login($identity,0);
+		return Yii::$app->user->login($identity,0);
 	}
 
 	/**
@@ -87,18 +99,18 @@ class ProfileForm extends BaseUsrForm
 	 */
 	public function save()
 	{
-		$identity = $this->getIdentity();
+		$identity = $this->getUser();
 		if ($identity === null)
 			return false;
 
-		$identity->setAttributes(array(
+		$identity->setAttributes([
 			'username'	=> $this->username,
 			'email'		=> $this->email,
 			'firstName'	=> $this->firstName,
 			'lastName'	=> $this->lastName,
-		));
+		]);
 		if ($identity->save()) {
-			$this->_identity = $identity;
+			$this->_user = $identity;
 			return true;
 		}
 		return false;
