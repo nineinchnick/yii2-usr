@@ -1,19 +1,21 @@
 <?php
 
-class m130703_104658_users_add_one_time_password extends CDbMigration
+use yii\db\Schema;
+
+class m130703_104658_users_add_one_time_password extends \yii\db\Migration
 {
 	public function safeUp()
 	{
-		$this->addColumn('{{users}}', 'one_time_password_secret', 'string');
-		$this->addColumn('{{users}}', 'one_time_password_code', 'string');
-		$this->addColumn('{{users}}', 'one_time_password_counter', 'integer NOT NULL DEFAULT 0');
+		$this->addColumn('{{%users}}', 'one_time_password_secret', 'string');
+		$this->addColumn('{{%users}}', 'one_time_password_code', 'string');
+		$this->addColumn('{{%users}}', 'one_time_password_counter', 'integer NOT NULL DEFAULT 0');
 	}
 
 	public function safeDown()
 	{
-		$this->dropColumn('{{users}}', 'one_time_password_counter');
-		$this->dropColumn('{{users}}', 'one_time_password_code');
-		$this->dropColumn('{{users}}', 'one_time_password_secret');
+		$this->dropColumn('{{%users}}', 'one_time_password_counter');
+		$this->dropColumn('{{%users}}', 'one_time_password_code');
+		$this->dropColumn('{{%users}}', 'one_time_password_secret');
 	}
 }
 

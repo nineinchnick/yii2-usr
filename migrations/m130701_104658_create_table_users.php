@@ -1,10 +1,12 @@
 <?php
 
-class m130701_104658_create_table_users extends CDbMigration
+use yii\db\Schema;
+
+class m130701_104658_create_table_users extends \yii\db\Migration
 {
 	public function safeUp()
 	{
-		$this->createTable('{{users}}', array(
+		$this->createTable('{{%users}}', array(
 			'id'=>'pk',
 			'username'=>'string NOT NULL',
 			'password'=>'string NOT NULL',
@@ -20,15 +22,16 @@ class m130701_104658_create_table_users extends CDbMigration
 			'is_active'=>'boolean NOT NULL DEFAULT FALSE',
 			'is_disabled'=>'boolean NOT NULL DEFAULT FALSE',
 		));
-		$this->createIndex('{{users}}_username_idx', '{{users}}', 'username', true);
-		$this->createIndex('{{users}}_email_idx', '{{users}}', 'email', true);
-		$this->createIndex('{{users}}_email_verified_idx', '{{users}}', 'email_verified');
-		$this->createIndex('{{users}}_is_active_idx', '{{users}}', 'is_active');
-		$this->createIndex('{{users}}_is_disabled_idx', '{{users}}', 'is_disabled');
+		$prefix = $this->db->tablePrefix;
+		$this->createIndex($prefix.'users_username_idx', '{{%users}}', 'username', true);
+		$this->createIndex($prefix.'users_email_idx', '{{%users}}', 'email', true);
+		$this->createIndex($prefix.'users_email_verified_idx', '{{%users}}', 'email_verified');
+		$this->createIndex($prefix.'users_is_active_idx', '{{%users}}', 'is_active');
+		$this->createIndex($prefix.'users_is_disabled_idx', '{{%users}}', 'is_disabled');
 	}
 
 	public function safeDown()
 	{
-		$this->dropTable('{{users}}');
+		$this->dropTable('{{%users}}');
 	}
 }
