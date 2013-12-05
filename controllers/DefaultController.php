@@ -199,7 +199,7 @@ class DefaultController extends UsrController
 			$this->redirect(['login']);
 
 		$model = $this->module->createFormModel('ProfileForm');
-		$model->setAttributes($model->getIdentity()->getAttributes());
+		$model->setAttributes($model->getIdentity()->getIdentityAttributes());
 		$model->load($_POST);
 		$passwordForm = $this->module->createFormModel('PasswordForm');
 		$passwordForm->load($_POST);
