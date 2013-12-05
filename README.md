@@ -24,43 +24,49 @@ Actions provided by this module does not require any more authorization than che
 
 # Installation
 
-Download and unpack in protected/modules.
+Download and unpack in modules OR install via composer as nineinchnick/yii2-usr.
 
-Enable the module in the config/main.php file:
+Enable the module in the config/web.php file:
 
 ~~~php
-return array(
+$config = [
     ......
-    'modules'=>array(
-        'usr'=>array(
-               'userClass' => 'User',
-        ),
-    ),
-)
+	'aliases' => [
+		'@nineinchnick/usr' => '@vendor/nineinchnick/yii2-usr',
+	],
+	'modules' => [
+		'usr' => [
+			'class' => 'nineinchnick\usr\Module',
+		],
+	],
+]
 ~~~
 
-Requirements for the User class are described in next chapter.
+Requirements for the identity (User) class are described in next chapter.
 
 If your application is using path-format URLs with some customized URL rules, you may need to add
 the following URLs in your application configuration in order to access UsrModule:
 
 ~~~php
-'components'=>array(
-    'urlManager'=>array(
-        'urlFormat'=>'path',
-        'rules'=>array(
-            'usr/<action:(login|logout|reset|recovery|register|profile)>'=>'usr/default/<action>',
-            ...other rules...
-        ),
-    )
-)
+	'components' => [
+		'user' => [
+			'identityClass' => 'app\models\User',
+			'loginUrl' => ['usr/login'],
+		],
+		'urlManager' => [
+			'enablePrettyUrl' => true,
+			'showScriptName' => false,
+			'rules' => [
+			],
+		],
+	],
 ~~~
 
-See UsrModule.php file for full options reference.
+See Module.php file for full options reference.
 
 # User interfaces 
 
-To be able to use all features of the Usr module, the User class must implement some or all of the following interfaces.
+To be able to use all features of the Usr module, the identity (User) class must implement some or all of the following interfaces.
 
 ## Editable
 
@@ -101,22 +107,6 @@ A simple implementation of a Diceware Passphrase generator is provided to aid us
 
 Read more at [the Diceware Passphrase homepage](http://world.std.com/~reinhold/diceware.html).
 
-# Customize
-
-## Email templates
-
-Set the _setPathViews_ and _setPathLayouts_ keys under the _mailerConfig_ module option.
-
-## Registration/profile form
-
-Altering the form is not currently possible. Ideas are welcome.
-
-The whole module layout can be changed by setting the _layout_ module option.
-
-## Translations
-
-Feel free to send new and updated translations to the author.
-
 # Usage scenarios
 
 Varios scenarios can be created by enabling or disabling following features:
@@ -140,9 +130,3 @@ Email verification is optional and activation could trigger an email notificatio
 
 MIT or BSD
 
-
-# Todo
-
-* finish profile view/update
-* finish docs, especially about implementing interfaces, using example User model and customizing templates
-* write unit tests
