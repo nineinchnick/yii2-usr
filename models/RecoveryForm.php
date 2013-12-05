@@ -53,8 +53,8 @@ class RecoveryForm extends BasePasswordForm
 			// generate a fake object just to check if it implements a correct interface
 			$identityClass = Yii::$app->user->identityClass;
 			$fakeIdentity = new $identityClass(null, null);
-			if (!($fakeIdentity instanceof ActivatedIdentityInterface)) {
-				throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>$identityClass, 'interface'=>'ActivatedIdentityInterface']));
+			if (!($fakeIdentity instanceof \nineinchnick\usr\components\ActivatedIdentityInterface)) {
+				throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>$identityClass, 'interface'=>'\nineinchnick\usr\components\ActivatedIdentityInterface']));
 			}
 			$attributes = [];
 			if ($this->username !== null) $attributes['username'] = $this->username;
@@ -124,10 +124,8 @@ class RecoveryForm extends BasePasswordForm
 	public function login() {
 		$identity = $this->getIdentity();
 
-		$identity->password = $this->newPassword;
-		$identity->authenticate();
-		if($identity->getIsAuthenticated()) {
-			return Yii::app()->user->login($identity,0);
+		if($identity->authenticate($this->newPassword)) {
+			return Yii::$app->user->login($identity,0);
 		}
 		return false;
 	}

@@ -90,8 +90,8 @@ class OneTimePasswordForm extends CFormModel
 	{
 		if($this->_identity===null) {
 			$this->_identity = Yii::$app->user->getIdentity();
-			if (!($this->_identity instanceof OneTimePasswordIdentityInterface)) {
-				throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>get_class($this->_identity),'interface'=>'OneTimePasswordIdentityInterface']));
+			if (!($this->_identity instanceof \nineinchnick\usr\components\OneTimePasswordIdentityInterface)) {
+				throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>get_class($this->_identity),'interface'=>'\nineinchnick\usr\components\OneTimePasswordIdentityInterface']));
 			}
 		}
 		return $this->_identity;

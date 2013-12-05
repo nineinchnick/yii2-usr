@@ -132,9 +132,9 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 	/**
 	 * @inheritdoc
 	 */
-	public function authenticate()
+	public function authenticate($password)
 	{
-		if ($this->is_active && !$this->is_disabled && $this->verifyPassword($this->password)) {
+		if ($this->is_active && !$this->is_disabled && $this->verifyPassword($password)) {
 			$this->last_visit_on = date('Y-m-d H:i:s');
 			$this->save(false);
 			return true;
@@ -150,7 +150,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 		return self::find(['username'=>$username]);
 	}
 
-	public function validatePassword($password)
+	public function verifyPassword($password)
 	{
 		return Security::validatePassword($password, $this->password);
 	}

@@ -66,7 +66,7 @@ class LoginForm extends BasePasswordForm
 			return;
 		}
 		$identity = $this->getIdentity();
-		if(!$identity || $identity->validatePassword($this->$attribute)) {
+		if(!$identity || !$identity->authenticate($this->$attribute)) {
 			$this->addError($attribute, Yii::t('usr','Invalid username or password.'));
 			return false;
 		}
@@ -127,9 +127,9 @@ class LoginForm extends BasePasswordForm
 		if (!$identity) {
 			$authenticated = false;
 		} elseif ($this->scenario === 'reset') {
-			$authenticated = $identity->validatePassword($this->newPassword);
+			$authenticated = $identity->authenticate($this->newPassword);
 		} else {
-			$authenticated = $identity->validatePassword($this->password);
+			$authenticated = $identity->authenticate($this->password);
 		}
 		if($authenticated) {
 			return Yii::$app->user->login($identity, $this->rememberMe ? $duration : 0);

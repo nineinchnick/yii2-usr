@@ -94,16 +94,15 @@ class DefaultController extends UsrController
 			$this->redirect(Yii::$app->user->returnUrl);
 
 		$model = $this->module->createFormModel('RecoveryForm');
+		if (isset($_GET['activationKey'])) {
+			$model->scenario = 'reset';
+			$model->setAttributes($_GET);
+		}
 		$model->load($_POST);
 
 		if (Yii::$app->request->isAjax) {
 			Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 			return \yii\widgets\ActiveForm::validate($model);
-		}
-
-		if (isset($_GET['activationKey'])) {
-			$model->scenario = 'reset';
-			$model->setAttributes($_GET);
 		}
 		if(isset($_POST['RecoveryForm'])) {
 			if ($model->activationKey !== null)

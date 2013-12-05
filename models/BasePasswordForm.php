@@ -86,7 +86,7 @@ abstract class BasePasswordForm extends BaseUsrForm
 
 		$identity = $this->getIdentity();
 		// check if new password hasn't been used before
-		if ($identity instanceof PasswordHistoryIdentityInterface) {
+		if ($identity instanceof \nineinchnick\usr\components\PasswordHistoryIdentityInterface) {
 			if (($lastUsed = $identity->getPasswordDate($this->newPassword)) !== null) {
 				$this->addError('newPassword',Yii::t('usr','New password has been used before, last set on {date}.', ['date'=>$lastUsed]));
 				return false;
@@ -96,8 +96,7 @@ abstract class BasePasswordForm extends BaseUsrForm
 		// check if new password is not the same as current one
 		if ($identity !== null) {
 			$newIdentity = clone $identity;
-			$newIdentity->password = $this->newPassword;
-			if ($newIdentity->authenticate()) {
+			if ($newIdentity->authenticate($this->newPassword)) {
 				$this->addError('newPassword',Yii::t('usr','New password must be different than the old one.'));
 				return false;
 			}
