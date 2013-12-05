@@ -21,7 +21,7 @@ abstract class ExampleUserRemoteIdentity extends CActiveRecord
 	 */
 	public function tableName()
 	{
-		return '{{user_remote_identities}}';
+		return '{{%user_remote_identities}}';
 	}
 
 	/**

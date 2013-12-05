@@ -16,7 +16,7 @@ class ProfileForm extends BaseUsrForm
 	public $firstName;
 	public $lastName;
 
-	private $_user;
+	private $_identity;
 
 	/**
 	 * Declares the validation rules.
@@ -53,17 +53,20 @@ class ProfileForm extends BaseUsrForm
 		]);
 	}
 
-	public function getUser()
+	public function getIdentity()
 	{
-		if($this->_user===null) {
+		if($this->_identity===null) {
 			if ($this->scenario == 'register') {
-				$userClass = Yii::$app->user->identityClass;
-				$this->_user = new $userClass;
+				$identityClass = Yii::$app->user->identityClass;
+				$this->_identity = new $identityClass;
 			} else {
-				$this->_user = Yii::$app->user->getIdentity();
+				$this->_identity = Yii::$app->user->getIdentity();
+			}
+			if ($this->_identity !== null && !($this->_identity instanceof \nineinchnick\usr\components\EditableIdentityInterface)) {
+				throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.', ['class'=>get_class($this->_identity),'interface'=>'\nineinchnick\usr\components\EditableIdentityInterface']));
 			}
 		}
-		return $this->_user;
+		return $this->_identity;
 	}
 
 	public function uniqueIdentity($attribute,$params)
@@ -71,9 +74,9 @@ class ProfileForm extends BaseUsrForm
 		if($this->hasErrors()) {
 			return;
 		}
-		$userClass = Yii::$app->user->identityClass;
-		$existingIdentity = $userClass::find([$attribute => $this->$attribute]);
-		if ($existingIdentity !== null && ($this->scenario == 'register' || (($identity=$this->getUser()) !== null && $existingIdentity->getId() != $identity->getId()))) {
+		$identityClass = Yii::$app->user->identityClass;
+		$existingIdentity = $identityClass::find([$attribute => $this->$attribute]);
+		if ($existingIdentity !== null && ($this->scenario == 'register' || (($identity=$this->getIdentity()) !== null && $existingIdentity->getId() != $identity->getId()))) {
 			$this->addError($attribute,Yii::t('usr','{attribute} has already been used by another user.', ['attribute'=>$this->$attribute]));
 			return false;
 		}
@@ -86,7 +89,7 @@ class ProfileForm extends BaseUsrForm
 	 */
 	public function login()
 	{
-		$identity = $this->getUser();
+		$identity = $this->getIdentity();
 
 		return Yii::$app->user->login($identity,0);
 	}
@@ -96,22 +99,18 @@ class ProfileForm extends BaseUsrForm
 	 */
 	public function save()
 	{
-		$identity = $this->getUser();
+		$identity = $this->getIdentity();
 		if ($identity === null)
 			return false;
 
-		$identity->setAttributes([
+		$identity->setIdentityAttributes([
 			'username'	=> $this->username,
 			'email'		=> $this->email,
-			'firstname'	=> $this->firstName,
-			'lastname'	=> $this->lastName,
-			'is_active' => 1,
-			'is_disabled' => 0,
-			'email_verified' => 0,
-			'password' => 'x',
-		], false);
-		if ($identity->save()) {
-			$this->_user = $identity;
+			'firstName'	=> $this->firstName,
+			'lastName'	=> $this->lastName,
+		]);
+		if ($identity->saveIdentity()) {
+			$this->_identity = $identity;
 			return true;
 		}
 		return false;

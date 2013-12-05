@@ -80,7 +80,7 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
 	{
 		$identity = $this->owner->getIdentity();
 		if (!($identity instanceof IOneTimePasswordIdentity))
-			throw new CException(Yii::t('usr','The {class} class must implement the {interface} interface.', ['class'=>get_class($identity),'interface'=>'IOneTimePasswordIdentity']));
+			throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.', ['class'=>get_class($identity),'interface'=>'IOneTimePasswordIdentity']));
 		list($previousCode, $previousCounter) = $identity->getOneTimePassword();
 		$this->setOneTimePasswordConfig(array(
 			'secret' => $identity->getOneTimePasswordSecret(),

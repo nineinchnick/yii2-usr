@@ -31,7 +31,7 @@ class Module extends \yii\base\Module
 	public $rememberMeDuration = 2592000;
 	/**
 	 * @var integer Timeout in days after which user is requred to reset his password after logging in.
-	 * If not null, the user identity class must implement IPasswordHistoryIdentity interface.
+	 * If not null, the user identity class must implement PasswordHistoryIdentityInterface.
 	 */
 	public $passwordTimeout;
 	/**
@@ -129,6 +129,7 @@ class Module extends \yii\base\Module
 			'sourceLanguage' => 'en-US',
 			'basePath' => '@usr/messages',
 		];
+		\Yii::$app->mail->viewPath = '@usr/views/emails';
 		if (is_array($this->htmlCss)) {
 			foreach($this->htmlCss as $name=>$value) {
 				CHtml::$$name = $value;

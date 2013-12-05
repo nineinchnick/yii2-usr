@@ -49,17 +49,17 @@ class DefaultController extends UsrController
 			return $this->goBack();
 
 		$model = $this->module->createFormModel('LoginForm');
+		$model->load($_POST);
 		if ($scenario !== null && in_array($scenario, ['reset', 'verifyOTP'])) {
 			$model->scenario = $scenario;
 		}
 
-		if(isset($_POST['ajax']) && $_POST['ajax']==='login-form') {
-			echo CActiveForm::validate($model);
-			Yii::$app->end();
+		if (Yii::$app->request->isAjax) {
+			Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+			return \yii\widgets\ActiveForm::validate($model);
 		}
 
 		if(isset($_POST['LoginForm'])) {
-			$model->load($_POST);
 			if($model->validate()) {
 				if (($model->scenario !== 'reset' || $model->resetPassword()) && $model->login($this->module->rememberMeDuration)) {
 					$this->afterLogin();
@@ -94,10 +94,11 @@ class DefaultController extends UsrController
 			$this->redirect(Yii::$app->user->returnUrl);
 
 		$model = $this->module->createFormModel('RecoveryForm');
+		$model->load($_POST);
 
-		if(isset($_POST['ajax']) && $_POST['ajax']==='recovery-form') {
-			echo CActiveForm::validate($model);
-			Yii::$app->end();
+		if (Yii::$app->request->isAjax) {
+			Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+			return \yii\widgets\ActiveForm::validate($model);
 		}
 
 		if (isset($_GET['activationKey'])) {
@@ -105,7 +106,6 @@ class DefaultController extends UsrController
 			$model->setAttributes($_GET);
 		}
 		if(isset($_POST['RecoveryForm'])) {
-			$model->load($_POST);
 			if ($model->activationKey !== null)
 				$model->scenario = 'reset';
 			if($model->validate()) {
@@ -116,7 +116,7 @@ class DefaultController extends UsrController
 						Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to send an email.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
 					}
 				} else {
-					$model->getUser()->verifyEmail();
+					$model->getIdentity()->verifyEmail();
 					if ($model->resetPassword() && $model->login()) {
 						$this->afterLogin();
 					} else {
@@ -126,7 +126,7 @@ class DefaultController extends UsrController
 				$this->redirect(['recovery']);
 			}
 		}
-		return $this->render('recovery', ['model'=>$model]);
+		return $this->render('recovery', ['model'=>$model, 'module'=>$this->module]);
 	}
 
 	public function actionVerify()
@@ -136,7 +136,7 @@ class DefaultController extends UsrController
 			throw new HttpException(400,Yii::t('usr', 'Activation key is missing.'));
 		}
 		$model->setAttributes($_GET);
-		if($model->validate() && $model->getUser()->verifyEmail()) {
+		if($model->validate() && $model->getIdentity()->verifyEmail()) {
 			Yii::$app->session->setFlash('success', Yii::t('usr', 'Your email address has been successfully verified.'));
 		} else {
 			Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to verify your email address.'));
@@ -153,19 +153,19 @@ class DefaultController extends UsrController
 			$this->redirect(['profile']);
 
 		$model = $this->module->createFormModel('ProfileForm', 'register');
+		$model->load($_POST);
 		$passwordForm = $this->module->createFormModel('PasswordForm', 'register');
+		$passwordForm->load($_POST);
 
-		if(isset($_POST['ajax']) && $_POST['ajax']==='profile-form') {
-			echo CActiveForm::validate([$model, $passwordForm]);
-			Yii::$app->end();
+		if (Yii::$app->request->isAjax) {
+			Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+			return \yii\widgets\ActiveForm::validate($model, $passwordForm);
 		}
+
 		if(isset($_POST['ProfileForm'])) {
-			$model->load($_POST);
-			if(isset($_POST['PasswordForm']))
-				$passwordForm->load($_POST);
 			if ($model->validate() && $passwordForm->validate()) {
 				$trx = Yii::$app->db->beginTransaction();
-				if (!$model->save() || !$passwordForm->resetPassword($model->getUser())) {
+				if (!$model->save() || !$passwordForm->resetPassword($model->getIdentity())) {
 					$trx->rollback();
 					Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to register a new user.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
 				} else {
@@ -177,7 +177,7 @@ class DefaultController extends UsrController
 							Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to send an email.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
 						}
 					}
-					if ($model->getUser()->isActive()) {
+					if ($model->getIdentity()->isActive()) {
 						if ($model->login()) {
 							$this->afterLogin();
 						} else {
@@ -200,22 +200,23 @@ class DefaultController extends UsrController
 			$this->redirect(['login']);
 
 		$model = $this->module->createFormModel('ProfileForm');
-		$model->setAttributes($model->getUser()->getAttributes());
+		$model->setAttributes($model->getIdentity()->getAttributes());
+		$model->load($_POST);
 		$passwordForm = $this->module->createFormModel('PasswordForm');
+		$passwordForm->load($_POST);
 
-		if(isset($_POST['ajax']) && $_POST['ajax']==='profile-form') {
-			$models = [$model];
+		if (Yii::$app->request->isAjax) {
+			Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 			if(isset($_POST['PasswordForm']) && trim($_POST['PasswordForm']['newPassword']) !== '') {
-				$models[] = $passwordForm;
+				return \yii\widgets\ActiveForm::validate($model, $passwordForm);
+			} else {
+				return \yii\widgets\ActiveForm::validate($model);
 			}
-			echo CActiveForm::validate($models);
-			Yii::$app->end();
 		}
 		$flashes = ['success'=>[], 'error'=>[]];
 		if(isset($_POST['PasswordForm']) && trim($_POST['PasswordForm']['newPassword']) !== '') {
-			$passwordForm->load($_POST);
 			if ($passwordForm->validate()) {
-				if ($passwordForm->resetPassword($model->getUser())) {
+				if ($passwordForm->resetPassword($model->getIdentity())) {
 					$flashes['success'][] = Yii::t('usr', 'Changes have been saved successfully.');
 				} else {
 					$flashes['error'][] = Yii::t('usr', 'Failed to change password.');
@@ -223,9 +224,8 @@ class DefaultController extends UsrController
 			}
 		}
 		if(isset($_POST['ProfileForm']) && empty($flashes['error'])) {
-			$model->load($_POST);
 			if($model->validate()) {
-				$oldEmail = $model->getUser()->getEmail();
+				$oldEmail = $model->getIdentity()->getEmail();
 				if ($model->save()) {
 					if ($this->module->requireVerifiedEmail && $oldEmail != $model->email) {
 						if ($this->sendEmail($model, 'verify')) {
@@ -259,7 +259,7 @@ class DefaultController extends UsrController
 	protected function displayOneTimePasswordSecret()
 	{
 		$model = new OneTimePasswordForm;
-		$identity = $model->getUser();
+		$identity = $model->getIdentity();
 		$secret = $identity->getOneTimePasswordSecret();
 		/*
 		if ($secret === null && $this->module->oneTimePasswordRequired) {
@@ -289,7 +289,8 @@ class DefaultController extends UsrController
 			$this->redirect(['profile']);
 
 		$model = new OneTimePasswordForm;
-		$identity = $model->getUser();
+		$model->load($_POST);
+		$identity = $model->getIdentity();
 
 		if ($identity->getOneTimePasswordSecret() !== null) {
 			$identity->setOneTimePasswordSecret(null);
@@ -312,7 +313,6 @@ class DefaultController extends UsrController
 		$model->setSecret($secret);
 
 		if (isset($_POST['OneTimePasswordForm'])) {
-			$model->load($_POST);
 			if ($model->validate()) {
 				// save secret
 				$identity->setOneTimePasswordSecret($secret);

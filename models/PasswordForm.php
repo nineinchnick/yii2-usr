@@ -12,7 +12,7 @@ class PasswordForm extends BasePasswordForm
 {
 	public $password;
 
-	private $_user;
+	private $_identity;
 
 	/**
 	 * Declares the validation rules.
@@ -38,19 +38,19 @@ class PasswordForm extends BasePasswordForm
 		]);
 	}
 
-	public function getUser()
+	public function getIdentity()
 	{
-		if($this->_user===null) {
+		if($this->_identity===null) {
 			if ($this->scenario === 'register')
-				return $this->_user;
-			$this->_user = Yii::$app->user->getIdentity();
+				return $this->_identity;
+			$this->_identity = Yii::$app->user->getIdentity();
 		}
-		return $this->_user;
+		return $this->_identity;
 	}
 
 	public function setIdentity($identity)
 	{
-		$this->_user = $identity;
+		$this->_identity = $identity;
 	}
 
 	/**
@@ -62,7 +62,7 @@ class PasswordForm extends BasePasswordForm
 		if($this->hasErrors()) {
 			return;
 		}
-		if (($identity=$this->getUser()) === null) {
+		if (($identity=$this->getIdentity()) === null) {
 			throw new \yii\base\Exception('Current user has not been found in the database.');
 		}
 		if(!$identity->validatePassword($this->$attribute)) {
@@ -82,7 +82,7 @@ class PasswordForm extends BasePasswordForm
 			return;
 		}
 		if ($identity === null)
-			$identity = $this->getUser();
+			$identity = $this->getIdentity();
 		if (!$identity->resetPassword($this->newPassword)) {
 			$this->addError('newPassword',Yii::t('usr','Failed to reset the password.'));
 			return false;

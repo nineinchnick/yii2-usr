@@ -1,40 +1,45 @@
-<?php /*
-@var $this DefaultController
-@var $model LoginForm */
+<?php
 
-$title = Yii::t('UsrModule.usr', 'Password reset');
-if (isset($this->breadcrumbs))
-	$this->breadcrumbs=array($this->module->id, $title);
-$this->pageTitle = Yii::app()->name.' - '.$title;
+use nineinchnick\usr\components;
+use yii\helpers\Html;
+use yii\widgets\ActiveForm;
+
+/**
+ * @var yii\web\View $this
+ * @var models\LoginForm $model
+ * @var ActiveForm $form
+ * @var nineinchnick\usr\Module $module
+ */
+$this->title = Yii::t('usr', 'Password reset');
+$this->params['breadcrumbs'][] = $this->title;
 ?>
-<h1><?php echo $title; ?></h1>
 
-<?php $this->displayFlashes(); ?>
+<h1><?= Html::encode($this->title) ?></h1>
 
-<div class="<?php echo $this->module->formCssClass; ?>">
-<?php $form=$this->beginWidget($this->module->formClass, array(
+<?= components\Alerts::widget() ?>
+
+<div class="<?php echo $module->formCssClass; ?>">
+<?php $form = ActiveForm::begin([
 	'id'=>'login-form',
 	'enableClientValidation'=>true,
-	'clientOptions'=>array(
-		'validateOnSubmit'=>true,
-	),
-	'focus'=>array($model,'newPassword'),
-	'action'=>array('login', 'scenario'=>'reset'),
+	'validateOnSubmit'=>true,
+	'action'=>['login', 'scenario'=>'reset'],
 )); ?>
 
-	<p class="note"><?php echo Yii::t('UsrModule.usr', 'Fields marked with <span class="required">*</span> are required.'); ?></p>
+	<p class="note"><?php echo Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.'); ?></p>
 
 	<?php echo $form->errorSummary($model); ?>
 
-	<?php echo $form->hiddenField($model,'username'); ?>
-	<?php echo $form->hiddenField($model,'password'); ?>
-	<?php echo $form->hiddenField($model,'rememberMe'); ?>
+	<?= Html::activeHiddenInput($model,'username') ?>
+	<?= Html::activeHiddenInput($model,'password') ?>
+	<?= Html::activeHiddenInput($model,'rememberMe') ?>
 
-<?php $this->renderPartial('_newpassword', array('form'=>$form, 'model'=>$model)); ?>
-
-	<div class="buttons">
-		<?php echo CHtml::submitButton(Yii::t('UsrModule.usr', 'Change password'), array('class'=>$this->module->submitButtonCssClass)); ?>
+<?= $this->render('_newpassword', array('form'=>$form, 'model'=>$model, 'module'=>$module)); ?>
+				<div class="form-group">
+					<?= Html::submitButton(Yii::t('usr', 'Change password'), ['class' => 'btn btn-primary']) ?>
+				</div>
+		</div>
 	</div>
 
-<?php $this->endWidget(); ?>
+<?php ActiveForm::end(); ?>
 </div><!-- form -->

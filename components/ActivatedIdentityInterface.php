@@ -2,7 +2,7 @@
 
 namespace nineinchnick\usr\components;
 
-interface IActivatedIdentity
+interface ActivatedIdentityInterface
 {
 	const ERROR_AKEY_NONE=0;
 	const ERROR_AKEY_INVALID=1;
@@ -13,7 +13,7 @@ interface IActivatedIdentity
 	 * @param array $attributes contains at least one of keys: 'username', 'email'
 	 * @return object a user identity object or null if not found.
 	 */
-	public static function find(array $attributes);
+	//public static function find(array $attributes);
 	/**
 	 * Checkes if user account is active. This should not include disabled (banned) status.
 	 * This could include if the email address has been verified.

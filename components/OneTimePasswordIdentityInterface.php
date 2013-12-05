@@ -2,7 +2,7 @@
 
 namespace nineinchnick\usr\components;
 
-interface IOneTimePasswordIdentity
+interface OneTimePasswordIdentityInterface
 {
 	/**
 	 * Returns current secret used to generate one time passwords. If it's null, two step auth is disabled.

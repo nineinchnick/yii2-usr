@@ -15,7 +15,7 @@ class LoginForm extends BasePasswordForm
 	public $password;
 	public $rememberMe;
 
-	private $_user;
+	private $_identity;
 
 	/**
 	 * Declares the validation rules.
@@ -46,14 +46,14 @@ class LoginForm extends BasePasswordForm
 		]);
 	}
 
-	public function getUser()
+	public function getIdentity()
 	{
-		if($this->_user===null) {
-			$userClass = Yii::$app->user->identityClass;
-			if (($this->_user = $userClass::findByUsername($this->username)) === null)
-				$this->_user = false;
+		if($this->_identity===null) {
+			$identityClass = Yii::$app->user->identityClass;
+			if (($this->_identity = $identityClass::findByUsername($this->username)) === null)
+				$this->_identity = false;
 		}
-		return $this->_user;
+		return $this->_identity;
 	}
 
 	/**
@@ -65,8 +65,8 @@ class LoginForm extends BasePasswordForm
 		if($this->hasErrors()) {
 			return;
 		}
-		$user = $this->getUser();
-		if(!$user || $user->validatePassword($this->$attribute)) {
+		$identity = $this->getIdentity();
+		if(!$identity || $identity->validatePassword($this->$attribute)) {
 			$this->addError($attribute, Yii::t('usr','Invalid username or password.'));
 			return false;
 		}
@@ -108,8 +108,8 @@ class LoginForm extends BasePasswordForm
 		if($this->hasErrors()) {
 			return;
 		}
-		$user = $this->getUser();
-		if (!$user || !$user->resetPassword($this->newPassword)) {
+		$identity = $this->getIdentity();
+		if (!$identity || !$identity->resetPassword($this->newPassword)) {
 			$this->addError('newPassword',Yii::t('usr','Failed to reset the password.'));
 			return false;
 		}
@@ -123,16 +123,16 @@ class LoginForm extends BasePasswordForm
 	 */
 	public function login($duration = 0)
 	{
-		$user = $this->getUser();
-		if (!$user) {
+		$identity = $this->getIdentity();
+		if (!$identity) {
 			$authenticated = false;
 		} elseif ($this->scenario === 'reset') {
-			$authenticated = $user->validatePassword($this->newPassword);
+			$authenticated = $identity->validatePassword($this->newPassword);
 		} else {
-			$authenticated = $user->validatePassword($this->password);
+			$authenticated = $identity->validatePassword($this->password);
 		}
 		if($authenticated) {
-			return Yii::$app->user->login($user, $this->rememberMe ? $duration : 0);
+			return Yii::$app->user->login($identity, $this->rememberMe ? $duration : 0);
 		}
 		return false;
 	}

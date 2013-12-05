@@ -2,7 +2,7 @@
 
 namespace nineinchnick\usr\components;
 
-interface IPasswordHistoryIdentity
+interface PasswordHistoryIdentityInterface
 {
 	/**
 	 * Returns the date when specified password was last set or null if it was never used before.

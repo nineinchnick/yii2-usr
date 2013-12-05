@@ -1,5 +1,9 @@
 <?php
 
+namespace nineinchnick\usr\models;
+
+use Yii;
+
 /**
  * RecoveryForm class.
  * RecoveryForm is the data structure for keeping
@@ -47,16 +51,16 @@ class RecoveryForm extends BasePasswordForm
 	public function getIdentity() {
 		if($this->_identity===null) {
 			// generate a fake object just to check if it implements a correct interface
-			$userIdentityClass = $this->userIdentityClass;
-			$fakeIdentity = new $userIdentityClass(null, null);
-			if (!($fakeIdentity instanceof IActivatedIdentity)) {
-				throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>$userIdentityClass, 'interface'=>'IActivatedIdentity']));
+			$identityClass = Yii::$app->user->identityClass;
+			$fakeIdentity = new $identityClass(null, null);
+			if (!($fakeIdentity instanceof ActivatedIdentityInterface)) {
+				throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>$identityClass, 'interface'=>'ActivatedIdentityInterface']));
 			}
 			$attributes = [];
 			if ($this->username !== null) $attributes['username'] = $this->username;
 			if ($this->email !== null) $attributes['email'] = $this->email;
 			if (!empty($attributes))
-				$this->_identity=$userIdentityClass::find($attributes);
+				$this->_identity=$identityClass::find($attributes);
 		}
 		return $this->_identity;
 	}

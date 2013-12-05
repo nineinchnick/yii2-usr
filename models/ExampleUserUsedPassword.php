@@ -23,7 +23,7 @@ abstract class ExampleUserUsedPassword extends \yii\db\ActiveRecord
 	 */
 	public static function tableName()
 	{
-		return '{{user_used_passwords}}';
+		return '{{%user_used_passwords}}';
 	}
 
 	/**

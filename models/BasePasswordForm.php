@@ -71,7 +71,7 @@ abstract class BasePasswordForm extends BaseUsrForm
 		]);
 	}
 
-	abstract public function getUser();
+	abstract public function getIdentity();
 	abstract public function resetPassword();
 
 	/**
@@ -84,9 +84,9 @@ abstract class BasePasswordForm extends BaseUsrForm
 			return;
 		}
 
-		$identity = $this->getUser();
+		$identity = $this->getIdentity();
 		// check if new password hasn't been used before
-		if ($identity instanceof IPasswordHistoryIdentity) {
+		if ($identity instanceof PasswordHistoryIdentityInterface) {
 			if (($lastUsed = $identity->getPasswordDate($this->newPassword)) !== null) {
 				$this->addError('newPassword',Yii::t('usr','New password has been used before, last set on {date}.', ['date'=>$lastUsed]));
 				return false;

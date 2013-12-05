@@ -22,9 +22,14 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <?= components\Alerts::widget() ?>
 
-<div class="profile">
+<div class="<?php echo $module->formCssClass; ?>">
 
-<?php $form = ActiveForm::begin(['id' => 'profile-form']); ?>
+<?php $form = ActiveForm::begin([
+    'id' => 'profile-form',
+    'enableAjaxValidation'=>true,
+	'enableClientValidation'=>false,
+	'validateOnSubmit'=>true,
+]); ?>
 
 	<p class="note"><?= Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.') ?></p>
 

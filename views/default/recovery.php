@@ -1,57 +1,57 @@
-<?php /*
-@var $this DefaultController
-@var $model RecoveryForm */
+<?php
 
-$title = Yii::t('UsrModule.usr', 'Username or password recovery');
-if (isset($this->breadcrumbs))
-	$this->breadcrumbs=array($this->module->id, $title);
-$this->pageTitle = Yii::app()->name.' - '.$title;
+use nineinchnick\usr\components;
+use yii\helpers\Html;
+use yii\widgets\ActiveForm;
+
+/**
+ * @var yii\web\View $this
+ * @var models\RecoveryForm $model
+ * @var ActiveForm $form
+ * @var nineinchnick\usr\Module $module
+ */
+$this->title = Yii::t('usr', 'Username or password recovery');
+$this->params['breadcrumbs'][] = $this->title;
 ?>
-<h1><?php echo $title; ?></h1>
 
-<?php $this->displayFlashes(); ?>
+<h1><?= Html::encode($this->title) ?></h1>
 
-<div class="<?php echo $this->module->formCssClass; ?>">
-<?php $form=$this->beginWidget($this->module->formClass, array(
-	'id'=>'recovery-form',
+<?= components\Alerts::widget() ?>
+
+<div class="<?= $module->formCssClass; ?>">
+<?php $form = ActiveForm::begin([
+	'id' => 'recovery-form',
 	'enableClientValidation'=>true,
-	'clientOptions'=>array(
-		'validateOnSubmit'=>true,
-	),
-	'focus'=>array($model,$model->scenario==='reset' ? 'newPassword' : 'username'),
-)); ?>
+	'validateOnSubmit'=>true,
+	//'focus'=>array($model,$model->scenario==='reset' ? 'newPassword' : 'username'),
+]); ?>
 
-	<p class="note"><?php echo Yii::t('UsrModule.usr', 'Fields marked with <span class="required">*</span> are required.'); ?></p>
+	<p class="note"><?= Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.') ?></p>
 
-	<?php echo $form->errorSummary($model); ?>
+	<?= $form->errorSummary($model) ?>
+
+	<div class="row">
+		<div class="col-lg-5">
 
 <?php if ($model->scenario === 'reset'): ?>
-	<?php echo $form->hiddenField($model,'username'); ?>
-	<?php echo $form->hiddenField($model,'email'); ?>
-	<?php echo $form->hiddenField($model,'activationKey'); ?>
+			<?= Html::activeHiddenInput($model,'username') ?>
+			<?= Html::activeHiddenInput($model,'email') ?>
+			<?= Html::activeHiddenInput($model,'activationKey') ?>
 
-<?php $this->renderPartial('_newpassword', array('form'=>$form, 'model'=>$model)); ?>
+<?= $this->render('_newpassword', array('form'=>$form, 'model'=>$model, 'module'=>$module)); ?>
 <?php else: ?>
-	<div class="control-group">
-		<?php echo $form->labelEx($model,'username'); ?>
-		<?php echo $form->textField($model,'username'); ?>
-		<?php echo $form->error($model,'username'); ?>
-	</div>
-
-	<div class="control-group">
-		<?php echo $form->labelEx($model,'email'); ?>
-		<?php echo $form->textField($model,'email'); ?>
-		<?php echo $form->error($model,'email'); ?>
-	</div>
+			<?= $form->field($model, 'username') ?>
+			<?= $form->field($model, 'email') ?>
 
 <?php if($model->getBehavior('captcha') !== null): ?>
-<?php $this->renderPartial('_captcha', array('form'=>$form, 'model'=>$model)); ?>
+<?= $this->render('_captcha', array('form'=>$form, 'model'=>$model, 'module'=>$module)) ?>
 <?php endif; ?>
 <?php endif; ?>
-
-	<div class="buttons">
-		<?php echo CHtml::submitButton(Yii::t('UsrModule.usr', 'Submit'), array('class'=>$this->module->submitButtonCssClass)); ?>
+			<div class="form-group">
+				<?= Html::submitButton(Yii::t('usr', 'Submit'), ['class' => 'btn btn-primary']) ?>
+			</div>
+		</div>
 	</div>
 
-<?php $this->endWidget(); ?>
+<?php ActiveForm::end(); ?>
 </div><!-- form -->

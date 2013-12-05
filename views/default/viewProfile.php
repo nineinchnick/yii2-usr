@@ -1,26 +1,33 @@
-<?php /*
-@var $this DefaultController
-@var $model ProfileForm */
+<?php
 
-$title = Yii::t('UsrModule.usr', 'User profile');
-if (isset($this->breadcrumbs))
-	$this->breadcrumbs=array($this->module->id, $title);
-$this->pageTitle = Yii::app()->name.' - '.$title;
+use nineinchnick\usr\components;
+use yii\helpers\Html;
+use yii\widgets\ActiveForm;
+
+/**
+ * @var yii\web\View $this
+ * @var models\ProfileForm $model
+ * @var ActiveForm $form
+ * @var nineinchnick\usr\Module $module
+ */
+$this->title = Yii::t('usr', 'User profile');
+$this->params['breadcrumbs'][] = $this->title;
 ?>
-<h1><?php echo $title; ?><small style="margin-left: 1em;"><?php echo CHtml::link(Yii::t('UsrModule.usr', 'update'), array('profile', 'update'=>true)); ?></small></h1>
 
-<?php $this->displayFlashes(); ?>
+<h1><?= Html::encode($this->title) ?><small style="margin-left: 1em;"><?= Html::a(Yii::t('usr', 'update'), ['profile', 'update'=>true]); ?></small></h1>
+
+<?= components\Alerts::widget() ?>
 
 <?php
-$attributes = array('username', 'email', 'firstName', 'lastName');
-if ($this->module->oneTimePasswordMode === UsrModule::OTP_TIME || $this->module->oneTimePasswordMode === UsrModule::OTP_COUNTER) {
-	$attributes[] = array(
+$attributes = ['username', 'email', 'firstName', 'lastName'];
+if ($module->oneTimePasswordMode === nineinchnick\usr\Module::OTP_TIME || $module->oneTimePasswordMode === nineinchnick\usr\Module::OTP_COUNTER) {
+	$attributes[] = [
 		'name'=>'twoStepAuth',
 		'type'=>'raw',
-		'label'=>Yii::t('UsrModule.usr', 'Two step authentication'),
-		'value'=>$this->displayOneTimePasswordSecret(),
-	);
+		'label'=>Yii::t('usr', 'Two step authentication'),
+		'value'=>Yii::$app->controller->displayOneTimePasswordSecret(),
+	];
 }
-$this->widget($this->module->detailViewClass, array('data' => $model, 'attributes' => $attributes));
-?>
+$this->widget($module->detailViewClass, array('data' => $model, 'attributes' => $attributes));
+echo DetailView::widget(['model' => $model, 'attributes' => $attributes]);
 
