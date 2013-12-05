@@ -65,7 +65,7 @@ class PasswordForm extends BasePasswordForm
 		if (($identity=$this->getIdentity()) === null) {
 			throw new \yii\base\Exception('Current user has not been found in the database.');
 		}
-		if(!$identity->validatePassword($this->$attribute)) {
+		if(!$identity->verifyPassword($this->$attribute)) {
 			$this->addError($attribute,Yii::t('usr','Invalid password.'));
 			return false;
 		}
