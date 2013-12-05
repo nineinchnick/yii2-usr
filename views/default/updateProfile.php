@@ -41,7 +41,7 @@ $this->params['breadcrumbs'][] = $this->title;
 				<?= $form->field($model, 'email') ?>
 
 <?php if ($passwordForm->scenario !== 'register'): ?>
-				<?= $form->field($model, 'password')->passwordInput() ?>
+				<?= $form->field($passwordForm, 'password')->passwordInput() ?>
 <?php endif; ?>
 <?= $this->render('_newpassword', array('form'=>$form, 'model'=>$passwordForm, 'module'=>$module)) ?>
 

@@ -2,7 +2,7 @@
 
 use nineinchnick\usr\components;
 use yii\helpers\Html;
-use yii\widgets\ActiveForm;
+use yii\widgets\DetailView;
 
 /**
  * @var yii\web\View $this
@@ -28,6 +28,5 @@ if ($module->oneTimePasswordMode === nineinchnick\usr\Module::OTP_TIME || $modul
 		'value'=>Yii::$app->controller->displayOneTimePasswordSecret(),
 	];
 }
-$this->widget($module->detailViewClass, array('data' => $model, 'attributes' => $attributes));
 echo DetailView::widget(['model' => $model, 'attributes' => $attributes]);
 

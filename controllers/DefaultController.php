@@ -251,7 +251,7 @@ class DefaultController extends UsrController
 		if ($update) {
 			return $this->render('updateProfile', ['model'=>$model, 'passwordForm'=>$passwordForm, 'module'=>$this->module]);
 		} else {
-			return $this->render('viewProfile', ['model'=>$model]);
+			return $this->render('viewProfile', ['model'=>$model, 'module'=>$this->module]);
 		}
 	}
 
