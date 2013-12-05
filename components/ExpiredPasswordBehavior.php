@@ -43,15 +43,15 @@ class ExpiredPasswordBehavior extends FormModelBehavior
 
 		$identity = $this->owner->getIdentity();
 		if (!($identity instanceof IPasswordHistoryIdentity))
-			throw new CException(Yii::t('UsrModule.usr','The {class} class must implement the {interface} interface.',array('{class}'=>get_class($identity),'{interface}'=>'IPasswordHistoryIdentity')));
+			throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.', ['class'=>get_class($identity),'interface'=>'IPasswordHistoryIdentity']));
 		$lastUsed = $identity->getPasswordDate();
 		$lastUsedDate = new DateTime($lastUsed);
 		$today = new DateTime();
 		if ($lastUsed === null || $today->diff($lastUsedDate)->days >= $this->passwordTimeout) {
 			if ($lastUsed === null) {
-				$this->owner->addError('password',Yii::t('UsrModule.usr','This is the first time you login. Current password needs to be changed.'));
+				$this->owner->addError('password',Yii::t('usr','This is the first time you login. Current password needs to be changed.'));
 			} else {
-				$this->owner->addError('password',Yii::t('UsrModule.usr','Current password has been used too long and needs to be changed.'));
+				$this->owner->addError('password',Yii::t('usr','Current password has been used too long and needs to be changed.'));
 			}
 			$this->owner->scenario = 'reset';
 			return false;

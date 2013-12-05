@@ -1,5 +1,7 @@
 <?php
 
+namespace nineinchnick\usr\components;
+
 interface IOneTimePasswordIdentity
 {
 	/**

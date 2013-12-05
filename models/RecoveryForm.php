@@ -50,7 +50,7 @@ class RecoveryForm extends BasePasswordForm
 			$userIdentityClass = $this->userIdentityClass;
 			$fakeIdentity = new $userIdentityClass(null, null);
 			if (!($fakeIdentity instanceof IActivatedIdentity)) {
-				throw new CException(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>$userIdentityClass, 'interface'=>'IActivatedIdentity']));
+				throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>$userIdentityClass, 'interface'=>'IActivatedIdentity']));
 			}
 			$attributes = [];
 			if ($this->username !== null) $attributes['username'] = $this->username;

@@ -35,8 +35,8 @@ class ProfileForm extends BaseUsrForm
 	public function scenarios()
 	{
 		return [
-			self::DEFAULT_SCENARIO => [],
-			'register' => [],
+			self::DEFAULT_SCENARIO => $this->attributes(),
+			'register' => $this->attributes(),
 		];
 	}
 
@@ -61,9 +61,6 @@ class ProfileForm extends BaseUsrForm
 				$this->_user = new $userClass;
 			} else {
 				$this->_user = Yii::$app->user->getIdentity();
-			}
-			if ($this->_user !== null && !($this->_user instanceof IEditableIdentity)) {
-				throw new CException(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>get_class($this->_user),'interface'=>'IEditableIdentity']));
 			}
 		}
 		return $this->_user;
@@ -106,9 +103,13 @@ class ProfileForm extends BaseUsrForm
 		$identity->setAttributes([
 			'username'	=> $this->username,
 			'email'		=> $this->email,
-			'firstName'	=> $this->firstName,
-			'lastName'	=> $this->lastName,
-		]);
+			'firstname'	=> $this->firstName,
+			'lastname'	=> $this->lastName,
+			'is_active' => 1,
+			'is_disabled' => 0,
+			'email_verified' => 0,
+			'password' => 'x',
+		], false);
 		if ($identity->save()) {
 			$this->_user = $identity;
 			return true;

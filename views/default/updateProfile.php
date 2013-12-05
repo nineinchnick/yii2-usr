@@ -28,7 +28,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 	<p class="note"><?= Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.') ?></p>
 
-	<?= $form->errorSummary($model) ?>
+	<?= $form->errorSummary([$model, $passwordForm]) ?>
 
 	<div class="row">
 		<div class="col-lg-5">
@@ -38,13 +38,13 @@ $this->params['breadcrumbs'][] = $this->title;
 <?php if ($passwordForm->scenario !== 'register'): ?>
 				<?= $form->field($model, 'password')->passwordInput() ?>
 <?php endif; ?>
-<?php $this->render('_newpassword', array('form'=>$form, 'model'=>$passwordForm, 'module'=>$module)); ?>
+<?= $this->render('_newpassword', array('form'=>$form, 'model'=>$passwordForm, 'module'=>$module)) ?>
 
 				<?= $form->field($model, 'firstName') ?>
 				<?= $form->field($model, 'lastName') ?>
 
 <?php if($model->getBehavior('captcha') !== null): ?>
-<?php $this->render('_captcha', array('form'=>$form, 'model'=>$model, 'module'=>$module)); ?>
+<?= $this->render('_captcha', array('form'=>$form, 'model'=>$model, 'module'=>$module)) ?>
 <?php endif; ?>
 				<div class="form-group">
 					<?= Html::submitButton(Yii::t('usr', 'Submit'), ['class' => 'btn btn-primary']) ?>

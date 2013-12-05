@@ -3,6 +3,7 @@
 namespace nineinchnick\usr\controllers;
 
 use Yii;
+use yii\web\HttpException;
 
 class DefaultController extends UsrController
 {
@@ -87,7 +88,7 @@ class DefaultController extends UsrController
 	public function actionRecovery()
 	{
 		if (!$this->module->recoveryEnabled) {
-			throw new CHttpException(403,Yii::t('usr', 'Password recovery has not been enabled.'));
+			throw new HttpException(403,Yii::t('usr', 'Password recovery has not been enabled.'));
 		}
 		if (!Yii::$app->user->isGuest)
 			$this->redirect(Yii::$app->user->returnUrl);
@@ -115,7 +116,7 @@ class DefaultController extends UsrController
 						Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to send an email.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
 					}
 				} else {
-					$model->getIdentity()->verifyEmail();
+					$model->getUser()->verifyEmail();
 					if ($model->resetPassword() && $model->login()) {
 						$this->afterLogin();
 					} else {
@@ -132,10 +133,10 @@ class DefaultController extends UsrController
 	{
 		$model = $this->module->createFormModel('RecoveryForm', 'verify');
 		if (!isset($_GET['activationKey'])) {
-			throw new CHttpException(400,Yii::t('usr', 'Activation key is missing.'));
+			throw new HttpException(400,Yii::t('usr', 'Activation key is missing.'));
 		}
 		$model->setAttributes($_GET);
-		if($model->validate() && $model->getIdentity()->verifyEmail()) {
+		if($model->validate() && $model->getUser()->verifyEmail()) {
 			Yii::$app->session->setFlash('success', Yii::t('usr', 'Your email address has been successfully verified.'));
 		} else {
 			Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to verify your email address.'));
@@ -146,7 +147,7 @@ class DefaultController extends UsrController
 	public function actionRegister()
 	{
 		if (!$this->module->registrationEnabled) {
-			throw new CHttpException(403,Yii::t('usr', 'Registration has not been enabled.'));
+			throw new HttpException(403,Yii::t('usr', 'Registration has not been enabled.'));
 		}
 		if (!Yii::$app->user->isGuest)
 			$this->redirect(['profile']);
@@ -163,9 +164,12 @@ class DefaultController extends UsrController
 			if(isset($_POST['PasswordForm']))
 				$passwordForm->load($_POST);
 			if ($model->validate() && $passwordForm->validate()) {
-				if (!$model->save() || !$passwordForm->resetPassword($model->getIdentity())) {
+				$trx = Yii::$app->db->beginTransaction();
+				if (!$model->save() || !$passwordForm->resetPassword($model->getUser())) {
+					$trx->rollback();
 					Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to register a new user.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
 				} else {
+					$trx->commit();
 					if ($this->module->requireVerifiedEmail) {
 						if ($this->sendEmail($model, 'verify')) {
 							Yii::$app->session->setFlash('success', Yii::t('usr', 'An email containing further instructions has been sent to provided email address.'));
@@ -173,7 +177,7 @@ class DefaultController extends UsrController
 							Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to send an email.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
 						}
 					}
-					if ($model->getIdentity()->isActive()) {
+					if ($model->getUser()->isActive()) {
 						if ($model->login()) {
 							$this->afterLogin();
 						} else {
@@ -196,7 +200,7 @@ class DefaultController extends UsrController
 			$this->redirect(['login']);
 
 		$model = $this->module->createFormModel('ProfileForm');
-		$model->setAttributes($model->getIdentity()->getAttributes());
+		$model->setAttributes($model->getUser()->getAttributes());
 		$passwordForm = $this->module->createFormModel('PasswordForm');
 
 		if(isset($_POST['ajax']) && $_POST['ajax']==='profile-form') {
@@ -211,7 +215,7 @@ class DefaultController extends UsrController
 		if(isset($_POST['PasswordForm']) && trim($_POST['PasswordForm']['newPassword']) !== '') {
 			$passwordForm->load($_POST);
 			if ($passwordForm->validate()) {
-				if ($passwordForm->resetPassword($model->getIdentity())) {
+				if ($passwordForm->resetPassword($model->getUser())) {
 					$flashes['success'][] = Yii::t('usr', 'Changes have been saved successfully.');
 				} else {
 					$flashes['error'][] = Yii::t('usr', 'Failed to change password.');
@@ -221,7 +225,7 @@ class DefaultController extends UsrController
 		if(isset($_POST['ProfileForm']) && empty($flashes['error'])) {
 			$model->load($_POST);
 			if($model->validate()) {
-				$oldEmail = $model->getIdentity()->getEmail();
+				$oldEmail = $model->getUser()->getEmail();
 				if ($model->save()) {
 					if ($this->module->requireVerifiedEmail && $oldEmail != $model->email) {
 						if ($this->sendEmail($model, 'verify')) {
@@ -255,7 +259,7 @@ class DefaultController extends UsrController
 	protected function displayOneTimePasswordSecret()
 	{
 		$model = new OneTimePasswordForm;
-		$identity = $model->getIdentity();
+		$identity = $model->getUser();
 		$secret = $identity->getOneTimePasswordSecret();
 		/*
 		if ($secret === null && $this->module->oneTimePasswordRequired) {
@@ -285,7 +289,7 @@ class DefaultController extends UsrController
 			$this->redirect(['profile']);
 
 		$model = new OneTimePasswordForm;
-		$identity = $model->getIdentity();
+		$identity = $model->getUser();
 
 		if ($identity->getOneTimePasswordSecret() !== null) {
 			$identity->setOneTimePasswordSecret(null);
@@ -334,7 +338,8 @@ class DefaultController extends UsrController
 
 	public function actionPassword()
 	{
-		$diceware = new Diceware;
+		require(dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'/components/'.DIRECTORY_SEPARATOR.'Diceware.php');
+		$diceware = new \Diceware(Yii::$app->language);
 		$password = $diceware->get_phrase($this->module->dicewareLength, $this->module->dicewareExtraDigit, $this->module->dicewareExtraChar);
 		echo json_encode($password);
 	}

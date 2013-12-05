@@ -63,7 +63,7 @@ class PasswordForm extends BasePasswordForm
 			return;
 		}
 		if (($identity=$this->getUser()) === null) {
-			throw new CException('Current user has not been found in the database.');
+			throw new \yii\base\Exception('Current user has not been found in the database.');
 		}
 		if(!$identity->validatePassword($this->$attribute)) {
 			$this->addError($attribute,Yii::t('usr','Invalid password.'));
@@ -82,7 +82,7 @@ class PasswordForm extends BasePasswordForm
 			return;
 		}
 		if ($identity === null)
-			$identity = $this->getIdentity();
+			$identity = $this->getUser();
 		if (!$identity->resetPassword($this->newPassword)) {
 			$this->addError('newPassword',Yii::t('usr','Failed to reset the password.'));
 			return false;

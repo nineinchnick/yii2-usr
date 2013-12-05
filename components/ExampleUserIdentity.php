@@ -7,7 +7,7 @@ Yii::import('usr.components.*');
  * It contains the authentication method that checks if the provided
  * data can identity the user.
  */
-abstract class ExampleUserIdentity extends CUserIdentity implements IPasswordHistoryIdentity,IActivatedIdentity,IEditableIdentity,IHybridauthIdentity,IOneTimePasswordIdentity
+abstract class ExampleUserIdentity extends CUserIdentity implements IPasswordHistoryIdentity,IActivatedIdentity,IHybridauthIdentity,IOneTimePasswordIdentity
 {
 	public $email = null;
 	public $firstName = null;
@@ -70,10 +70,11 @@ abstract class ExampleUserIdentity extends CUserIdentity implements IPasswordHis
 				'password'=>$hashedPassword,
 				'set_on'=>date('Y-m-d H:i:s'),
 			), false);
-			return $usedPassword->save() && $record->saveAttributes(array(
+			$this->setAttributes([
 				'password'=>$hashedPassword,
 				'password_set_on'=>date('Y-m-d H:i:s'),
-			));
+			]);
+			return $usedPassword->save() && $record->save();
 		}
 		return false;
 	}

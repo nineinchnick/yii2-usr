@@ -1,5 +1,7 @@
 <?php
 
+namespace nineinchnick\usr\components;
+
 interface IActivatedIdentity
 {
 	const ERROR_AKEY_NONE=0;

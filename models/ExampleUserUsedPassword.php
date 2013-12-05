@@ -1,11 +1,13 @@
 <?php
 
-require(Yii::getPathOfAlias('usr.extensions').DIRECTORY_SEPARATOR.'password.php');
+namespace nineinchnick\usr\models;
+
+use Yii;
+use \yii\helpers\Security;
 
 /**
  * This is the model class for table "{{user_used_passwords}}".
  *
- * The followings are the available columns in table '{{user_used_passwords}}':
  * @property integer $id
  * @property integer $user_id
  * @property string $password
@@ -14,26 +16,33 @@ require(Yii::getPathOfAlias('usr.extensions').DIRECTORY_SEPARATOR.'password.php'
  * The followings are the available model relations:
  * @property User $user
  */
-abstract class ExampleUserUsedPassword extends CActiveRecord
+abstract class ExampleUserUsedPassword extends \yii\db\ActiveRecord
 {
-	public function tableName()
+	/**
+	 * @inheritdoc
+	 */
+	public static function tableName()
 	{
 		return '{{user_used_passwords}}';
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function rules()
 	{
 		return array(
 		);
 	}
 
-	public function relations()
+	public function getUserRemoteIdentities()
 	{
-		return array(
-			'user' => array(self::BELONGS_TO, 'User', 'user_id'),
-		);
+		return $this->hasOne(User::className(), ['id' => 'user_id']);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function attributeLabels()
 	{
 		return array(
@@ -44,35 +53,8 @@ abstract class ExampleUserUsedPassword extends CActiveRecord
 		);
 	}
 
-	/**
-	 * @return CActiveDataProvider the data provider that can return the models
-	 * based on the search/filter conditions.
-	 */
-	public function search()
-	{
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('user_id',$this->user_id);
-		//$criteria->compare('password',$this->password,true);
-		$criteria->compare('set_on',$this->set_on,true);
-
-		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
-		));
-	}
-
-	/**
-	 * @param string $className active record class name.
-	 * @return UserUsedPassword the static model class
-	 */
-	public static function model($className=__CLASS__)
-	{
-		return parent::model($className);
-	}
-
 	public function verifyPassword($password)
 	{
-		return $this->password !== null && password_verify($password, $this->password);
+		return $this->password !== null && Security::validatePassword($password, $this->password);
 	}
 }

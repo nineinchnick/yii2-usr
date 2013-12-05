@@ -140,4 +140,18 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements \yii\web\Iden
 		return Security::validatePassword($password, $this->password);
 	}
 
+	public function resetPassword($password)
+	{
+		$hashedPassword = Security::generatePasswordHash($password);
+		$usedPassword = new \app\models\UserUsedPassword;
+		$usedPassword->setAttributes(array(
+			'user_id'=>$this->id,
+			'password'=>$hashedPassword,
+			'set_on'=>date('Y-m-d H:i:s'),
+		), false);
+		return $usedPassword->save() && $this->saveAttributes(array(
+			'password'=>$hashedPassword,
+			'password_set_on'=>date('Y-m-d H:i:s'),
+		));
+	}
 }

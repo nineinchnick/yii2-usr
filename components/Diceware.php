@@ -185,14 +185,14 @@ class Diceware {
 	  return $output;
   }
 
-  function __construct() {
+  function __construct($language=null) {
     $this->rolls = array();
     $this->char_table = json_decode($this->char_str);
     $this->special_table = json_decode($this->special_str);
     $this->pos_table = json_decode($this->pos_str);
 	$path = dirname(__FILE__).DIRECTORY_SEPARATOR;
-	if (file_exists($path."diceware.wordlist.".Yii::app()->language)) {
-		$wordlist = $path."diceware.wordlist.".Yii::app()->language;
+	if ($language !== null && file_exists($path."diceware.$language.wordlist")) {
+		$wordlist = $path."diceware.$language.wordlist";
 	} else {
 		$wordlist = $path."diceware.wordlist";
 	}
