@@ -1,36 +1,39 @@
-<?php /*
-@var $this DefaultController
-@var $model LoginForm */
+<?php
 
-$title = Yii::t('UsrModule.usr', 'Two step authentication');
-if (isset($this->breadcrumbs))
-	$this->breadcrumbs=array($this->module->id, $title);
-$this->pageTitle = Yii::app()->name.' - '.$title;
+use nineinchnick\usr\components;
+use yii\helpers\Html;
+use yii\widgets\ActiveForm;
+
+/**
+ * @var yii\web\View $this
+ * @var models\LoginForm $model
+ * @var ActiveForm $form
+ */
+$this->title = Yii::t('usr', 'Two step authentication');
+$this->params['breadcrumbs'][] = $this->title;
 ?>
-<h1><?php echo $title; ?></h1>
 
-<?php $this->displayFlashes(); ?>
+<h1><?= Html::encode($this->title) ?></h1>
 
-<div class="<?php echo $this->module->formCssClass; ?>">
-<?php $form=$this->beginWidget($this->module->formClass, array(
+<?= components\Alerts::widget() ?>
+
+<div class="<?= $this->context->module->formCssClass; ?>">
+<?php $form = ActiveForm::begin([
 	'id'=>'login-form',
 	'enableClientValidation'=>true,
-	'clientOptions'=>array(
-		'validateOnSubmit'=>true,
-	),
-	'focus'=>array($model,'oneTimePassword'),
+	'validateOnSubmit'=>true,
 	'action'=>array('login', 'scenario'=>'verifyOTP'),
-)); ?>
+]); ?>
 
-	<p class="note"><?php echo Yii::t('UsrModule.usr', 'Fields marked with <span class="required">*</span> are required.'); ?></p>
+	<p class="note"><?= Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.'); ?></p>
 
-	<?php echo $form->errorSummary($model); ?>
+	<?= $form->errorSummary($model); ?>
 
 	<p>
-<?php if ($this->module->oneTimePasswordMode === UsrModule::OTP_TIME): ?>
-		<?php echo Yii::t('UsrModule.usr', 'Use the Google Authenticator application to generate a one time password and enter it below.'); ?><br/>
-<?php elseif ($this->module->oneTimePasswordMode === UsrModule::OTP_COUNTER): ?>
-		<?php echo Yii::t('UsrModule.usr', 'A one time password has been sent to your email. Enter it below.'); ?><br/>
+<?php if ($this->context->module->oneTimePasswordMode === \nineinchnick\usr\Module::OTP_TIME): ?>
+		<?php echo Yii::t('usr', 'Use the Google Authenticator application to generate a one time password and enter it below.'); ?><br/>
+<?php elseif ($this->context->module->oneTimePasswordMode === \nineinchnick\usr\Module::OTP_COUNTER): ?>
+		<?php echo Yii::t('usr', 'A one time password has been sent to your email. Enter it below.'); ?><br/>
 <?php endif; ?>
 	</p>
 
@@ -38,15 +41,16 @@ $this->pageTitle = Yii::app()->name.' - '.$title;
 	<?php echo $form->hiddenField($model,'password'); ?>
 	<?php echo $form->hiddenField($model,'rememberMe'); ?>
 
-	<div class="control-group">
-		<?php echo $form->labelEx($model,'oneTimePassword'); ?>
-		<?php echo $form->textField($model,'oneTimePassword'); ?>
-		<?php echo $form->error($model,'oneTimePassword'); ?>
+	<div class="row">
+		<div class="col-lg-5">
+
+			<?= $form->field($model, 'oneTimePassword') ?>
+
+			<div class="form-group">
+				<?= Html::submitButton(Yii::t('usr', 'Submit'), ['class' => 'btn btn-primary']) ?>
+			</div>
+		</div>
 	</div>
 
-	<div class="buttons">
-		<?php echo CHtml::submitButton(Yii::t('UsrModule.usr', 'Submit'), array('class'=>$this->module->submitButtonCssClass)); ?>
-	</div>
-
-<?php $this->endWidget(); ?>
+<?php ActiveForm::end(); ?>
 </div><!-- form -->

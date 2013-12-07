@@ -8,7 +8,6 @@ use yii\widgets\DetailView;
  * @var yii\web\View $this
  * @var models\ProfileForm $model
  * @var ActiveForm $form
- * @var nineinchnick\usr\Module $module
  */
 $this->title = Yii::t('usr', 'User profile');
 $this->params['breadcrumbs'][] = $this->title;
@@ -20,7 +19,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <?php
 $attributes = ['username', 'email', 'firstName', 'lastName'];
-if ($module->oneTimePasswordMode === nineinchnick\usr\Module::OTP_TIME || $module->oneTimePasswordMode === nineinchnick\usr\Module::OTP_COUNTER) {
+if ($this->context->module->oneTimePasswordMode === nineinchnick\usr\Module::OTP_TIME || $this->context->module->oneTimePasswordMode === nineinchnick\usr\Module::OTP_COUNTER) {
 	$attributes[] = [
 		'name'=>'twoStepAuth',
 		'type'=>'raw',

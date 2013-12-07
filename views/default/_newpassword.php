@@ -1,6 +1,6 @@
 				<?= $form->field($model, 'newPassword')->passwordInput() ?>
 
-<?php if ($module->dicewareEnabled): ?>
+<?php if ($this->context->module->dicewareEnabled): ?>
 		<p><a id="Users_generatePassword" href="#"><?= Yii::t('usr', 'Generate a password') ?></a></p>
 <?php
 $diceUrl = yii\helpers\Html::url(['password']);

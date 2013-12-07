@@ -13,7 +13,7 @@ class DefaultController extends UsrController
 		if ($this->module->captcha !== null) {
 			// captcha action renders the CAPTCHA image displayed on the register and recovery page
 			$actions['captcha'] = [
-				'class'=>'CCaptchaAction',
+				'class'=>'\yii\captcha\CaptchaAction',
 				'backColor'=>0xFFFFFF,
 				'testLimit'=>0,
 			];
@@ -49,17 +49,15 @@ class DefaultController extends UsrController
 			return $this->goBack();
 
 		$model = $this->module->createFormModel('LoginForm');
-		$model->load($_POST);
 		if ($scenario !== null && in_array($scenario, ['reset', 'verifyOTP'])) {
 			$model->scenario = $scenario;
 		}
 
-		if (Yii::$app->request->isAjax) {
-			Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-			return \yii\widgets\ActiveForm::validate($model);
-		}
-
-		if(isset($_POST['LoginForm'])) {
+		if ($model->load($_POST)) {
+			if (Yii::$app->request->isAjax) {
+				Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+				return \yii\widgets\ActiveForm::validate($model);
+			}
 			if($model->validate()) {
 				if (($model->scenario !== 'reset' || $model->resetPassword()) && $model->login($this->module->rememberMeDuration)) {
 					$this->afterLogin();
@@ -73,7 +71,7 @@ class DefaultController extends UsrController
 		case 'reset': $view = 'reset'; break;
 		case 'verifyOTP': $view = 'verifyOTP'; break;
 		}
-		return $this->render($view, ['model'=>$model, 'module'=>$this->module]);
+		return $this->render($view, ['model'=>$model]);
 	}
 
 	/**
@@ -98,13 +96,11 @@ class DefaultController extends UsrController
 			$model->scenario = 'reset';
 			$model->setAttributes($_GET);
 		}
-		$model->load($_POST);
-
-		if (Yii::$app->request->isAjax) {
-			Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-			return \yii\widgets\ActiveForm::validate($model);
-		}
-		if(isset($_POST['RecoveryForm'])) {
+		if ($model->load($_POST)) {
+			if (Yii::$app->request->isAjax) {
+				Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+				return \yii\widgets\ActiveForm::validate($model);
+			}
 			if ($model->activationKey !== null)
 				$model->scenario = 'reset';
 			if($model->validate()) {
@@ -125,7 +121,7 @@ class DefaultController extends UsrController
 				$this->redirect(['recovery']);
 			}
 		}
-		return $this->render('recovery', ['model'=>$model, 'module'=>$this->module]);
+		return $this->render('recovery', ['model'=>$model]);
 	}
 
 	public function actionVerify()
@@ -152,16 +148,14 @@ class DefaultController extends UsrController
 			$this->redirect(['profile']);
 
 		$model = $this->module->createFormModel('ProfileForm', 'register');
-		$model->load($_POST);
 		$passwordForm = $this->module->createFormModel('PasswordForm', 'register');
-		$passwordForm->load($_POST);
 
-		if (Yii::$app->request->isAjax) {
-			Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-			return \yii\widgets\ActiveForm::validate($model, $passwordForm);
-		}
-
-		if(isset($_POST['ProfileForm'])) {
+		if($model->load($_POST)) {
+			$passwordForm->load($_POST);
+			if (Yii::$app->request->isAjax) {
+				Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+				return \yii\widgets\ActiveForm::validate($model, $passwordForm);
+			}
 			if ($model->validate() && $passwordForm->validate()) {
 				$trx = Yii::$app->db->beginTransaction();
 				if (!$model->save() || !$passwordForm->resetPassword($model->getIdentity())) {
@@ -190,7 +184,7 @@ class DefaultController extends UsrController
 				}
 			}
 		}
-		return $this->render('updateProfile', ['model'=>$model, 'passwordForm'=>$passwordForm, 'module'=>$this->module]);
+		return $this->render('updateProfile', ['model'=>$model, 'passwordForm'=>$passwordForm]);
 	}
 
 	public function actionProfile($update=false)
@@ -200,20 +194,23 @@ class DefaultController extends UsrController
 
 		$model = $this->module->createFormModel('ProfileForm');
 		$model->setAttributes($model->getIdentity()->getIdentityAttributes());
-		$model->load($_POST);
+		$loadedModel = $model->load($_POST);
 		$passwordForm = $this->module->createFormModel('PasswordForm');
-		$passwordForm->load($_POST);
+		$loadedPassword = isset($_POST[$passwordForm->formName()]) && trim($_POST[$passwordForm->formName()]['newPassword']) !== '' && $passwordForm->load($_POST);
 
 		if (Yii::$app->request->isAjax) {
 			Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-			if(isset($_POST['PasswordForm']) && trim($_POST['PasswordForm']['newPassword']) !== '') {
-				return \yii\widgets\ActiveForm::validate($model, $passwordForm);
-			} else {
-				return \yii\widgets\ActiveForm::validate($model);
+			$models = [];
+			if ($loadedModel) {
+				$models[] = $model;
 			}
+			if ($loadedPassword) {
+				$models[] = $passwordForm;
+			}
+			return \yii\widgets\ActiveForm::validateMultiple($models);
 		}
 		$flashes = ['success'=>[], 'error'=>[]];
-		if(isset($_POST['PasswordForm']) && trim($_POST['PasswordForm']['newPassword']) !== '') {
+		if($loadedPassword) {
 			if ($passwordForm->validate()) {
 				if ($passwordForm->resetPassword($model->getIdentity())) {
 					$flashes['success'][] = Yii::t('usr', 'Changes have been saved successfully.');
@@ -222,7 +219,7 @@ class DefaultController extends UsrController
 				}
 			}
 		}
-		if(isset($_POST['ProfileForm']) && empty($flashes['error'])) {
+		if($loadedModel && empty($flashes['error'])) {
 			if($model->validate()) {
 				$oldEmail = $model->getIdentity()->getEmail();
 				if ($model->save()) {
@@ -249,9 +246,9 @@ class DefaultController extends UsrController
 		if (!empty($flashes['error']))
 			Yii::$app->session->setFlash('error', implode('<br/>',$flashes['error']));
 		if ($update) {
-			return $this->render('updateProfile', ['model'=>$model, 'passwordForm'=>$passwordForm, 'module'=>$this->module]);
+			return $this->render('updateProfile', ['model'=>$model, 'passwordForm'=>$passwordForm]);
 		} else {
-			return $this->render('viewProfile', ['model'=>$model, 'module'=>$this->module]);
+			return $this->render('viewProfile', ['model'=>$model]);
 		}
 	}
 
@@ -288,9 +285,7 @@ class DefaultController extends UsrController
 			$this->redirect(['profile']);
 
 		$model = new OneTimePasswordForm;
-		$model->load($_POST);
 		$identity = $model->getIdentity();
-
 		if ($identity->getOneTimePasswordSecret() !== null) {
 			$identity->setOneTimePasswordSecret(null);
 			Yii::$app->request->cookies->remove(nineinchnick\usr\Module::OTP_COOKIE);
@@ -311,7 +306,7 @@ class DefaultController extends UsrController
 		}
 		$model->setSecret($secret);
 
-		if (isset($_POST['OneTimePasswordForm'])) {
+		if ($model->load($_POST)) {
 			if ($model->validate()) {
 				// save secret
 				$identity->setOneTimePasswordSecret($secret);

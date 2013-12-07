@@ -2,6 +2,8 @@
 
 namespace nineinchnick\usr;
 
+use Yii;
+
 /**
  * @author Jan Was <jwas@nets.com.pl>
  */
@@ -51,7 +53,7 @@ class Module extends \yii\base\Module
 	/**
 	 * @var string CSS class for html forms.
 	 */
-	public $formCssClass = 'form';
+	public $formCssClass = 'well';
 	/**
 	 * @var array static properties of CHtml class, such as errorSummaryCss and errorMessageCss.
 	 */
@@ -137,7 +139,7 @@ class Module extends \yii\base\Module
 		}
 		if ($this->hybridauthEnabled()) {
 			$hybridauthConfig = array(
-				'base_url' => Yii::app()->createAbsoluteUrl('/'.$this->id.'/hybridauth/callback'),
+				'base_url' => Yii::$app->getUrlManager()->createAbsoluteUrl('/'.$this->id.'/hybridauth/callback'),
 				'providers' => $this->hybridauthProviders,
 			);
 			require dirname(__FILE__) . '/extensions/Hybrid/Auth.php';
@@ -179,9 +181,9 @@ class Module extends \yii\base\Module
 				break;
 			case 'ProfileForm':
 			case 'RecoveryForm':
-				if ($this->captcha !== null && CCaptcha::checkRequirements()) {
+				if ($this->captcha !== null && \yii\captcha\Captcha::checkRequirements()) {
 					$form->attachBehavior('captcha', array(
-						'class' => 'CaptchaFormBehavior',
+						'class' => 'nineinchnick\usr\components\CaptchaFormBehavior',
 						'ruleOptions' => $class == 'ProfileForm' ? array('on'=>'register') : array('except'=>'reset,verify'),
 					));
 				}
@@ -196,7 +198,7 @@ class Module extends \yii\base\Module
 							'required' => $this->oneTimePasswordRequired,
 							'timeout' => $this->oneTimePasswordTimeout,
 						),
-						'controller' => Yii::app()->controller,
+						'controller' => Yii::$app->controller,
 					));
 				}
 				if ($this->passwordTimeout !== null) {

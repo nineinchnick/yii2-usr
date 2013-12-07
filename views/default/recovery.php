@@ -8,7 +8,6 @@ use yii\widgets\ActiveForm;
  * @var yii\web\View $this
  * @var models\RecoveryForm $model
  * @var ActiveForm $form
- * @var nineinchnick\usr\Module $module
  */
 $this->title = Yii::t('usr', 'Username or password recovery');
 $this->params['breadcrumbs'][] = $this->title;
@@ -18,7 +17,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <?= components\Alerts::widget() ?>
 
-<div class="<?= $module->formCssClass; ?>">
+<div class="<?= $this->context->module->formCssClass; ?>">
 <?php $form = ActiveForm::begin([
 	'id' => 'recovery-form',
 	'enableClientValidation'=>true,
@@ -38,13 +37,13 @@ $this->params['breadcrumbs'][] = $this->title;
 			<?= Html::activeHiddenInput($model,'email') ?>
 			<?= Html::activeHiddenInput($model,'activationKey') ?>
 
-<?= $this->render('_newpassword', array('form'=>$form, 'model'=>$model, 'module'=>$module)); ?>
+<?= $this->render('_newpassword', array('form'=>$form, 'model'=>$model)); ?>
 <?php else: ?>
 			<?= $form->field($model, 'username') ?>
 			<?= $form->field($model, 'email') ?>
 
 <?php if($model->getBehavior('captcha') !== null): ?>
-<?= $this->render('_captcha', array('form'=>$form, 'model'=>$model, 'module'=>$module)) ?>
+<?= $this->render('_captcha', array('form'=>$form, 'model'=>$model)) ?>
 <?php endif; ?>
 <?php endif; ?>
 			<div class="form-group">

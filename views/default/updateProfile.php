@@ -8,7 +8,6 @@ use yii\widgets\ActiveForm;
  * @var yii\web\View $this
  * @var models\ProfileForm $model
  * @var ActiveForm $form
- * @var nineinchnick\usr\Module $module
  */
 if ($model->scenario == 'register') {
 	$this->title = Yii::t('usr', 'Registration');
@@ -22,7 +21,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <?= components\Alerts::widget() ?>
 
-<div class="<?php echo $module->formCssClass; ?>">
+<div class="<?php echo $this->context->module->formCssClass; ?>">
 
 <?php $form = ActiveForm::begin([
     'id' => 'profile-form',
@@ -43,13 +42,13 @@ $this->params['breadcrumbs'][] = $this->title;
 <?php if ($passwordForm->scenario !== 'register'): ?>
 				<?= $form->field($passwordForm, 'password')->passwordInput() ?>
 <?php endif; ?>
-<?= $this->render('_newpassword', array('form'=>$form, 'model'=>$passwordForm, 'module'=>$module)) ?>
+<?= $this->render('_newpassword', array('form'=>$form, 'model'=>$passwordForm)) ?>
 
 				<?= $form->field($model, 'firstName') ?>
 				<?= $form->field($model, 'lastName') ?>
 
 <?php if($model->getBehavior('captcha') !== null): ?>
-<?= $this->render('_captcha', array('form'=>$form, 'model'=>$model, 'module'=>$module)) ?>
+<?= $this->render('_captcha', array('form'=>$form, 'model'=>$model)) ?>
 <?php endif; ?>
 				<div class="form-group">
 					<?= Html::submitButton(Yii::t('usr', 'Submit'), ['class' => 'btn btn-primary']) ?>
@@ -58,5 +57,4 @@ $this->params['breadcrumbs'][] = $this->title;
 	</div>
 
 <?php ActiveForm::end(); ?>
-
 </div><!-- form -->

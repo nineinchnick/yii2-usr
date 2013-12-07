@@ -42,7 +42,7 @@ abstract class BaseUsrForm extends \yii\base\Model
 					$names[]=$name;
 			}
 			foreach($this->_behaviors as $name=>$name) {
-				if (($behavior=$this->getBehavior($name)) instanceof FormModelBehavior)
+				if (($behavior=$this->getBehavior($name)) instanceof \nineinchnick\usr\components\FormModelBehavior)
 					$names = array_merge($names, $behavior->attributeNames());
 			}
 			return self::$_names[$className]=$names;
@@ -55,7 +55,7 @@ abstract class BaseUsrForm extends \yii\base\Model
 	{
 		$labels = array();
 		foreach($this->_behaviors as $name=>$foo) {
-			if (($behavior=$this->getBehavior($name)) instanceof FormModelBehavior)
+			if (($behavior=$this->getBehavior($name)) instanceof \nineinchnick\usr\components\FormModelBehavior)
 				$labels = array_merge($labels, $behavior->attributeLabels());
 		}
 		return $labels;
@@ -65,7 +65,7 @@ abstract class BaseUsrForm extends \yii\base\Model
 	{
 		$rules = array();
 		foreach($this->_behaviors as $name=>$foo) {
-			if (($behavior=$this->getBehavior($name)) instanceof FormModelBehavior)
+			if (($behavior=$this->getBehavior($name)) instanceof \nineinchnick\usr\components\FormModelBehavior)
 				$rules = array_merge($rules, $behavior->rules());
 		}
 		return $rules;

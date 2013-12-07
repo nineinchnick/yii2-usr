@@ -34,10 +34,11 @@ class ProfileForm extends BaseUsrForm
 
 	public function scenarios()
 	{
-		return [
-			self::DEFAULT_SCENARIO => $this->attributes(),
-			'register' => $this->attributes(),
-		];
+		$scenarios = parent::scenarios();
+		if (!isset($scenarios['register'])) {
+			$scenarios['register'] = $scenarios[self::DEFAULT_SCENARIO];
+		}
+		return $scenarios;
 	}
 
 	/**

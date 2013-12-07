@@ -5,6 +5,8 @@
  * @author Jan Was <jwas@nets.com.pl>
  */
 
+namespace nineinchnick\usr\components;
+
 /**
  * FormModelBehavior is a base class for behaviors that are attached to a form model component.
  * The model should extend from {@link CFormModel} or its child classes.
@@ -13,7 +15,7 @@
  *
  * @author Jan Was <jwas@nets.com.pl>
  */
-abstract class FormModelBehavior extends CModelBehavior
+abstract class FormModelBehavior extends \yii\base\Behavior
 {
 	private static $_names=array();
 
