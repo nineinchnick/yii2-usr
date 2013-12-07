@@ -27,6 +27,9 @@ class ExpiredPasswordBehavior extends FormModelBehavior
 		$this->_passwordTimeout = $value;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function rules()
 	{
 		$rules = array(

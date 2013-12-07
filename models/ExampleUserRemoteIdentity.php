@@ -1,9 +1,10 @@
 <?php
 
+namespace nineinchnick\usr\models;
+
 /**
  * This is the model class for table "{{user_remote_identities}}".
  *
- * The followings are the available columns in table '{{user_remote_identities}}':
  * @property integer $id
  * @property integer $user_id
  * @property string $provider
@@ -14,10 +15,10 @@
  * The followings are the available model relations:
  * @property User $user
  */
-abstract class ExampleUserRemoteIdentity extends CActiveRecord
+abstract class ExampleUserRemoteIdentity extends \yii\db\ActiveRecord
 {
 	/**
-	 * @return string the associated database table name
+	 * @inheritdoc
 	 */
 	public function tableName()
 	{
@@ -25,18 +26,25 @@ abstract class ExampleUserRemoteIdentity extends CActiveRecord
 	}
 
 	/**
-	 * @return array validation rules for model attributes.
+	 * @inheritdoc
 	 */
 	public function rules()
 	{
-		return array(
-			array('user_id, provider, identifier', 'required'),
-			array('user_id', 'numerical', 'integerOnly'=>true),
-			array('provider, identifier', 'string', 'max'=>100),
-			array('user_id', 'isUnique'),
+		return [
+			[['user_id', 'provider', 'identifier'], 'required'],
+			['user_id', 'numerical', 'integerOnly'=>true],
+			[['provider', 'identifier'], 'string', 'max'=>100],
+			['user_id', 'isUnique'],
 		);
 	}
 
+	/**
+	 * An inline validator that checkes if there are no existing records
+	 * with same provider and identifier for specified user.
+	 * @param string $attribute
+	 * @param array $params
+	 * @return boolean
+	 */
 	public function isUnique($attribute, $params)
 	{
 		return 0 === $this->countByAttributes(array(
@@ -46,62 +54,29 @@ abstract class ExampleUserRemoteIdentity extends CActiveRecord
 		));
 	}
 
-	/**
-	 * @return array relational rules.
-	 */
-	public function relations()
+	public function getUser()
 	{
-		return array(
-			'user' => array(self::BELONGS_TO, 'User', 'user_id'),
-		);
+		return $this->hasOne(User::className(), ['id' => 'user_id']);
 	}
 
 	/**
-	 * @return array customized attribute labels (name=>label)
+	 * @inheritdoc
 	 */
 	public function attributeLabels()
 	{
 		return array(
-			'id' => 'ID',
-			'user_id' => 'User',
-			'provider' => 'Provider',
-			'identifier' => 'Identifier',
-			'created_on' => 'Created On',
-			'last_used_on' => 'Last Used On',
+			'id' => Yii::t('models', 'ID'),
+			'user_id' => Yii::t('models', 'User'),
+			'provider' => Yii::t('models', 'Provider'),
+			'identifier' => Yii::t('models', 'Identifier'),
+			'created_on' => Yii::t('models', 'Created On'),
+			'last_used_on' => Yii::t('models', 'Last Used On'),
 		);
 	}
 
 	/**
-	 * @return CActiveDataProvider the data provider that can return the models
-	 * based on the search/filter conditions.
+	 * @inheritdoc
 	 */
-	public function search()
-	{
-		// @todo Please modify the following code to remove attributes that should not be searched.
-
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('user_id',$this->user_id);
-		$criteria->compare('provider',$this->provider,true);
-		$criteria->compare('identifier',$this->identifier,true);
-		//$criteria->compare('created_on',$this->created_on,true);
-		//$criteria->compare('last_used_on',$this->last_used_on,true);
-
-		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
-		));
-	}
-
-	/**
-	 * @param string $className active record class name.
-	 * @return UserRemoteIdentity the static model class
-	 */
-	public static function model($className=__CLASS__)
-	{
-		return parent::model($className);
-	}
-
 	protected function beforeSave()
 	{
 		if ($this->isNewRecord) {

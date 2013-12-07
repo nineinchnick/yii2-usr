@@ -10,47 +10,54 @@ use Yii;
  */
 abstract class BaseUsrForm extends \yii\base\Model
 {
-	private static $_names=array();
+	/**
+	 * @inheritdoc
+	 */
 	private $_behaviors=array();
 
+	/**
+	 * @inheritdoc
+	 *
+	 * Additionally, tracks attached behaviors to allow iterating over them.
+	 */
 	public function attachBehavior($name, $behavior)
 	{
 		$this->_behaviors[$name] = $name;
-		unset(self::$_names[get_class($this)]);
 		return parent::attachBehavior($name, $behavior);
 	}
 
+	/**
+	 * @inheritdoc
+	 *
+	 * Additionally, tracks attached behaviors to allow iterating over them.
+	 */
 	public function detachBehavior($name)
 	{
 		if (isset($this->_behaviors[$name]))
 			unset($this->_behaviors[$name]);
-		unset(self::$_names[get_class($this)]);
 		return parent::detachBehavior($name);
 	}
 
-	public function attributeNames()
+	/**
+	 * @inheritdoc
+	 *
+	 * Additionally, adds attributes defined in attached behaviors that extend FormModelBehavior.
+	 */
+	public function attributes()
 	{
-		$className=get_class($this);
-		if(!isset(self::$_names[$className]))
-		{
-			$class=new ReflectionClass(get_class($this));
-			$names=array();
-			foreach($class->getProperties() as $property)
-			{
-				$name=$property->getName();
-				if($property->isPublic() && !$property->isStatic())
-					$names[]=$name;
-			}
-			foreach($this->_behaviors as $name=>$name) {
-				if (($behavior=$this->getBehavior($name)) instanceof \nineinchnick\usr\components\FormModelBehavior)
-					$names = array_merge($names, $behavior->attributeNames());
-			}
-			return self::$_names[$className]=$names;
+		$names=parent::attributes();
+		foreach($this->_behaviors as $name=>$name) {
+			if (($behavior=$this->getBehavior($name)) instanceof \nineinchnick\usr\components\FormModelBehavior)
+				$names[] = $behavior->attributes();
 		}
-		else
-			return self::$_names[$className];
+		return $names;
 	}
 
+	/**
+	 * Returns attribute labels defined in attached behaviors that extend FormModelBehavior.
+	 * @return array attribute labels (name => label)
+	 * @see Model::attributeLabels()
+	 */
 	public function getBehaviorLabels()
 	{
 		$labels = array();
@@ -61,6 +68,11 @@ abstract class BaseUsrForm extends \yii\base\Model
 		return $labels;
 	}
 
+	/**
+	 * Returns rules defined in attached behaviors that extend FormModelBehavior.
+	 * @return array validation rules
+	 * @see Model::rules()
+	 */
 	public function getBehaviorRules()
 	{
 		$rules = array();

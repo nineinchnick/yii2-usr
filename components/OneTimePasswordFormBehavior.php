@@ -34,6 +34,9 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
 		));
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function rules()
 	{
 		$rules = array(
@@ -45,6 +48,9 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
 		return $this->applyRuleOptions($rules);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function attributeLabels()
 	{
 		return array(

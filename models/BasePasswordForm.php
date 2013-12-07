@@ -13,8 +13,16 @@ abstract class BasePasswordForm extends BaseUsrForm
 	public $newPassword;
 	public $newVerify;
 
+	/**
+	 * @var array Password strength validation rules.
+	 */
 	private $_passwordStrengthRules;
 
+	/**
+	 * Returns default password strength rules. This is called from the rules() method.
+	 * If no rules has been set in the module configuration, uses sane defaults
+	 * of 8 characters containing at least one capital, lower case letter and number.
+	 */
 	public function getPasswordStrengthRules()
 	{
 		if ($this->_passwordStrengthRules === null) {
@@ -26,6 +34,9 @@ abstract class BasePasswordForm extends BaseUsrForm
 		return $this->_passwordStrengthRules;
 	}
 
+	/**
+	 * Sets rules to validate password strength.
+	 */
 	public function setPasswordStrengthRules($value)
 	{
 		$this->_passwordStrengthRules = $value;
@@ -52,7 +63,13 @@ abstract class BasePasswordForm extends BaseUsrForm
 		return $rules;
 	}
 
-	public function rulesAddScenario($rules, $scenario)
+	/**
+	 * Adds specified scenario to the given set of rules.
+	 * @param array $rules
+	 * @param string $scenario
+	 * @return array
+	 */
+	public function rulesAddScenario(array $rules, $scenario)
 	{
 		foreach($rules as $key=>$rule) {
 			$rules[$key]['on'] = $scenario;
@@ -71,7 +88,16 @@ abstract class BasePasswordForm extends BaseUsrForm
 		]);
 	}
 
+	/**
+	 * Depending on context, could return a new or existing identity
+	 * or the identity of currently logged in user.
+	 * @return IdentityInterface
+	 */
 	abstract public function getIdentity();
+
+	/**
+	 * @return boolean whether password reset was successful
+	 */
 	abstract public function resetPassword();
 
 	/**
@@ -84,6 +110,7 @@ abstract class BasePasswordForm extends BaseUsrForm
 			return;
 		}
 
+		/** @var IdentityInterface */
 		$identity = $this->getIdentity();
 		// check if new password hasn't been used before
 		if ($identity instanceof \nineinchnick\usr\components\PasswordHistoryIdentityInterface) {

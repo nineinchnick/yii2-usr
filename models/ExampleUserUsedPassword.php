@@ -53,6 +53,10 @@ abstract class ExampleUserUsedPassword extends \yii\db\ActiveRecord
 		);
 	}
 
+	/**
+	 * @param string $password password to validate
+	 * @return bool if password provided is valid for saved one
+	 */
 	public function verifyPassword($password)
 	{
 		return $this->password !== null && Security::validatePassword($password, $this->password);

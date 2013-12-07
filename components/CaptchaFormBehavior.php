@@ -21,6 +21,9 @@ class CaptchaFormBehavior extends FormModelBehavior
 {
 	public $verifyCode;
 
+	/**
+	 * @inheritdoc
+	 */
 	public function rules()
 	{
 		$rules = [
@@ -29,6 +32,9 @@ class CaptchaFormBehavior extends FormModelBehavior
 		return $this->applyRuleOptions($rules);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function attributeLabels()
 	{
 		return [

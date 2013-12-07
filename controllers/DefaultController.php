@@ -5,6 +5,10 @@ namespace nineinchnick\usr\controllers;
 use Yii;
 use yii\web\HttpException;
 
+/**
+ * The default controller providing all basic actions.
+ * @author Jan Was <jwas@nets.com.pl>
+ */
 class DefaultController extends UsrController
 {
 	public function actions()
@@ -21,6 +25,9 @@ class DefaultController extends UsrController
 		return $actions;
 	}
 
+	/**
+	 * Users are redirected to their profile if logged in and to login page otherwise.
+	 */
 	public function actionIndex()
 	{
 		if (Yii::$app->user->isGuest)
@@ -43,11 +50,17 @@ class DefaultController extends UsrController
 		$this->redirect($url);
 	}
 
+	/**
+	 * Performs user login, expired password reset or one time password verification.
+	 * @param string $scenario
+	 * @return string
+	 */
 	public function actionLogin($scenario = null)
 	{
 		if (!Yii::$app->user->isGuest)
 			return $this->goBack();
 
+		/** @var LoginForm */
 		$model = $this->module->createFormModel('LoginForm');
 		if ($scenario !== null && in_array($scenario, ['reset', 'verifyOTP'])) {
 			$model->scenario = $scenario;
@@ -83,6 +96,10 @@ class DefaultController extends UsrController
 		return $this->goHome();
 	}
 
+	/**
+	 * Processes a request for password recovery email or resetting the password. 
+	 * @return string
+	 */
 	public function actionRecovery()
 	{
 		if (!$this->module->recoveryEnabled) {
@@ -91,6 +108,7 @@ class DefaultController extends UsrController
 		if (!Yii::$app->user->isGuest)
 			$this->redirect(Yii::$app->user->returnUrl);
 
+		/** @var RecoveryForm */
 		$model = $this->module->createFormModel('RecoveryForm');
 		if (isset($_GET['activationKey'])) {
 			$model->scenario = 'reset';
@@ -101,6 +119,9 @@ class DefaultController extends UsrController
 				Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 				return \yii\widgets\ActiveForm::validate($model);
 			}
+			/**
+			 * If the activation key is missing that means the user is requesting a recovery email.
+			 */
 			if ($model->activationKey !== null)
 				$model->scenario = 'reset';
 			if($model->validate()) {
@@ -124,8 +145,13 @@ class DefaultController extends UsrController
 		return $this->render('recovery', ['model'=>$model]);
 	}
 
+	/**
+	 * Processes email verification.
+	 * @return string
+	 */
 	public function actionVerify()
 	{
+		/** @var RecoveryForm */
 		$model = $this->module->createFormModel('RecoveryForm', 'verify');
 		if (!isset($_GET['activationKey'])) {
 			throw new HttpException(400,Yii::t('usr', 'Activation key is missing.'));
@@ -139,6 +165,10 @@ class DefaultController extends UsrController
 		$this->redirect([Yii::$app->user->isGuest ? 'login' : 'profile']);
 	}
 
+	/**
+	 * Performs user sign-up.
+	 * @return string
+	 */
 	public function actionRegister()
 	{
 		if (!$this->module->registrationEnabled) {
@@ -147,7 +177,9 @@ class DefaultController extends UsrController
 		if (!Yii::$app->user->isGuest)
 			$this->redirect(['profile']);
 
+		/** @var ProfileForm */
 		$model = $this->module->createFormModel('ProfileForm', 'register');
+		/** @var PasswordForm */
 		$passwordForm = $this->module->createFormModel('PasswordForm', 'register');
 
 		if($model->load($_POST)) {
@@ -187,14 +219,21 @@ class DefaultController extends UsrController
 		return $this->render('updateProfile', ['model'=>$model, 'passwordForm'=>$passwordForm]);
 	}
 
+	/**
+	 * Allows users to view or update their profile.
+	 * @param boolean $update
+	 * @return string
+	 */
 	public function actionProfile($update=false)
 	{
 		if (Yii::$app->user->isGuest)
 			$this->redirect(['login']);
 
+		/** @var ProfileForm */
 		$model = $this->module->createFormModel('ProfileForm');
 		$model->setAttributes($model->getIdentity()->getIdentityAttributes());
 		$loadedModel = $model->load($_POST);
+		/** @var PasswordForm */
 		$passwordForm = $this->module->createFormModel('PasswordForm');
 		$loadedPassword = isset($_POST[$passwordForm->formName()]) && trim($_POST[$passwordForm->formName()]['newPassword']) !== '' && $passwordForm->load($_POST);
 
@@ -210,6 +249,10 @@ class DefaultController extends UsrController
 			return \yii\widgets\ActiveForm::validateMultiple($models);
 		}
 		$flashes = ['success'=>[], 'error'=>[]];
+		/**
+		 * Only try to set new password if it has been specified in the form.
+		 * The current password could have been used to authorize other changes.
+		 */
 		if($loadedPassword) {
 			if ($passwordForm->validate()) {
 				if ($passwordForm->resetPassword($model->getIdentity())) {
@@ -252,31 +295,29 @@ class DefaultController extends UsrController
 		}
 	}
 
+	/**
+	 * Used in the DetailView widget in default/viewProfile view in updateProfile action
+	 * to display a toggle link to enable/disable one time passwords.
+	 * @return string
+	 */
 	protected function displayOneTimePasswordSecret()
 	{
 		$model = new OneTimePasswordForm;
 		$identity = $model->getIdentity();
 		$secret = $identity->getOneTimePasswordSecret();
-		/*
-		if ($secret === null && $this->module->oneTimePasswordRequired) {
-			$googleAuthenticator = $this->module->googleAuthenticator;
-			$secret = $googleAuthenticator->generateSecret();
-			$identity->setOneTimePasswordSecret($secret);
-		}
-		$hostInfo = Yii::$app->request->hostInfo;
-		$url = $model->getUrl($identity->username, parse_url($hostInfo, PHP_URL_HOST), $secret);
-		 */
 		if ($secret === null) {
 			$label = CHtml::link(Yii::t('usr', 'Enable'), ['toggleOneTimePassword']);
 		} else {
 			$label = CHtml::link(Yii::t('usr', 'Disable'), ['toggleOneTimePassword']);
-			/*if ($this->module->oneTimePasswordMode === nineinchnick\usr\Module::OTP_TIME) {
-				$label .= '<br/>'.CHtml::image($url, Yii::t('usr', 'One Time Password Secret'));
-			}*/
 		}
 		return $label;
 	}
 
+	/**
+	 * Called from the updateProfile action, enables or disables one time passwords for two step authentication.
+	 * When enabling OTP user must verify that he is able to use them successfully.
+	 * @return string
+	 */
 	public function actionToggleOneTimePassword()
 	{
 		if (Yii::$app->user->isGuest)
@@ -286,6 +327,9 @@ class DefaultController extends UsrController
 
 		$model = new OneTimePasswordForm;
 		$identity = $model->getIdentity();
+		/**
+		 * Disable OTP when a secret is set.
+		 */
 		if ($identity->getOneTimePasswordSecret() !== null) {
 			$identity->setOneTimePasswordSecret(null);
 			Yii::$app->request->cookies->remove(nineinchnick\usr\Module::OTP_COOKIE);
@@ -295,7 +339,10 @@ class DefaultController extends UsrController
 
 		$model->setMode($this->module->oneTimePasswordMode)->setAuthenticator($this->module->googleAuthenticator);
 
-		// generate a secret and save it in session if it hasn't been done yet
+		/**
+		 * When no secret has been set yet, generate a new secret and save it in session.
+		 * Do it if it hasn't been done yet.
+		 */
 		if (($secret=Yii::$app->session[nineinchnick\usr\Module::OTP_SECRET_PREFIX.'newSecret']) === null) {
 			$secret = Yii::$app->session[nineinchnick\usr\Module::OTP_SECRET_PREFIX.'newSecret'] = $this->module->googleAuthenticator->generateSecret();
 
@@ -330,6 +377,10 @@ class DefaultController extends UsrController
 		return $this->render('generateOTPSecret', ['model'=>$model, 'url'=>$url]);
 	}
 
+	/**
+	 * A helper action to return an example password via ajax call.
+	 * @return string
+	 */
 	public function actionPassword()
 	{
 		require(dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'/components/'.DIRECTORY_SEPARATOR.'Diceware.php');

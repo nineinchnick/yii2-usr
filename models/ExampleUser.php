@@ -96,7 +96,9 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 		];
 	}
 
-
+	/**
+	 * @inheritdoc
+	 */
 	public function beforeSave($insert)
 	{
 		if ($insert) {
@@ -109,24 +111,40 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 
 	// {{{ IdentityInterface
 
+	/**
+	 * Finds an identity by the given ID.
+	 *
+	 * @param string|integer $id the ID to be looked for
+	 * @return IdentityInterface|null the identity object that matches the given ID.
+	 */
 	public static function findIdentity($id)
 	{
 		return self::find($id);
 	}
 
+	/**
+	 * @return int|string current user ID
+	 */
 	public function getId()
 	{
 		return $this->id;
 	}
 
+	/**
+	 * @return string current user auth key
+	 */
 	public function getAuthKey()
 	{
 		return Security::hashData($this->id,$this->password);
 	}
 
+	/**
+	 * @param string $authKey
+	 * @return boolean if auth key is valid for current user
+	 */
 	public function validateAuthKey($authKey)
 	{
-		return Security::validateData($authKey,$this->password);
+		return Security::validateData($authKey,$this->getAuthKey());
 	}
 
 	/**
@@ -145,11 +163,21 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 
 	// }}}
 
+	/**
+	 * Finds an identity by the given username.
+	 *
+	 * @param string $username the username to be looked for
+	 * @return IdentityInterface|null the identity object that matches the given ID.
+	 */
 	public static function findByUsername($username)
 	{
 		return self::find(['username'=>$username]);
 	}
 
+	/**
+	 * @param string $password password to validate
+	 * @return bool if password provided is valid for current user
+	 */
 	public function verifyPassword($password)
 	{
 		return Security::validatePassword($password, $this->password);
@@ -157,6 +185,12 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 
 	// {{{ PasswordHistoryIdentityInterface
 
+	/**
+	 * Returns the date when specified password was last set or null if it was never used before.
+	 * If null is passed, returns date of setting current password.
+	 * @param string $password new password or null if checking when the current password has been set
+	 * @return string date in YYYY-MM-DD format or null if password was never used.
+	 */
 	public function getPasswordDate($password = null)
 	{
 		if ($password === null) {
@@ -170,6 +204,12 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 		return null;
 	}
 
+	/**
+	 * Changes the password and updates last password change date.
+	 * Saves old password so it couldn't be used again.
+	 * @param string $password new password
+	 * @return boolean
+	 */
 	public function resetPassword($password)
 	{
 		$hashedPassword = Security::generatePasswordHash($password);
@@ -191,15 +231,22 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 	// {{{ EditableIdentityInterface
 
 	/**
-	 * Maps the ProfileForm attributes to this model's attributes
+	 * Maps the \nineinchnick\usr\models\ProfileForm attributes to the identity attributes
+	 * @see \nineinchnick\usr\models\ProfileForm::attributes()
 	 * @return array
 	 */
-	protected function identityAttributesMap()
+	public function identityAttributesMap()
 	{
 		// notice the capital N in name
 		return ['username' => 'username', 'email' => 'email', 'firstName' => 'firstname', 'lastName' => 'lastname'];
 	}
 
+	/**
+	 * Saves a new or existing identity. Does not set or change the password.
+	 * @see PasswordHistoryIdentityInterface::resetPassword()
+	 * Should detect if the email changed and mark it as not verified.
+	 * @return boolean
+	 */
 	public function saveIdentity()
 	{
 		if ($this->isNewRecord) {
@@ -215,6 +262,12 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 		return true;
 	}
 
+	/**
+	 * Sets attributes like username, email, first and last name.
+	 * Password should be changed using only the resetPassword() method from the PasswordHistoryIdentityInterface.
+	 * @param array $attributes
+	 * @return boolean
+	 */
 	public function setIdentityAttributes(array $attributes)
 	{
 		$allowedAttributes = $this->identityAttributesMap();
@@ -227,6 +280,10 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 		return true;
 	}
 
+	/**
+	 * Returns attributes like username, email, first and last name.
+	 * @return array
+	 */
 	public function getIdentityAttributes()
 	{
 		$allowedAttributes = array_flip($this->identityAttributesMap());
@@ -243,33 +300,66 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 
 	// {{{ ActivatedIdentityInterface
 
+	/**
+	 * Checkes if user account is active. This should not include disabled (banned) status.
+	 * This could include if the email address has been verified.
+	 * Same checks should be done in the authenticate() method, because this method is not called before logging in.
+	 * @return boolean
+	 */
 	public function isActive()
 	{
 		return (bool)$this->is_active;
 	}
 
+	/**
+	 * Checkes if user account is disabled (banned). This should not include active status.
+	 * @return boolean
+	 */
 	public function isDisabled()
 	{
 		return (bool)$this->is_disabled;
 	}
 
+	/**
+	 * Generates and saves a new activation key used for verifying email and restoring lost password.
+	 * The activation key is then sent by email to the user.
+	 *
+	 * Note: only the last generated activation key should be valid and an activation key
+	 * should have it's generation date saved to verify it's age later.
+	 *
+	 * @return string
+	 */
 	public function getActivationKey()
 	{
 		$this->activation_key = md5(time().mt_rand().$this->username);
 		return $this->save(false) ? $this->activation_key : false;
 	}
 
+	/**
+	 * Verifies if specified activation key matches the saved one and if it's not too old.
+	 * This method should not alter any saved data.
+	 * @return integer the verification error code. If there is an error, the error code will be non-zero.
+	 */
 	public function verifyActivationKey($activationKey)
 	{
 		return $this->activation_key === $activationKey ? self::ERROR_AKEY_NONE : self::ERROR_AKEY_INVALID;
 	}
 
+	/**
+	 * Verify users email address, which could also activate his account and allow him to log in.
+	 * Call only after verifying the activation key.
+	 * @return boolean
+	 */
 	public function verifyEmail()
 	{
 		$this->email_verified = 1;
 		return $this->save(false);
 	}
 	
+	/**
+	 * Returns user email address.
+	 * @return string
+	 */
 	public function getEmail()
 	{
 		return $this->email;
@@ -279,17 +369,30 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 
 	// {{{ OneTimePasswordIdentityInterface
 
+	/**
+	 * Returns current secret used to generate one time passwords. If it's null, two step auth is disabled.
+	 * @return string
+	 */
 	public function getOneTimePasswordSecret()
 	{
 		return $this->one_time_password_secret;
 	}
 
+	/**
+	 * Sets current secret used to generate one time passwords. If it's null, two step auth is disabled.
+	 * @param string $secret
+	 * @return boolean
+	 */
 	public function setOneTimePasswordSecret($secret)
 	{
 		$this->one_time_password_secret = $secret;
 		return $this->save(false);
 	}
 
+	/**
+	 * Returns previously used one time password and value of counter used to generate current one time password, used in counter mode.
+	 * @return array array(string, integer) 
+	 */
 	public function getOneTimePassword()
 	{
 		return array(
@@ -298,6 +401,10 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 		);
 	}
 
+	/**
+	 * Sets previously used one time password and value of counter used to generate current one time password, used in counter mode.
+	 * @return boolean
+	 */
 	public function setOneTimePassword($password, $counter = 1)
 	{
 		$this->one_time_password_code = $password;
@@ -309,6 +416,12 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 
 	// {{{ HybridauthIdentityInterface
 
+	/**
+	 * Loads a specific user identity connected to specified provider by an identifier.
+	 * @param string $provider
+	 * @param string $identifier
+	 * @return object a user identity object or null if not found.
+	 */
 	public static function findByProvider($provider, $identifier)
 	{
 		return User::find()
@@ -318,6 +431,12 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 			->one();
 	}
 
+	/**
+	 * Associates this identity with a remote one identified by a provider name and identifier.
+	 * @param string $provider
+	 * @param string $identifier
+	 * @return boolean
+	 */
 	public function addRemoteIdentity($provider, $identifier)
 	{
 		$model = new UserRemoteIdentity;

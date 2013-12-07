@@ -9,6 +9,9 @@ class OneTimePasswordForm extends CFormModel
 {
 	public $oneTimePassword;
 
+	/**
+	 * @var IdentityInterface cached object returned by @see getIdentity()
+	 */
 	private $_identity;
 
 	private $_mode;
@@ -97,6 +100,12 @@ class OneTimePasswordForm extends CFormModel
 		return $this->_identity;
 	}
 
+	/**
+	 * Inline validator that checkes if enteres one time password is valid and hasn't been already used.
+	 * @param string $attribute
+	 * @param array $params
+	 * @return boolean
+	 */
 	public function validOneTimePassword($attribute,$params)
 	{
 		if ($this->_mode === nineinchnick\usr\Module::OTP_TIME) {

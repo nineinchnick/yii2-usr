@@ -17,39 +17,51 @@ namespace nineinchnick\usr\components;
  */
 abstract class FormModelBehavior extends \yii\base\Behavior
 {
-	private static $_names=array();
-
 	private $_ruleOptions = array();
 
+	/**
+	 * Validation rules for attributes of this behavior, that should be merged with rules in the owner model.
+	 * @return array validation rules
+	 * @see \yii\base\Model::rules()
+	 */
 	public function rules()
 	{
 		return array();
 	}
 
+	/**
+	 * Labels for attributes of this behavior, that should be merged with labels in the owner model.
+	 * @return array attribute labels (name => label)
+	 * @see \yii\base\Model::attributeLabels()
+	 */
 	public function attributeLabels()
 	{
 		return array();
 	}
 
-	public function attributeNames()
+	/**
+	 * Returns the list of attribute names.
+	 * By default, this method returns all public non-static properties of the class.
+	 * You may override this method to change the default behavior.
+	 * @return array list of attribute names.
+	 */
+	public function attributes()
 	{
-		$className=get_class($this);
-		if(!isset(self::$_names[$className]))
-		{
-			$class=new ReflectionClass(get_class($this));
-			$names=array();
-			foreach($class->getProperties() as $property)
-			{
-				$name=$property->getName();
-				if($property->isPublic() && !$property->isStatic())
-					$names[]=$name;
+		$class = new ReflectionClass($this);
+		$names = [];
+		foreach ($class->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
+			if (!$property->isStatic()) {
+				$names[] = $property->getName();
 			}
-			return self::$_names[$className]=$names;
 		}
-		else
-			return self::$_names[$className];
+		return $names;
 	}
 
+	/**
+	 * Adds current rule options to the given set of rules.
+	 * @param array $rules
+	 * @return array
+	 */
 	public function applyRuleOptions($rules)
 	{
 		foreach($rules as $key=>$rule) {

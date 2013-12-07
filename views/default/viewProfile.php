@@ -24,7 +24,7 @@ if ($this->context->module->oneTimePasswordMode === nineinchnick\usr\Module::OTP
 		'name'=>'twoStepAuth',
 		'type'=>'raw',
 		'label'=>Yii::t('usr', 'Two step authentication'),
-		'value'=>Yii::$app->controller->displayOneTimePasswordSecret(),
+		'value'=>$this->context->displayOneTimePasswordSecret(),
 	];
 }
 echo DetailView::widget(['model' => $model, 'attributes' => $attributes]);
