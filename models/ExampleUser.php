@@ -331,7 +331,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 	 */
 	public function getActivationKey()
 	{
-		$this->activation_key = md5(time().mt_rand().$this->username);
+		$this->activation_key = Security::generateRandomKey();
 		return $this->save(false) ? $this->activation_key : false;
 	}
 
