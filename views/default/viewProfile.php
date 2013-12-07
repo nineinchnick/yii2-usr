@@ -24,7 +24,7 @@ if ($this->context->module->oneTimePasswordMode === nineinchnick\usr\Module::OTP
 		'name'=>'twoStepAuth',
 		'type'=>'raw',
 		'label'=>Yii::t('usr', 'Two step authentication'),
-		'value'=>$this->context->displayOneTimePasswordSecret(),
+		'value'=>$model->getIdentity()->getOneTimePasswordSecret() === null ? Html::a(Yii::t('usr', 'Enable'), ['toggleOneTimePassword']) : Html::a(Yii::t('usr', 'Disable'), ['toggleOneTimePassword']),
 	];
 }
 echo DetailView::widget(['model' => $model, 'attributes' => $attributes]);

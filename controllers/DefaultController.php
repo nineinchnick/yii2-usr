@@ -23,11 +23,18 @@ class DefaultController extends UsrController
 			];
 		}
 		if ($this->module->dicewareEnabled) {
+			// DicewareAction generates a random passphrase
 			$actions['password'] = [
 				'class'=>'\nineinchnick\usr\components\DicewareAction',
 				'length'=>$this->module->dicewareLength,
 				'extraDigit'=>$this->module->dicewareExtraDigit,
 				'extraChar'=>$this->module->dicewareExtraChar,
+			];
+		}
+		if ($this->module->oneTimePasswordMode != self::OTP_NONE) {
+			// OneTimePaswordAction allows toggling two step auth in user profile
+			$actions['toggleOneTimePassword'] = [
+				'class'=>'\nineinchnick\usr\components\OneTimePaswordAction',
 			];
 		}
 		return $actions;
@@ -301,24 +308,6 @@ class DefaultController extends UsrController
 		} else {
 			return $this->render('viewProfile', ['model'=>$model]);
 		}
-	}
-
-	/**
-	 * Used in the DetailView widget in default/viewProfile view in updateProfile action
-	 * to display a toggle link to enable/disable one time passwords.
-	 * @return string
-	 */
-	protected function displayOneTimePasswordSecret()
-	{
-		$model = new OneTimePasswordForm;
-		$identity = $model->getIdentity();
-		$secret = $identity->getOneTimePasswordSecret();
-		if ($secret === null) {
-			$label = CHtml::link(Yii::t('usr', 'Enable'), ['toggleOneTimePassword']);
-		} else {
-			$label = CHtml::link(Yii::t('usr', 'Disable'), ['toggleOneTimePassword']);
-		}
-		return $label;
 	}
 
 	/**

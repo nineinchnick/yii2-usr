@@ -6,6 +6,9 @@ use Yii;
 use yii\base\Action;
 use nineinchnick\diceware\Diceware;
 
+/**
+ * Returns a JSON string containing a randomly generated passphrase build from easy to remember words and digits.
+ */
 class DicewareAction extends Action
 {
 	/**
