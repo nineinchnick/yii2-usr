@@ -23,7 +23,7 @@ class DicewareAction extends Action
 
 	public function run() {
 		$diceware = new Diceware(Yii::$app->language);
-		$password = $diceware->get_phrase($this->dicewareLength, $this->dicewareExtraDigit, $this->dicewareExtraChar);
+		$password = $diceware->get_phrase($this->length, $this->extraDigit, $this->extraChar);
 		echo json_encode($password);
 	}
 }
