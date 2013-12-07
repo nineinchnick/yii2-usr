@@ -22,6 +22,14 @@ class DefaultController extends UsrController
 				'testLimit'=>0,
 			];
 		}
+		if ($this->module->dicewareEnabled) {
+			$actions['password'] = [
+				'class'=>'\nineinchnick\usr\components\DicewareAction',
+				'length'=>$this->module->dicewareLength,
+				'extraDigit'=>$this->module->dicewareExtraDigit,
+				'extraChar'=>$this->module->dicewareExtraChar,
+			];
+		}
 		return $actions;
 	}
 
@@ -375,17 +383,5 @@ class DefaultController extends UsrController
 		}
 
 		return $this->render('generateOTPSecret', ['model'=>$model, 'url'=>$url]);
-	}
-
-	/**
-	 * A helper action to return an example password via ajax call.
-	 * @return string
-	 */
-	public function actionPassword()
-	{
-		require(dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'/components/'.DIRECTORY_SEPARATOR.'Diceware.php');
-		$diceware = new \Diceware(Yii::$app->language);
-		$password = $diceware->get_phrase($this->module->dicewareLength, $this->module->dicewareExtraDigit, $this->module->dicewareExtraChar);
-		echo json_encode($password);
 	}
 }
