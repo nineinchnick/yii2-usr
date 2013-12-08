@@ -37,14 +37,14 @@ $this->params['breadcrumbs'][] = $this->title;
 <?php endif; ?>
 	</p>
 
-	<?php echo $form->hiddenField($model,'username'); ?>
-	<?php echo $form->hiddenField($model,'password'); ?>
-	<?php echo $form->hiddenField($model,'rememberMe'); ?>
+	<?= Html::activeHiddenInput($model,'username') ?>
+	<?= Html::activeHiddenInput($model,'password') ?>
+	<?= Html::activeHiddenInput($model,'rememberMe') ?>
 
 	<div class="row">
 		<div class="col-lg-5">
 
-			<?= $form->field($model, 'oneTimePassword') ?>
+			<?= $form->field($model, 'oneTimePassword', ['inputOptions'=>['autofocus'=>true, 'class'=>'form-control']]) ?>
 
 			<div class="form-group">
 				<?= Html::submitButton(Yii::t('usr', 'Submit'), ['class' => 'btn btn-primary']) ?>

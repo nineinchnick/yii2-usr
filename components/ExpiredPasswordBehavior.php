@@ -5,6 +5,11 @@
  * @author Jan Was <jwas@nets.com.pl>
  */
 
+namespace nineinchnick\usr\components;
+
+use Yii;
+use DateTime;
+
 /**
  * ExpiredPasswordBehavior adds captcha validation to a form model component.
  * The model should extend from {@link CFormModel} or its child classes.
@@ -45,8 +50,8 @@ class ExpiredPasswordBehavior extends FormModelBehavior
 		}
 
 		$identity = $this->owner->getIdentity();
-		if (!($identity instanceof IPasswordHistoryIdentity))
-			throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.', ['class'=>get_class($identity),'interface'=>'IPasswordHistoryIdentity']));
+		if (!($identity instanceof \nineinchnick\usr\components\PasswordHistoryIdentityInterface))
+			throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.', ['class'=>get_class($identity),'interface'=>'\nineinchnick\usr\components\PasswordHistoryIdentityInterface']));
 		$lastUsed = $identity->getPasswordDate();
 		$lastUsedDate = new DateTime($lastUsed);
 		$today = new DateTime();

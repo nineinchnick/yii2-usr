@@ -33,7 +33,7 @@ $this->params['breadcrumbs'][] = $this->title;
 	<?= Html::activeHiddenInput($model,'password') ?>
 	<?= Html::activeHiddenInput($model,'rememberMe') ?>
 
-<?= $this->render('_newpassword', array('form'=>$form, 'model'=>$model)); ?>
+<?= $this->render('_newpassword', array('form'=>$form, 'model'=>$model, 'focus'=>true)); ?>
 				<div class="form-group">
 					<?= Html::submitButton(Yii::t('usr', 'Change password'), ['class' => 'btn btn-primary']) ?>
 				</div>

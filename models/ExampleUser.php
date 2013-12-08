@@ -31,7 +31,7 @@ use nineinchnick\usr\components;
  * @property UserRemoteIdentity[] $userRemoteIdentities
  * @property UserUsedPassword[] $userUsedPassword
  */
-abstract class ExampleUser extends \yii\db\ActiveRecord implements components\IdentityInterface, components\ActivatedIdentityInterface, components\EditableIdentityInterface
+abstract class ExampleUser extends \yii\db\ActiveRecord implements components\IdentityInterface, components\ActivatedIdentityInterface, components\EditableIdentityInterface, components\OneTimePasswordIdentityInterface, components\PasswordHistoryIdentityInterface
 {
 	/**
 	 * @inheritdoc
@@ -109,6 +109,26 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 		return parent::beforeSave($insert);
 	}
 
+	/**
+	 * Finds an identity by the given username.
+	 *
+	 * @param string $username the username to be looked for
+	 * @return IdentityInterface|null the identity object that matches the given ID.
+	 */
+	public static function findByUsername($username)
+	{
+		return self::find(['username'=>$username]);
+	}
+
+	/**
+	 * @param string $password password to validate
+	 * @return bool if password provided is valid for current user
+	 */
+	public function verifyPassword($password)
+	{
+		return Security::validatePassword($password, $this->password);
+	}
+
 	// {{{ IdentityInterface
 
 	/**
@@ -162,26 +182,6 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 	}
 
 	// }}}
-
-	/**
-	 * Finds an identity by the given username.
-	 *
-	 * @param string $username the username to be looked for
-	 * @return IdentityInterface|null the identity object that matches the given ID.
-	 */
-	public static function findByUsername($username)
-	{
-		return self::find(['username'=>$username]);
-	}
-
-	/**
-	 * @param string $password password to validate
-	 * @return bool if password provided is valid for current user
-	 */
-	public function verifyPassword($password)
-	{
-		return Security::validatePassword($password, $this->password);
-	}
 
 	// {{{ PasswordHistoryIdentityInterface
 

@@ -21,8 +21,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <?php $form = ActiveForm::begin([
 	'id' => 'recovery-form',
 	'enableClientValidation'=>true,
-	'validateOnSubmit'=>true,
-	//'focus'=>array($model,$model->scenario==='reset' ? 'newPassword' : 'username'),
+	'validateOnSubmit'=>$model->getBehavior('captcha') === null,
 ]); ?>
 
 	<p class="note"><?= Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.') ?></p>
@@ -37,9 +36,9 @@ $this->params['breadcrumbs'][] = $this->title;
 			<?= Html::activeHiddenInput($model,'email') ?>
 			<?= Html::activeHiddenInput($model,'activationKey') ?>
 
-<?= $this->render('_newpassword', array('form'=>$form, 'model'=>$model)); ?>
+<?= $this->render('_newpassword', array('form'=>$form, 'model'=>$model, 'focus'=>true)); ?>
 <?php else: ?>
-			<?= $form->field($model, 'username') ?>
+			<?= $form->field($model, 'username', ['inputOptions'=>['autofocus'=>true, 'class' => 'form-control']) ?>
 			<?= $form->field($model, 'email') ?>
 
 <?php if($model->getBehavior('captcha') !== null): ?>

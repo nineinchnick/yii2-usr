@@ -1,4 +1,4 @@
-				<?= $form->field($model, 'newPassword')->passwordInput() ?>
+				<?= $form->field($model, 'newPassword', ['inputOptions' => array_merge(['class'=>'form-control'], $focus ? ['autofocus'=>true] : [])])->passwordInput() ?>
 
 <?php if ($this->context->module->dicewareEnabled): ?>
 		<p><a id="Users_generatePassword" href="#"><?= Yii::t('usr', 'Generate a password') ?></a></p>

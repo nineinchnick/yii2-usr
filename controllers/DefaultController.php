@@ -33,9 +33,9 @@ class DefaultController extends UsrController
 			];
 		}
 		if ($this->module->oneTimePasswordMode != \nineinchnick\usr\Module::OTP_NONE) {
-			// OneTimePaswordAction allows toggling two step auth in user profile
+			// OneTimePasswordAction allows toggling two step auth in user profile
 			$actions['toggleOneTimePassword'] = [
-				'class'=>'\nineinchnick\usr\components\OneTimePaswordAction',
+				'class'=>'\nineinchnick\usr\components\OneTimePasswordAction',
 			];
 		}
 		return $actions;

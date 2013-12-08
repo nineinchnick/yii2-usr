@@ -179,8 +179,7 @@ class Module extends \yii\base\Module
 	public function getGoogleAuthenticator()
 	{
 		if ($this->_googleAuthenticator === null) {
-				require dirname(__FILE__) . '/extensions/GoogleAuthenticator.php/lib/GoogleAuthenticator.php';
-			$this->_googleAuthenticator = new GoogleAuthenticator;
+			$this->_googleAuthenticator = new \Google\Authenticator\GoogleAuthenticator;
 		}
 		return $this->_googleAuthenticator;
 	}
@@ -218,7 +217,7 @@ class Module extends \yii\base\Module
 			case 'LoginForm':
 				if ($this->oneTimePasswordMode != self::OTP_NONE) {
 					$form->attachBehavior('oneTimePasswordBehavior', array(
-						'class' => 'OneTimePasswordFormBehavior',
+						'class' => 'nineinchnick\usr\components\OneTimePasswordFormBehavior',
 						'oneTimePasswordConfig' => array(
 							'authenticator' => $this->googleAuthenticator,
 							'mode' => $this->oneTimePasswordMode,
@@ -230,7 +229,7 @@ class Module extends \yii\base\Module
 				}
 				if ($this->passwordTimeout !== null) {
 					$form->attachBehavior('expiredPasswordBehavior', array(
-						'class' => 'ExpiredPasswordBehavior',
+						'class' => 'nineinchnick\usr\components\ExpiredPasswordBehavior',
 						'passwordTimeout' => $this->passwordTimeout,
 					));
 				}

@@ -1,11 +1,16 @@
 <?php
 
+namespace nineinchnick\usr\models;
+
+use Yii;
+use nineinchnick\usr\Module;
+
 /**
  * OneTimePasswordForm class.
  * OneTimePasswordForm is the data structure for keeping
  * one time password secret form data. It is used by the 'toggleOneTimePassword' action of 'DefaultController'.
  */
-class OneTimePasswordForm extends CFormModel
+class OneTimePasswordForm extends \yii\base\Model
 {
 	public $oneTimePassword;
 
@@ -80,12 +85,12 @@ class OneTimePasswordForm extends CFormModel
 
 	public function getNewCode()
 	{
-		return $this->_authenticator->getCode($this->_secret, $this->_mode == nineinchnick\usr\Module::OTP_TIME ? null : $this->getPreviousCounter());
+		return $this->_authenticator->getCode($this->_secret, $this->_mode == Module::OTP_TIME ? null : $this->getPreviousCounter());
 	}
 
     public function getUrl($user, $hostname, $secret) {
         $url =  "otpauth://totp/$user@$hostname%3Fsecret%3D$secret";
-        $encoder = "https://www.google.com/chart?chs=200x200&chld=M|0&cht=qr&chl=";
+        $encoder = "https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=";
         return $encoder.$url;
 	}
 
@@ -108,9 +113,9 @@ class OneTimePasswordForm extends CFormModel
 	 */
 	public function validOneTimePassword($attribute,$params)
 	{
-		if ($this->_mode === nineinchnick\usr\Module::OTP_TIME) {
+		if ($this->_mode === Module::OTP_TIME) {
 			$valid = $this->_authenticator->checkCode($this->_secret, $this->$attribute);
-		} elseif ($this->_mode === nineinchnick\usr\Module::OTP_COUNTER) {
+		} elseif ($this->_mode === Module::OTP_COUNTER) {
 			$valid = $this->_authenticator->getCode($this->_secret, $this->getPreviousCounter()) == $this->$attribute;
 		} else {
 			$valid = false;
@@ -120,9 +125,9 @@ class OneTimePasswordForm extends CFormModel
 			return false;
 		}
 		if ($this->$attribute == $this->getPreviousCode()) {
-			if ($this->_mode === nineinchnick\usr\Module::OTP_TIME) {
+			if ($this->_mode === Module::OTP_TIME) {
 				$message = Yii::t('usr','Please wait until next code will be generated.');
-			} elseif ($this->_mode === nineinchnick\usr\Module::OTP_COUNTER) {
+			} elseif ($this->_mode === Module::OTP_COUNTER) {
 				$message = Yii::t('usr','Please log in again to request a new code.');
 			}
 			$this->addError($attribute,Yii::t('usr','Entered code has already been used.').' '.$message);

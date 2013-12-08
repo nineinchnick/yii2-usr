@@ -22,7 +22,7 @@ $attributes = ['username', 'email', 'firstName', 'lastName'];
 if ($this->context->module->oneTimePasswordMode === nineinchnick\usr\Module::OTP_TIME || $this->context->module->oneTimePasswordMode === nineinchnick\usr\Module::OTP_COUNTER) {
 	$attributes[] = [
 		'name'=>'twoStepAuth',
-		'type'=>'raw',
+		'format'=>'raw',
 		'label'=>Yii::t('usr', 'Two step authentication'),
 		'value'=>$model->getIdentity()->getOneTimePasswordSecret() === null ? Html::a(Yii::t('usr', 'Enable'), ['toggleOneTimePassword']) : Html::a(Yii::t('usr', 'Disable'), ['toggleOneTimePassword']),
 	];

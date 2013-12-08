@@ -27,7 +27,7 @@ $this->params['breadcrumbs'][] = $this->title;
     'id' => 'profile-form',
     'enableAjaxValidation'=>true,
 	'enableClientValidation'=>false,
-	'validateOnSubmit'=>true,
+	'validateOnSubmit'=>$model->getBehavior('captcha') === null,
 ]); ?>
 
 	<p class="note"><?= Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.') ?></p>
@@ -36,13 +36,13 @@ $this->params['breadcrumbs'][] = $this->title;
 
 	<div class="row">
 		<div class="col-lg-5">
-				<?= $form->field($model, 'username') ?>
+				<?= $form->field($model, 'username', ['inputOptions'=>['autofocus'=>true, 'class'=>'form-control']]) ?>
 				<?= $form->field($model, 'email') ?>
 
 <?php if ($passwordForm->scenario !== 'register'): ?>
 				<?= $form->field($passwordForm, 'password')->passwordInput() ?>
 <?php endif; ?>
-<?= $this->render('_newpassword', array('form'=>$form, 'model'=>$passwordForm)) ?>
+<?= $this->render('_newpassword', array('form'=>$form, 'model'=>$passwordForm, 'focus'=>false)) ?>
 
 				<?= $form->field($model, 'firstName') ?>
 				<?= $form->field($model, 'lastName') ?>

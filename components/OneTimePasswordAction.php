@@ -20,7 +20,7 @@ class OneTimePasswordAction extends Action
 		if ($module->oneTimePasswordRequired)
 			$this->controller->redirect(['profile']);
 
-		$model = new OneTimePasswordForm;
+		$model = new \nineinchnick\usr\models\OneTimePasswordForm;
 		/** @var IdentityInterface */
 		$identity = $model->getIdentity();
 		/**
@@ -28,8 +28,8 @@ class OneTimePasswordAction extends Action
 		 */
 		if ($identity->getOneTimePasswordSecret() !== null) {
 			$identity->setOneTimePasswordSecret(null);
-			Yii::$app->request->cookies->remove(Module::OTP_COOKIE);
-			$this->controller->redirect('profile');
+			Yii::$app->response->cookies->remove(Module::OTP_COOKIE);
+			$this->controller->redirect(['profile']);
 			return;
 		}
 
@@ -56,7 +56,7 @@ class OneTimePasswordAction extends Action
 				Yii::$app->session[Module::OTP_SECRET_PREFIX.'newSecret'] = null;
 				// save current code as used
 				$identity->setOneTimePassword($model->oneTimePassword, $module->oneTimePasswordMode === Module::OTP_TIME ? floor(time() / 30) : $model->getPreviousCounter() + 1);
-				$this->controller->redirect('profile');
+				$this->controller->redirect(['profile']);
 			}
 		}
 		if (YII_DEBUG) {

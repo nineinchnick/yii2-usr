@@ -40,7 +40,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <?php endif; ?>
 	</p>
 
-			<?= $form->field($model, 'oneTimePassword') ?>
+			<?= $form->field($model, 'oneTimePassword', ['inputOptions'=>['autofocus'=>true, 'class' => 'form-control']]) ?>
 
 			<div class="form-group">
 				<?= Html::submitButton(Yii::t('usr', 'Submit'), ['class' => 'btn btn-primary']) ?>

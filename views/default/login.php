@@ -30,7 +30,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 	<div class="row">
 		<div class="col-lg-5">
-			<?= $form->field($model, 'username') ?>
+			<?= $form->field($model, 'username', ['inputOptions'=>['autofocus'=>true, 'class' => 'form-control']]) ?>
 			<?= $form->field($model, 'password')->passwordInput() ?>
 			<?= $form->field($model, 'rememberMe')->checkbox() ?>
 <?php if ($this->context->module->recoveryEnabled): ?>
