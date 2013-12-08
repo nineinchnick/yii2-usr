@@ -3,34 +3,41 @@ Usr module
 
 Usr provides basic user actions like:
 
-* logging in and out,
-* password recovery and reset if expired
-* registration with optional email verification,
-* viewing and updating a minimal user profile along with changing password
+* Logging in and out.
+* Password recovery and reset if expired.
+* Registration with optional email verification.
+* Viewing and updating a minimal user profile along with changing password.
+* Use good password hashing.
 
-It's goal is to be easier to integrate into current projects by not requiring to modify existing user database table and model.
-Only the User class is used to provide all business logic by implementing few provided interfaces.
+Advanced features:
 
-Key features:
-
-* smaller codebase, easier to read/review
-* use good password hashing
-* no need to modify current tables and models
-* built-in Hybridauth for logging using social site identities
-* built-in Google Authenticator for two step authentication using one time passwords
+* Captcha on registration and recovery forms.
+* Passphrase generator to help users choose secure passwords.
+* Easier to integrate into current projects by not requiring to modify existing user database table and model. Example models and migrations are provided.
+* Support for Google Authenticator for two step authentication using one time passwords.
+* Support for Hybridauth for logging using social site identities.
 
 Currently, there is no admin user managment provided and it is not planned. The reason for this is that the CRUDs vary much in every project and it should not be time-expensive to create another one for users utilizing interfaces implemented in User class for this module.
 Actions provided by this module does not require any more authorization than checking if a user is logged in. An admin interface on the other hand requires to define auth items to check for access.
 
+See [the demo](http://demo2.niix.pl).
+
 # Installation
 
-Download and unpack in modules OR install via composer as nineinchnick/yii2-usr.
+1. Install [Yii2](https://github.com/yiisoft/yii2/tree/master/apps/basic) using your preferred method
+2. Install package via [composer](http://getcomposer.org/download/)
+  * Run `php composer.phar require nineinchnick/yii2-usr "dev-master"` OR add to composer.json require section `"nineinchnick/yii2-usr": "dev-master"`
+  * If one time passwords will be used, also install "sonata-project/google-authenticator"
+  * If Hybridauth will be used, also install "hybridauth/hybridauth"
+3. Update config file *config/web.php* as shown below. Check out the Module for more available options.
+4. Use provided example User model or implement required interfaces in existing User model. These are described in next chapter.
 
-Enable the module in the config/web.php file:
+
+Example config (see Module.php file for full options reference):
 
 ~~~php
 $config = [
-    ......
+    // .........
 	'aliases' => [
 		'@nineinchnick/usr' => '@vendor/nineinchnick/yii2-usr',
 	],
@@ -39,8 +46,16 @@ $config = [
 			'class' => 'nineinchnick\usr\Module',
 		],
 	],
+	'components' => [
+		'user' => [
+			'identityClass' => 'app\models\User',
+			'loginUrl' => ['usr/login'],
+		],
+		// ..........
+	],
 ]
 ~~~
+
 
 Requirements for the identity (User) class are described in next chapter.
 
@@ -49,10 +64,6 @@ the following URLs in your application configuration in order to access UsrModul
 
 ~~~php
 	'components' => [
-		'user' => [
-			'identityClass' => 'app\models\User',
-			'loginUrl' => ['usr/login'],
-		],
 		'urlManager' => [
 			'enablePrettyUrl' => true,
 			'showScriptName' => false,
@@ -61,8 +72,6 @@ the following URLs in your application configuration in order to access UsrModul
 		],
 	],
 ~~~
-
-See Module.php file for full options reference.
 
 # User interfaces 
 
@@ -95,7 +104,7 @@ This interface allow saving and retrieving a secret used to generate one time pa
 
 # User model example
 
-A sample ExampleUser and ExampleUserUsedPassword models along with database migrations are provided respectively in the 'components', 'models' and 'migrations' folders.
+A sample ExampleUser and ExampleUserUsedPassword models along with database migrations are provided respectively in the 'models' and 'migrations' folders.
 
 They could be used as-is by extending from or copying to be modified to better suit a project.
 
