@@ -37,9 +37,9 @@ class ExpiredPasswordBehavior extends FormModelBehavior
 	 */
 	public function rules()
 	{
-		$rules = array(
-			array('password', 'passwordHasNotExpired', 'except'=>'reset, hybridauth, verifyOTP'),
-		);
+		$rules = [
+			['password', 'passwordHasNotExpired', 'except'=>['reset', 'hybridauth', 'verifyOTP']],
+		];
 		return $this->applyRuleOptions($rules);
 	}
 

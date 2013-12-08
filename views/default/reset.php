@@ -23,7 +23,7 @@ $this->params['breadcrumbs'][] = $this->title;
 	'enableClientValidation'=>true,
 	'validateOnSubmit'=>true,
 	'action'=>['login', 'scenario'=>'reset'],
-)); ?>
+]); ?>
 
 	<p class="note"><?php echo Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.'); ?></p>
 
@@ -33,10 +33,14 @@ $this->params['breadcrumbs'][] = $this->title;
 	<?= Html::activeHiddenInput($model,'password') ?>
 	<?= Html::activeHiddenInput($model,'rememberMe') ?>
 
-<?= $this->render('_newpassword', array('form'=>$form, 'model'=>$model, 'focus'=>true)); ?>
-				<div class="form-group">
-					<?= Html::submitButton(Yii::t('usr', 'Change password'), ['class' => 'btn btn-primary']) ?>
-				</div>
+	<div class="row">
+		<div class="col-lg-5">
+
+<?= $this->render('_newpassword', ['form'=>$form, 'model'=>$model, 'focus'=>true]); ?>
+
+			<div class="form-group">
+				<?= Html::submitButton(Yii::t('usr', 'Change password'), ['class' => 'btn btn-primary']) ?>
+			</div>
 		</div>
 	</div>
 

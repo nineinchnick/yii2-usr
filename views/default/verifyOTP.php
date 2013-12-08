@@ -22,7 +22,7 @@ $this->params['breadcrumbs'][] = $this->title;
 	'id'=>'login-form',
 	'enableClientValidation'=>true,
 	'validateOnSubmit'=>true,
-	'action'=>array('login', 'scenario'=>'verifyOTP'),
+	'action'=>['login', 'scenario'=>'verifyOTP'],
 ]); ?>
 
 	<p class="note"><?= Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.'); ?></p>

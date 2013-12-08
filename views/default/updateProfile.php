@@ -36,23 +36,25 @@ $this->params['breadcrumbs'][] = $this->title;
 
 	<div class="row">
 		<div class="col-lg-5">
-				<?= $form->field($model, 'username', ['inputOptions'=>['autofocus'=>true, 'class'=>'form-control']]) ?>
-				<?= $form->field($model, 'email') ?>
+			<?= $form->field($model, 'username', ['inputOptions'=>['autofocus'=>true, 'class'=>'form-control']]) ?>
+			<?= $form->field($model, 'email') ?>
 
 <?php if ($passwordForm->scenario !== 'register'): ?>
-				<?= $form->field($passwordForm, 'password')->passwordInput() ?>
+			<?= $form->field($passwordForm, 'password')->passwordInput() ?>
 <?php endif; ?>
-<?= $this->render('_newpassword', array('form'=>$form, 'model'=>$passwordForm, 'focus'=>false)) ?>
 
-				<?= $form->field($model, 'firstName') ?>
-				<?= $form->field($model, 'lastName') ?>
+<?= $this->render('_newpassword', ['form'=>$form, 'model'=>$passwordForm, 'focus'=>false]) ?>
+
+			<?= $form->field($model, 'firstName') ?>
+			<?= $form->field($model, 'lastName') ?>
 
 <?php if($model->getBehavior('captcha') !== null): ?>
-<?= $this->render('_captcha', array('form'=>$form, 'model'=>$model)) ?>
+<?= $this->render('_captcha', ['form'=>$form, 'model'=>$model]) ?>
 <?php endif; ?>
-				<div class="form-group">
-					<?= Html::submitButton(Yii::t('usr', 'Submit'), ['class' => 'btn btn-primary']) ?>
-				</div>
+
+			<div class="form-group">
+				<?= Html::submitButton(Yii::t('usr', 'Submit'), ['class' => 'btn btn-primary']) ?>
+			</div>
 		</div>
 	</div>
 

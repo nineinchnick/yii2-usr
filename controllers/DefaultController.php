@@ -128,7 +128,7 @@ class DefaultController extends UsrController
 				return \yii\widgets\ActiveForm::validate($model);
 			}
 			if($model->validate()) {
-				if (($model->scenario !== 'reset' || $model->resetPassword()) && $model->login($this->module->rememberMeDuration)) {
+				if (($model->scenario !== 'reset' || $model->resetPassword($model->newPassword)) && $model->login($this->module->rememberMeDuration)) {
 					return $this->afterLogin();
 				} else {
 					Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to change password or log in using new password.'));

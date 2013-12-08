@@ -62,12 +62,12 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 
 	public function getUserRemoteIdentities()
 	{
-		return $this->hasMany(UserRemoteIdentity::className(), ['user_id' => 'id']);
+		return $this->hasMany(\app\models\UserRemoteIdentity::className(), ['user_id' => 'id']);
 	}
 
 	public function getUserUsedPasswords()
 	{
-		return $this->hasMany(UserUsedPassword::className(), ['user_id' => 'id'])->orderBy('set_on DESC');
+		return $this->hasMany(\app\models\UserUsedPassword::className(), ['user_id' => 'id'])->orderBy('set_on DESC');
 	}
 
 	/**

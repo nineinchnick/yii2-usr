@@ -83,10 +83,10 @@ class Module extends \yii\base\Module
 	 */
 	public $dicewareExtraChar = false;
 	/**
-	 * @var array Available Hybridauth providers, indexed by name, defined as array('enabled'=>true|false, 'keys'=>array('id'=>string, 'key'=>string, 'secret'=>string), 'scope'=>string)
+	 * @var array Available Hybridauth providers, indexed by name, defined as ['enabled'=>true|false, 'keys'=>['id'=>string, 'key'=>string, 'secret'=>string], 'scope'=>string]
 	 * @see http://hybridauth.sourceforge.net/userguide.html
 	 */
-	public $hybridauthProviders = array();
+	public $hybridauthProviders = [];
 	/**
 	 * @var string If set to nineinchnick\usr\Module::OTP_TIME or nineinchnick\usr\Module::OTP_COUNTER, two step authentication is enabled using one time passwords.
 	 * Time mode uses codes generated using current time and requires the user to use an external application, like Google Authenticator on Android.
@@ -144,10 +144,10 @@ class Module extends \yii\base\Module
 			}
 		}
 		if ($this->hybridauthEnabled()) {
-			$hybridauthConfig = array(
+			$hybridauthConfig = [
 				'base_url' => Yii::$app->getUrlManager()->createAbsoluteUrl('/'.$this->id.'/hybridauth/callback'),
 				'providers' => $this->hybridauthProviders,
-			);
+			];
 			require dirname(__FILE__) . '/extensions/Hybrid/Auth.php';
 			$this->_hybridauth = new Hybrid_Auth($hybridauthConfig);
 		}
@@ -208,30 +208,30 @@ class Module extends \yii\base\Module
 			case 'ProfileForm':
 			case 'RecoveryForm':
 				if ($this->captcha !== null && \yii\captcha\Captcha::checkRequirements()) {
-					$form->attachBehavior('captcha', array(
+					$form->attachBehavior('captcha', [
 						'class' => 'nineinchnick\usr\components\CaptchaFormBehavior',
-						'ruleOptions' => $class == 'ProfileForm' ? array('on'=>'register') : array('except'=>'reset,verify'),
-					));
+						'ruleOptions' => $class == 'ProfileForm' ? ['on'=>'register'] : ['except'=>['reset','verify']],
+					]);
 				}
 				break;
 			case 'LoginForm':
 				if ($this->oneTimePasswordMode != self::OTP_NONE) {
-					$form->attachBehavior('oneTimePasswordBehavior', array(
+					$form->attachBehavior('oneTimePasswordBehavior', [
 						'class' => 'nineinchnick\usr\components\OneTimePasswordFormBehavior',
-						'oneTimePasswordConfig' => array(
+						'oneTimePasswordConfig' => [
 							'authenticator' => $this->googleAuthenticator,
 							'mode' => $this->oneTimePasswordMode,
 							'required' => $this->oneTimePasswordRequired,
 							'timeout' => $this->oneTimePasswordTimeout,
-						),
+						],
 						'controller' => Yii::$app->controller,
-					));
+					]);
 				}
 				if ($this->passwordTimeout !== null) {
-					$form->attachBehavior('expiredPasswordBehavior', array(
+					$form->attachBehavior('expiredPasswordBehavior', [
 						'class' => 'nineinchnick\usr\components\ExpiredPasswordBehavior',
 						'passwordTimeout' => $this->passwordTimeout,
-					));
+					]);
 				}
 				break;
 		}

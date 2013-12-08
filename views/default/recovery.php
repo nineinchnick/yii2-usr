@@ -36,15 +36,17 @@ $this->params['breadcrumbs'][] = $this->title;
 			<?= Html::activeHiddenInput($model,'email') ?>
 			<?= Html::activeHiddenInput($model,'activationKey') ?>
 
-<?= $this->render('_newpassword', array('form'=>$form, 'model'=>$model, 'focus'=>true)); ?>
+<?= $this->render('_newpassword', ['form'=>$form, 'model'=>$model, 'focus'=>true]); ?>
+
 <?php else: ?>
 			<?= $form->field($model, 'username', ['inputOptions'=>['autofocus'=>true, 'class' => 'form-control']) ?>
 			<?= $form->field($model, 'email') ?>
 
 <?php if($model->getBehavior('captcha') !== null): ?>
-<?= $this->render('_captcha', array('form'=>$form, 'model'=>$model)) ?>
+<?= $this->render('_captcha', ['form'=>$form, 'model'=>$model]) ?>
 <?php endif; ?>
-<?php endif; ?>
+
+<?php endif; // $model->scenario == 'reset' ?>
 			<div class="form-group">
 				<?= Html::submitButton(Yii::t('usr', 'Submit'), ['class' => 'btn btn-primary']) ?>
 			</div>
