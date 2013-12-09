@@ -39,7 +39,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <?= $this->render('_newpassword', ['form'=>$form, 'model'=>$model, 'focus'=>true]); ?>
 
 <?php else: ?>
-			<?= $form->field($model, 'username', ['inputOptions'=>['autofocus'=>true, 'class' => 'form-control']) ?>
+			<?= $form->field($model, 'username', ['inputOptions'=>['autofocus'=>true, 'class' => 'form-control']]) ?>
 			<?= $form->field($model, 'email') ?>
 
 <?php if($model->getBehavior('captcha') !== null): ?>
