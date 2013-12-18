@@ -1,5 +1,9 @@
 <?php
 
+namespace nineinchnick\usr\models;
+
+use Yii;
+
 /**
  * HybridauthForm class.
  * HybridauthForm is the data structure for keeping
@@ -19,7 +23,7 @@ class HybridauthForm extends BaseUsrForm
 	/**
 	 * @var array @see \nineinchnick\usr\Module::$hybridauthProviders
 	 */
-	protected $_validProviders = array();
+	protected $_validProviders = [];
 	protected $_hybridAuth;
 	protected $_hybridAuthAdapter;
 	/**
@@ -32,14 +36,25 @@ class HybridauthForm extends BaseUsrForm
 	 */
 	public function rules()
 	{
-		return array(
-			array('provider, openid_identifier', 'filter', 'filter'=>'trim'),
+		return [
+			[['provider', 'openid_identifier'], 'filter', 'filter'=>'trim'],
 			// can't filter this because it's displayed to the user
-			//array('provider', 'filter', 'filter'=>'strtolower'),
-			array('provider', 'required'),
-			array('provider', 'validProvider'),
-			array('openid_identifier', 'required', 'on'=>'openid'),
-		);
+			//['provider', 'filter', 'filter'=>'strtolower'],
+			['provider', 'required'],
+			['provider', 'validProvider'],
+			['openid_identifier', 'required', 'on'=>'openid'],
+		];
+	}
+
+	public function scenarios()
+	{
+		$scenarios = parent::scenarios();
+		foreach($this->_validProviders as $provider=>$options) {
+			if (!isset($scenarios[$provider])) {
+				$scenarios[$provider] = $scenarios[self::DEFAULT_SCENARIO];
+			}
+		}
+		return $scenarios;
 	}
 
 	public function validProvider($attribute, $params)
@@ -53,7 +68,7 @@ class HybridauthForm extends BaseUsrForm
 	 */
 	public function setValidProviders($providers)
 	{
-		$this->_validProviders = array();
+		$this->_validProviders = [];
 		foreach($providers as $provider=>$options) {
 			$this->_validProviders[strtolower($provider)] = !isset($options['enabled']) || $options['enabled'];
 		}
@@ -81,10 +96,10 @@ class HybridauthForm extends BaseUsrForm
 	 */
 	public function attributeLabels()
 	{
-		return array(
-			'provider'		=> Yii::t('usr','Provider'),
-			'openid_identifier'		=> Yii::t('usr','OpenID Identifier'),
-		);
+		return [
+			'provider'			=> Yii::t('usr','Provider'),
+			'openid_identifier'	=> Yii::t('usr','OpenID Identifier'),
+		];
 	}
 
 	public function requiresFilling()
@@ -102,10 +117,10 @@ class HybridauthForm extends BaseUsrForm
 
 	public function login()
 	{
-		$userIdentityClass = $this->userIdentityClass;
-		$fakeIdentity = new $userIdentityClass(null, null);
-		if (!($fakeIdentity instanceof IHybridauthIdentity))
-			throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.',array('{class}'=>get_class($identity),'{interface}'=>'IHybridauthIdentity')));
+		$identityClass = Yii::$app->user->identityClass;
+		$fakeIdentity = new $identityClass;
+		if (!($fakeIdentity instanceof \nineinchnick\usr\components\HybridauthIdentityInterface))
+			throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>get_class($fakeIdentity),'interface'=>'\nineinchnick\usr\components\HybridauthIdentityInterface']));
 
 		$params = $this->getAttributes();
 		unset($params['provider']);
@@ -113,8 +128,8 @@ class HybridauthForm extends BaseUsrForm
 
 		if ($this->_hybridAuthAdapter->isUserConnected()) {
 			$profile = $this->_hybridAuthAdapter->getUserProfile();
-			if (($this->_identity=$userIdentityClass::findByProvider(strtolower($this->provider), $profile->identifier)) !== null) {
-				return Yii::app()->user->login($this->_identity,0);
+			if (($this->_identity=$identityClass::findByProvider(strtolower($this->provider), $profile->identifier)) !== null) {
+				return Yii::$app->user->login($this->_identity,0);
 			}
 		}
 		return false;
@@ -124,8 +139,8 @@ class HybridauthForm extends BaseUsrForm
 	{
 		$userIdentityClass = $this->userIdentityClass;
 		$identity = new $userIdentityClass(null, null);
-		if (!($identity instanceof IHybridauthIdentity))
-			throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.',array('{class}'=>get_class($identity),'{interface}'=>'IHybridauthIdentity')));
+		if (!($identity instanceof \nineinchnick\usr\components\HybridauthIdentityInterface))
+			throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>get_class($identity),'interface'=>'\nineinchnick\usr\components\HybridauthIdentityInterface']));
 		$identity->setId($user_id);
 		$profile = $this->_hybridAuthAdapter->getUserProfile();
 		return $identity->addRemoteIdentity(strtolower($this->provider), $profile->identifier);

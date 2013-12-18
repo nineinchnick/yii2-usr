@@ -1,46 +1,49 @@
-<?php /*
-@var $this HybridauthController */
+<?php
 
-$title = Yii::t('UsrModule.usr', 'Log in using {provider}', array('{provider}'=>$remoteLogin->provider));
-if (isset($this->breadcrumbs))
-	$this->breadcrumbs=array($this->module->id, $title);
-$this->pageTitle = Yii::app()->name.' - '.$title;
+use nineinchnick\usr\components;
+use yii\helpers\Html;
+use yii\widgets\ActiveForm;
 
+/**
+ * @var yii\web\View $this
+ * @var models\HybridauthForm $remoteLogin
+ * @var models\LoginForm $localLogin
+ * @var models\ProfileForm $localProfile
+ * @var ActiveForm $form
+ */
+$this->title = Yii::t('usr', 'Log in using {provider}', ['provider'=>$remoteLogin->provider]);
+$this->params['breadcrumbs'][] = $this->title;
 ?>
-<h1><?php echo CHtml::encode($title); ?></h1>
 
-<?php $this->displayFlashes(); ?>
+<h1><?= Html::encode($this->title) ?></h1>
 
-<div class="<?php echo $this->module->formCssClass; ?>">
-<?php $form=$this->beginWidget($this->module->formClass, array(
+<?= components\Alerts::widget() ?>
+
+<div class="<?= $this->context->module->formCssClass; ?>">
+<?php $form = ActiveForm::begin([
 	'id'=>'remoteLogin-form',
-	'action'=>array($this->action->id),
 	'enableClientValidation'=>true,
-	'clientOptions'=>array(
-		'validateOnSubmit'=>true,
-	),
-	'focus'=>$remoteLogin->requiresFilling() ? array($remoteLogin,'openid_identifier') : null,
-)); ?>
+	'validateOnSubmit'=>true,
+]); ?>
 
-	<?php echo $form->hiddenField($remoteLogin,'provider'); ?>
+	<?= Html::activeHiddenInput($remoteLogin,'provider') ?>
 
-	<div style="<?php echo $remoteLogin->requiresFilling() ? '' : 'display: none;'; ?>">
-		<p class="note"><?php echo Yii::t('UsrModule.usr', 'Fields marked with <span class="required">*</span> are required.'); ?></p>
+	<div style="<?= $remoteLogin->requiresFilling() ? '' : 'display: none;'; ?>">
+		<p class="note"><?= Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.') ?></p>
 
-		<?php echo $form->errorSummary($remoteLogin); ?>
+		<?= $form->errorSummary($remoteLogin); ?>
 
-		<div class="control-group">
-			<?php echo $form->labelEx($remoteLogin,'openid_identifier'); ?>
-			<?php echo $form->textField($remoteLogin,'openid_identifier'); ?>
-			<?php echo $form->error($remoteLogin,'openid_identifier'); ?>
-		</div>
+		<div class="row">
+			<div class="col-lg-5">
 
-		<div class="buttons">
-			<?php echo CHtml::submitButton(Yii::t('UsrModule.usr', 'Log in'), array('class'=>$this->module->submitButtonCssClass)); ?>
+			<?= $form->field($remoteLogin, 'openid_identifier') ?>
+
+			<div class="form-group">
+				<?= Html::submitButton(Yii::t('usr', 'Log in'), ['class' => 'btn btn-primary']) ?>
+			</div>
 		</div>
 	</div>
 
-	</div>
-<?php $this->endWidget(); ?>
+<?php ActiveForm::end(); ?>
 </div><!-- form -->
 

@@ -148,8 +148,7 @@ class Module extends \yii\base\Module
 				'base_url' => Yii::$app->getUrlManager()->createAbsoluteUrl('/'.$this->id.'/hybridauth/callback'),
 				'providers' => $this->hybridauthProviders,
 			];
-			require dirname(__FILE__) . '/extensions/Hybrid/Auth.php';
-			$this->_hybridauth = new Hybrid_Auth($hybridauthConfig);
+			$this->_hybridauth = new \Hybrid_Auth($hybridauthConfig);
 		}
 	}
 
@@ -194,7 +193,7 @@ class Module extends \yii\base\Module
 	 */
 	public function createFormModel($class, $scenario=null)
 	{
-		$namespacedClass = "nineinchnick\\usr\\models\\{$class}";
+		$namespacedClass = "\\nineinchnick\\usr\\models\\{$class}";
 		/** @var Model */
 		$form = new $namespacedClass;
 		if ($scenario !== null)

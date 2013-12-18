@@ -20,7 +20,7 @@ abstract class ExampleUserRemoteIdentity extends \yii\db\ActiveRecord
 	/**
 	 * @inheritdoc
 	 */
-	public function tableName()
+	public static function tableName()
 	{
 		return '{{%user_remote_identities}}';
 	}
@@ -35,7 +35,7 @@ abstract class ExampleUserRemoteIdentity extends \yii\db\ActiveRecord
 			['user_id', 'numerical', 'integerOnly'=>true],
 			[['provider', 'identifier'], 'string', 'max'=>100],
 			['user_id', 'isUnique'],
-		);
+		];
 	}
 
 	/**
@@ -77,7 +77,7 @@ abstract class ExampleUserRemoteIdentity extends \yii\db\ActiveRecord
 	/**
 	 * @inheritdoc
 	 */
-	protected function beforeSave()
+	public function beforeSave()
 	{
 		if ($this->isNewRecord) {
 			$this->created_on = date('Y-m-d H:i:s');

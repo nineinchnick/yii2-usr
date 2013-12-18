@@ -48,10 +48,13 @@ $this->params['breadcrumbs'][] = $this->title;
 <?php if ($this->context->module->hybridauthEnabled()): ?>
 			<p>
 				<ul>
-<?php Yii::app()->clientScript->registerCssFile(Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias($this->context->module->id.'.components.assets.zocial')).'/zocial.css'); ?>
+<?php
+list($path,$url) = $this->assetManager->publish(Yii::getAlias('@nineinchnick/usr/components/assets/zocial/zocial.css'));
+$this->registerCssFile($url);
+?>
 <?php foreach ($this->context->module->hybridauthProviders as $provider => $settings): if(!$settings['enabled']) continue; ?>
 					<li>
-						<a class="zocial <?= strtolower($provider) ?>" href="<?= $this->createUrl('hybridauth/login', ['provider'=>$provider]) ?>">
+						<a class="zocial <?= strtolower($provider) ?>" href="<?= $this->context->createUrl('hybridauth/login', ['provider'=>$provider]) ?>">
 							<?= Yii::t('usr', 'Log in using {provider}', ['provider'=>$provider]); ?>
 						</a>
 					</li>

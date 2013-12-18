@@ -31,7 +31,7 @@ use nineinchnick\usr\components;
  * @property UserRemoteIdentity[] $userRemoteIdentities
  * @property UserUsedPassword[] $userUsedPassword
  */
-abstract class ExampleUser extends \yii\db\ActiveRecord implements components\IdentityInterface, components\ActivatedIdentityInterface, components\EditableIdentityInterface, components\OneTimePasswordIdentityInterface, components\PasswordHistoryIdentityInterface
+abstract class ExampleUser extends \yii\db\ActiveRecord implements components\IdentityInterface, components\ActivatedIdentityInterface, components\EditableIdentityInterface, components\OneTimePasswordIdentityInterface, components\PasswordHistoryIdentityInterface, components\HybridauthIdentityInterface
 {
 	/**
 	 * @inheritdoc
@@ -69,6 +69,15 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 	{
 		return $this->hasMany(\app\models\UserUsedPassword::className(), ['user_id' => 'id'])->orderBy('set_on DESC');
 	}
+
+    /**
+     * @param ActiveQuery $query
+     */
+    public static function withUserRemoteIdentities($query)
+    {
+        $query->leftJoin(\app\models\UserRemoteIdentity::tableName(), self::tableName().'.[['.self::primaryKey()[0].']]='.\app\models\UserRemoteIdentity::tableName().'.[[user_id]]');
+    }
+
 
 	/**
 	 * @inheritdoc
@@ -424,10 +433,10 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 	 */
 	public static function findByProvider($provider, $identifier)
 	{
-		return User::find()
-			->with('userRemoteIdentities')
-			->andWhere('userRemoteIdentities.provider=:provider',[':provider'=>$provider])
-			->andWhere('userRemoteIdentities.identifier=:identifier',[':identifer'=>$identifier])
+		return self::find()
+			->withUserRemoteIdentities()
+			->andWhere(\app\models\UserRemoteIdentity::tableName().'.[[provider]]=:provider',[':provider'=>$provider])
+			->andWhere(\app\models\UserRemoteIdentity::tableName().'.[[identifier]]=:identifier',[':identifier'=>$identifier])
 			->one();
 	}
 
@@ -439,7 +448,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 	 */
 	public function addRemoteIdentity($provider, $identifier)
 	{
-		$model = new UserRemoteIdentity;
+		$model = new \app\models\UserRemoteIdentity;
 		$model->setAttributes(array(
 			'user_id' => $this->id,
 			'provider' => $provider,

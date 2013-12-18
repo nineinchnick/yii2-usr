@@ -1,121 +1,101 @@
-<?php /*
-@var $this HybridauthController */
+<?php
 
-$title = Yii::t('UsrModule.usr', 'Log in');
-if (isset($this->breadcrumbs))
-	$this->breadcrumbs=array($this->module->id, $title);
-$this->pageTitle = Yii::app()->name.' - '.$title;
+use nineinchnick\usr\components;
+use yii\helpers\Html;
+use yii\widgets\ActiveForm;
+
+/**
+ * @var yii\web\View $this
+ * @var models\HybridauthForm $remoteLogin
+ * @var models\LoginForm $localLogin
+ * @var models\ProfileForm $localProfile
+ * @var ActiveForm $form
+ */
+$this->title = Yii::t('usr', 'Log in using {provider}', ['provider'=>$remoteLogin->provider]);
+$this->params['breadcrumbs'][] = $this->title;
 ?>
-<h1><?php echo $title; ?></h1>
 
-<?php $this->displayFlashes(); ?>
+<h1><?= Html::encode($this->title) ?></h1>
 
-<?php if ($this->module->registrationEnabled): ?>
+<?= components\Alerts::widget() ?>
 
-<div class="<?php echo $this->module->formCssClass; ?>">
-<?php $form=$this->beginWidget($this->module->formClass, array(
+<?php if ($this->context->module->registrationEnabled): ?>
+
+<div class="<?= $this->context->module->formCssClass; ?>">
+<?php $form = ActiveForm::begin([
 	'id'=>'localProfile-form',
-	'action'=>array($this->action->id),
 	'enableClientValidation'=>true,
-	'clientOptions'=>array(
-		'validateOnSubmit'=>true,
-	),
-	'focus'=>array($localProfile,'username'),
-)); ?>
+	'validateOnSubmit'=>true,
+]); ?>
 
-	<?php echo $form->hiddenField($remoteLogin,'provider'); ?>
-	<?php echo $form->hiddenField($remoteLogin,'openid_identifier'); ?>
+	<?= Html::activeHiddenInput($remoteLogin,'provider') ?>
+	<?= Html::activeHiddenInput($remoteLogin,'openid_identifier') ?>
 
-	<div>
-		<h3><?php echo Yii::t('UsrModule.usr', 'Create a new account'); ?></h3>
+	<h3><?= Yii::t('usr', 'Create a new account') ?></h3>
 
-		<p class="note"><?php echo Yii::t('UsrModule.usr', 'Fields marked with <span class="required">*</span> are required.'); ?></p>
+	<p class="note"><?= Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.') ?></p>
 
-		<?php echo $form->errorSummary($localProfile); ?>
+	<?= $form->errorSummary($localProfile) ?>
 
-		<div class="control-group">
-			<?php echo $form->labelEx($localProfile,'username'); ?>
-			<?php echo $form->textField($localProfile,'username'); ?>
-			<?php echo $form->error($localProfile,'username'); ?>
-		</div>
+	<div class="row">
+		<div class="col-lg-5">
 
-		<div class="control-group">
-			<?php echo $form->labelEx($localProfile,'email'); ?>
-			<?php echo $form->textField($localProfile,'email'); ?>
-			<?php echo $form->error($localProfile,'email'); ?>
-		</div>
+			<?= $form->field($localProfile, 'username', ['inputOptions'=>['autofocus'=>true, 'class'=>'form-control']]) ?>
+			<?= $form->field($localProfile, 'email') ?>
+			<?= $form->field($localProfile, 'firstName') ?>
+			<?= $form->field($localProfile, 'lastName') ?>
 
-		<div class="control-group">
-			<?php echo $form->labelEx($localProfile,'firstName'); ?>
-			<?php echo $form->textField($localProfile,'firstName'); ?>
-			<?php echo $form->error($localProfile,'firstName'); ?>
-		</div>
-
-		<div class="control-group">
-			<?php echo $form->labelEx($localProfile,'lastName'); ?>
-			<?php echo $form->textField($localProfile,'lastName'); ?>
-			<?php echo $form->error($localProfile,'lastName'); ?>
-		</div>
-
-		<div class="buttons">
-			<?php echo CHtml::submitButton(Yii::t('UsrModule.usr', 'Submit'), array('class'=>$this->module->submitButtonCssClass)); ?>
+			<div class="form-group">
+				<?= Html::submitButton(Yii::t('usr', 'Submit'), ['class' => 'btn btn-primary']) ?>
+			</div>
 		</div>
 	</div>
 
-<?php $this->endWidget(); ?>
+<?php ActiveForm::end(); ?>
 </div><!-- form -->
 
 <?php endif; ?>
 
-<div class="<?php echo $this->module->formCssClass; ?>">
-<?php $form=$this->beginWidget($this->module->formClass, array(
+<div class="<?= $this->context->module->formCssClass; ?>">
+<?php $form = ActiveForm::begin([
 	'id'=>'localLogin-form',
-	'action'=>array($this->action->id),
 	'enableClientValidation'=>true,
-	'clientOptions'=>array(
-		'validateOnSubmit'=>true,
-	),
-	'focus'=>array($localLogin,'username'),
-)); ?>
+	'validateOnSubmit'=>true,
+]); ?>
 
-	<?php echo $form->hiddenField($remoteLogin,'provider'); ?>
-	<?php echo $form->hiddenField($remoteLogin,'openid_identifier'); ?>
+	<?= Html::activeHiddenInput($remoteLogin,'provider') ?>
+	<?= Html::activeHiddenInput($remoteLogin,'openid_identifier') ?>
 
-	<div>
-		<h3><?php echo Yii::t('UsrModule.usr', 'Log in into existing account'); ?></h3>
+	<h3><?= Yii::t('usr', 'Log in into existing account') ?></h3>
 
-		<p class="note"><?php echo Yii::t('UsrModule.usr', 'Fields marked with <span class="required">*</span> are required.'); ?></p>
+	<p class="note"><?= Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.') ?></p>
 
-		<?php echo $form->errorSummary($localLogin); ?>
+	<?php echo $form->errorSummary($localLogin); ?>
+
+	<div class="row">
+		<div class="col-lg-5">
+
 
 <?php if ($localLogin->scenario != 'reset'): ?>
-		<div class="control-group">
-			<?php echo $form->labelEx($localLogin,'username'); ?>
-			<?php echo $form->textField($localLogin,'username'); ?>
-			<?php echo $form->error($localLogin,'username'); ?>
-		</div>
+			<?= $form->field($localLogin, 'username', ['inputOptions'=>['autofocus'=>true, 'class'=>'form-control']]) ?>
+			<?= $form->field($localLogin, 'password')->passwordInput() ?>
 
-		<div class="control-group">
-			<?php echo $form->labelEx($localLogin,'password'); ?>
-			<?php echo $form->passwordField($localLogin,'password'); ?>
-			<?php echo $form->error($localLogin,'password'); ?>
-		</div>
-
-		<div class="buttons">
-			<?php echo CHtml::submitButton(Yii::t('UsrModule.usr', 'Log in'), array('class'=>$this->module->submitButtonCssClass)); ?>
-		</div>
+			<div class="form-group">
+				<?= Html::submitButton(Yii::t('usr', 'Log in'), ['class' => 'btn btn-primary']) ?>
+			</div>
 <?php else: ?>
-		<?php echo $form->hiddenField($localLogin,'username'); ?>
-		<?php echo $form->hiddenField($localLogin,'password'); ?>
-		<?php echo $form->hiddenField($localLogin,'rememberMe'); ?>
+	<?= Html::activeHiddenInput($localLogin,'username') ?>
+	<?= Html::activeHiddenInput($localLogin,'password') ?>
+	<?= Html::activeHiddenInput($localLogin,'rememberMe') ?>
 
-<?php $this->renderPartial('_newpassword', array('form'=>$form, 'model'=>$localLogin)); ?>
+<?= $this->render('_newpassword', ['form'=>$form, 'model'=>$localLogin, 'focus'=>true]); ?>
 
-		<div class="buttons">
-			<?php echo CHtml::submitButton(Yii::t('UsrModule.usr', 'Change password'), array('class'=>$this->module->submitButtonCssClass)); ?>
-		</div>
+			<div class="form-group">
+				<?= Html::submitButton(Yii::t('usr', 'Change password'), ['class' => 'btn btn-primary']) ?>
+			</div>
 <?php endif; ?>
+		</div>
 	</div>
-<?php $this->endWidget(); ?>
+<?php ActiveForm::end(); ?>
 </div><!-- form -->
 
