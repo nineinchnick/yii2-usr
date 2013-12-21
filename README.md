@@ -59,20 +59,6 @@ $config = [
 
 Requirements for the identity (User) class are described in next chapter.
 
-If your application is using path-format URLs with some customized URL rules, you may need to add
-the following URLs in your application configuration in order to access UsrModule:
-
-~~~php
-	'components' => [
-		'urlManager' => [
-			'enablePrettyUrl' => true,
-			'showScriptName' => false,
-			'rules' => [
-			],
-		],
-	],
-~~~
-
 # User interfaces 
 
 To be able to use all features of the Usr module, the identity (User) class must implement some or all of the following interfaces.

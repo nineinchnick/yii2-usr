@@ -361,6 +361,9 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 	 */
 	public function verifyEmail()
 	{
+		if ($record->email_verified) {
+			return true;
+		}
 		$this->email_verified = 1;
 		return $this->save(false);
 	}

@@ -1,9 +1,20 @@
 <?php
 
-// change the following paths if necessary
-$yiit=dirname(__FILE__).'/../../../yiisoft/yii/framework/yiit.php';
-$config=dirname(__FILE__).'/config.php';
+// ensure we get report on all possible php errors
+error_reporting(-1);
 
-require_once($yiit);
+define('YII_ENABLE_ERROR_HANDLER', false);
+define('YII_DEBUG', true);
+$_SERVER['SCRIPT_NAME'] = '/' . __DIR__;
+$_SERVER['SCRIPT_FILENAME'] = __FILE__;
 
-Yii::createWebApplication($config);
+// require composer autoloader if available
+$composerAutoload = __DIR__ . '/../../../autoload.php';
+if (is_file($composerAutoload)) {
+	require_once($composerAutoload);
+}
+require_once(__DIR__ . '/../../../yiisoft/yii2/yii/Yii.php');
+
+Yii::setAlias('@yiiunit', __DIR__);
+
+require_once(__DIR__ . '/TestCase.php');

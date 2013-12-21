@@ -91,6 +91,9 @@ class RecoveryForm extends BasePasswordForm
 				$this->addError('username',Yii::t('usr','Please specify username or email.'));
 			}
 			return false;
+		} elseif ($identity->isDisabled()) {
+			$this->addError('username',Yii::t('usr','User is disabled.'));
+			return false;
 		}
 		return true;
 	}

@@ -236,4 +236,33 @@ class Module extends \yii\base\Module
 		}
 		return $form;
 	}
+
+	/**
+	 * Modify createController() to handle routes in the default controller
+	 *
+	 * This is a temporary hack until they add in url management via modules
+	 * @link https://github.com/yiisoft/yii2/issues/810
+	 * @link http://www.yiiframework.com/forum/index.php/topic/21884-module-and-url-management/
+	 *
+	 * "usr" and "usr/default" work like normal
+	 * "usr/xxx" gets changed to "usr/default/xxx"
+	 *
+	 * @inheritdoc
+	 */
+	public function createController($route) {
+		// check valid routes
+		$validRoutes = [$this->defaultRoute, "hybridauth"];
+		$isValidRoute = false;
+		foreach ($validRoutes as $validRoute) {
+			if (strpos($route, $validRoute) === 0) {
+				$isValidRoute = true;
+				break;
+			}
+		}
+
+		if (!empty($route) && !$isValidRoute) {
+			$route = $this->defaultRoute.'/'.$route;
+		}
+		return parent::createController($route);
+	}
 }

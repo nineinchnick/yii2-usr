@@ -61,7 +61,7 @@ class DefaultController extends UsrController
 			break;
 		case 'login':
 		case 'recovery':
-			if (!$this->module->recoveryEnabled) {
+			if ($action->id === 'recovery' && !$this->module->recoveryEnabled) {
 				throw new AccessDeniedHttpException(Yii::t('usr', 'Password recovery has not been enabled.'));
 			}
 			if (!Yii::$app->user->isGuest) {
@@ -177,13 +177,20 @@ class DefaultController extends UsrController
 				$model->scenario = 'reset';
 			if($model->validate()) {
 				if ($model->scenario !== 'reset') {
-					if ($this->sendEmail($model, 'recovery')) {
+					/** 
+					 * Send email appropriate to the activation status. If verification is required, that must happen
+					 * before password recovery. Also allows re-sending of verification emails.
+					 */
+					if ($this->sendEmail($model, $model->identity->isActive() ? 'recovery' : 'verify')) {
 						Yii::$app->session->setFlash('success', Yii::t('usr', 'An email containing further instructions has been sent to email associated with specified user account.'));
 					} else {
 						Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to send an email.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
 					}
 				} else {
+					// a valid recovery form means the user confirmed his email address
 					$model->getIdentity()->verifyEmail();
+					// regenerate the activation key to prevent reply attack
+					$model->getIdentity()->getActivationKey();
 					if ($model->resetPassword() && $model->login()) {
 						return $this->afterLogin();
 					} else {
@@ -206,6 +213,8 @@ class DefaultController extends UsrController
 		$model = $this->module->createFormModel('RecoveryForm', 'verify');
 		$model->setAttributes($_GET);
 		if($model->validate() && $model->getIdentity()->verifyEmail()) {
+			// regenerate the activation key to prevent reply attack
+			$model->getIdentity()->getActivationKey();
 			Yii::$app->session->setFlash('success', Yii::t('usr', 'Your email address has been successfully verified.'));
 		} else {
 			Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to verify your email address.'));
