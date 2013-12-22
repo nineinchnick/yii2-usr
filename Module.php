@@ -122,7 +122,7 @@ class Module extends \yii\base\Module
 	 */
 	public function getVersion()
 	{
-		return '0.9.8';
+		return '0.9.9';
 	}
 
 	/**

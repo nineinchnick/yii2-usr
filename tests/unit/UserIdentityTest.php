@@ -1,11 +1,10 @@
 <?php
 
-Yii::import('vendors.nineinchnick.yii-usr.tests.User');
-Yii::import('vendors.nineinchnick.yii-usr.tests.UserRemoteIdentity');
-Yii::import('vendors.nineinchnick.yii-usr.tests.UserUsedPassword');
-Yii::import('vendors.nineinchnick.yii-usr.tests.UserIdentity');
+namespace nineinchnick\usr\tests\unit;
 
-class UserIdentityTest extends CDbTestCase
+use nineinchnick\usr\tests\DatabaseTestCase as DatabaseTestCase;
+
+class UserIdentityTest extends DatabaseTestCase
 {
 	public $fixtures=array(
 		'users'=>'User',

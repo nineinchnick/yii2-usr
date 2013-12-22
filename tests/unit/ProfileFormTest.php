@@ -1,11 +1,10 @@
 <?php
 
-Yii::import('vendors.nineinchnick.yii-usr.tests.User');
-Yii::import('vendors.nineinchnick.yii-usr.tests.UserIdentity');
-Yii::import('vendors.nineinchnick.yii-usr.models.BaseUsrForm');
-Yii::import('vendors.nineinchnick.yii-usr.models.ProfileForm');
+namespace nineinchnick\usr\tests\unit;
 
-class ProfileFormTest extends CDbTestCase
+use nineinchnick\usr\tests\DatabaseTestCase as DatabaseTestCase;
+
+class ProfileFormTest extends DatabaseTestCase
 {
 	public $fixtures=array(
 		'users'=>'User',

@@ -1,10 +1,10 @@
 <?php
 
-Yii::import('vendors.nineinchnick.yii-usr.tests.User');
-Yii::import('vendors.nineinchnick.yii-usr.tests.UserIdentity');
-Yii::import('vendors.nineinchnick.yii-usr.components.FormModelBehavior');
+namespace nineinchnick\usr\tests\unit;
 
-class BehaviorsTest extends CTestCase
+use nineinchnick\usr\tests\TestCase as TestCase;
+
+class BehaviorsTest extends TestCase
 {
 	public $identity;
 	public $owner;

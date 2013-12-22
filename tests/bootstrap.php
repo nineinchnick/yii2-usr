@@ -15,6 +15,6 @@ if (is_file($composerAutoload)) {
 }
 require_once(__DIR__ . '/../../../yiisoft/yii2/yii/Yii.php');
 
-Yii::setAlias('@yiiunit', __DIR__);
+Yii::setAlias('@nineinchnick\usr', __DIR__.'/..');
 
 require_once(__DIR__ . '/TestCase.php');

@@ -1,7 +1,7 @@
 {
     "name": "nineinchnick/yii2-usr",
     "description": "Yii 2.0 framework module for user authentication, password reset, registration and profile updating.",
-	"version": "0.9.8",
+	"version": "0.9.9",
     "license": "MIT",
 	"type": "yii2-module",
     "authors": [
