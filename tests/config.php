@@ -19,10 +19,6 @@ return [
 		],
 		'components' => [
 			'user' => ['identityClass' => 'nineinchnick\usr\tests\User'],
-			'mail' => [
-				'class' => 'yii\swiftmailer\Mailer',
-				'useFileTransport' => true,
-			],
 			'i18n' => [
 				'translations' => [
 					'models' => [

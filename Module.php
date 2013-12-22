@@ -117,7 +117,8 @@ class Module extends \yii\base\Module
 			'sourceLanguage' => 'en-US',
 			'basePath' => '@usr/messages',
 		];
-		\Yii::$app->mail->viewPath = '@usr/views/emails';
+		if (\Yii::$app->mail !== null)
+			\Yii::$app->mail->viewPath = '@usr/views/emails';
 		if ($this->hybridauthEnabled()) {
 			$hybridauthConfig = [
 				'base_url' => Yii::$app->getUrlManager()->createAbsoluteUrl('/'.$this->id.'/hybridauth/callback'),
