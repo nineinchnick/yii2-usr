@@ -43,29 +43,9 @@ class Module extends \yii\base\Module
 	 */
 	public $passwordStrengthRules;
 	/**
-	 * @var string Class name for input form widgets.
-	 */
-	public $formClass = 'CActiveForm';
-	/**
-	 * @var string Class name for detail view widget.
-	 */
-	public $detailViewClass = 'zii.widgets.CDetailView';
-	/**
 	 * @var string CSS class for html forms.
 	 */
 	public $formCssClass = 'well';
-	/**
-	 * @var array static properties of CHtml class, such as errorSummaryCss and errorMessageCss.
-	 */
-	public $htmlCss;
-	/**
-	 * @var string CSS class prefix for flash messages. Set to 'alert alert-' if using Twitter Bootstrap.
-	 */
-	public $alertCssClassPrefix = 'flash-';
-	/**
-	 * @var string CSS class for the form submit buttons.
-	 */
-	public $submitButtonCssClass = '';
 	/**
 	 * @var boolean If true a link for generating passwords will be rendered under new password field.
 	 */
@@ -138,11 +118,6 @@ class Module extends \yii\base\Module
 			'basePath' => '@usr/messages',
 		];
 		\Yii::$app->mail->viewPath = '@usr/views/emails';
-		if (is_array($this->htmlCss)) {
-			foreach($this->htmlCss as $name=>$value) {
-				CHtml::$$name = $value;
-			}
-		}
 		if ($this->hybridauthEnabled()) {
 			$hybridauthConfig = [
 				'base_url' => Yii::$app->getUrlManager()->createAbsoluteUrl('/'.$this->id.'/hybridauth/callback'),
