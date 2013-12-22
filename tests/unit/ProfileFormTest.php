@@ -3,6 +3,7 @@
 namespace nineinchnick\usr\tests\unit;
 
 use nineinchnick\usr\tests\DatabaseTestCase as DatabaseTestCase;
+use nineinchnick\usr\models;
 
 class ProfileFormTest extends DatabaseTestCase
 {
@@ -47,7 +48,7 @@ class ProfileFormTest extends DatabaseTestCase
 
 	public function testWithBehavior()
 	{
-		$form = new ProfileForm;
+		$form = new models\ProfileForm;
 		$formAttributes = $form->attributeNames();
 		$formRules = $form->rules();
 		$formLabels = $form->attributeLabels();
@@ -68,7 +69,7 @@ class ProfileFormTest extends DatabaseTestCase
 	 */
 	public function testValid($scenario, $attributes)
 	{
-		$form = new ProfileForm($scenario);
+		$form = new models\ProfileForm($scenario);
 		$form->userIdentityClass = 'UserIdentity';
 		$form->setAttributes($attributes);
 		$this->assertTrue($form->validate(), 'Failed with following validation errors: '.print_r($form->getErrors(),true));
@@ -81,7 +82,7 @@ class ProfileFormTest extends DatabaseTestCase
 	 */
 	public function testInvalid($scenario, $attributes, $errors)
 	{
-		$form = new ProfileForm($scenario);
+		$form = new models\ProfileForm($scenario);
 		$form->userIdentityClass = 'UserIdentity';
 		$form->setAttributes($attributes);
 		$this->assertFalse($form->validate());

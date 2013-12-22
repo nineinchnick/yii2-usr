@@ -3,6 +3,7 @@
 namespace nineinchnick\usr\tests\unit;
 
 use nineinchnick\usr\tests\DatabaseTestCase as DatabaseTestCase;
+use nineinchnick\usr\models;
 
 class PasswordFormTest extends DatabaseTestCase
 {
@@ -50,7 +51,7 @@ class PasswordFormTest extends DatabaseTestCase
 	 */
 	public function testValid($scenario, $attributes)
 	{
-		$form = new PasswordForm($scenario);
+		$form = new models\PasswordForm($scenario);
 		$form->userIdentityClass = 'UserIdentity';
 		$form->setIdentity(new UserIdentity('neo', 'Test1233'));
 		$form->setAttributes($attributes);
@@ -64,7 +65,7 @@ class PasswordFormTest extends DatabaseTestCase
 	 */
 	public function testInvalid($scenario, $attributes, $errors)
 	{
-		$form = new PasswordForm($scenario);
+		$form = new models\PasswordForm($scenario);
 		$form->userIdentityClass = 'UserIdentity';
 		$form->setIdentity(new UserIdentity('neo', 'Test1233'));
 		$form->setAttributes($attributes);

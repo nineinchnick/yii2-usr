@@ -135,7 +135,11 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 	 */
 	public function verifyPassword($password)
 	{
-		return Security::validatePassword($password, $this->password);
+		try {
+			return Security::validatePassword($password, $this->password);
+		} catch(yii\base\InvalidParamException $e) {
+			return false;
+		}
 	}
 
 	// {{{ IdentityInterface
@@ -361,7 +365,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 	 */
 	public function verifyEmail()
 	{
-		if ($record->email_verified) {
+		if ($this->email_verified) {
 			return true;
 		}
 		$this->email_verified = 1;

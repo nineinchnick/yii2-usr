@@ -1,10 +1,11 @@
 <?php
 return [
-	'databases' => [
-		'sqlite' => [
-			'dsn' => 'sqlite::memory:',
-			'fixture' => __DIR__ . '/fixtures/sqlite.sql',
-		],
+	'db' => [
+		'class' => 'yii\db\Connection',
+		'dsn' => 'sqlite::memory:',
+		'tablePrefix' => '',
+		'charset' => 'utf8',
+		//'on '.yii\db\Connection::EVENT_AFTER_OPEN => function($event){$event->sender->createCommand('PRAGMA foreign_keys = ON')->execute();},
 	],
 	'app' => [
 		'preload' => ['usr'],
@@ -21,6 +22,15 @@ return [
 			'mail' => [
 				'class' => 'yii\swiftmailer\Mailer',
 				'useFileTransport' => true,
+			],
+			'i18n' => [
+				'translations' => [
+					'models' => [
+						'class' => 'yii\i18n\PhpMessageSource',
+						'sourceLanguage' => 'en-US',
+						'basePath' => '@app/messages',
+					],
+				],
 			],
 		],
 	],

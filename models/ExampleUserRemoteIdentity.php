@@ -2,6 +2,8 @@
 
 namespace nineinchnick\usr\models;
 
+use Yii;
+
 /**
  * This is the model class for table "{{user_remote_identities}}".
  *
@@ -32,7 +34,7 @@ abstract class ExampleUserRemoteIdentity extends \yii\db\ActiveRecord
 	{
 		return [
 			[['user_id', 'provider', 'identifier'], 'required'],
-			['user_id', 'numerical', 'integerOnly'=>true],
+			['user_id', 'number', 'integerOnly'=>true],
 			[['provider', 'identifier'], 'string', 'max'=>100],
 			['user_id', 'isUnique'],
 		];
@@ -47,11 +49,11 @@ abstract class ExampleUserRemoteIdentity extends \yii\db\ActiveRecord
 	 */
 	public function isUnique($attribute, $params)
 	{
-		return 0 === $this->countByAttributes(array(
+		return null === self::find([
 			'user_id'=>$this->user_id,
 			'provider'=>$this->provider,
 			'identifier'=>$this->identifier,
-		));
+		]);
 	}
 
 	public function getUser()
@@ -77,11 +79,11 @@ abstract class ExampleUserRemoteIdentity extends \yii\db\ActiveRecord
 	/**
 	 * @inheritdoc
 	 */
-	public function beforeSave()
+	public function beforeSave($insert)
 	{
-		if ($this->isNewRecord) {
+		if ($insert) {
 			$this->created_on = date('Y-m-d H:i:s');
 		}
-		return parent::beforeSave();
+		return parent::beforeSave($insert);
 	}
 }

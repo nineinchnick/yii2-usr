@@ -48,7 +48,7 @@ abstract class BaseUsrForm extends \yii\base\Model
 		$names=parent::attributes();
 		foreach($this->_behaviors as $name=>$name) {
 			if (($behavior=$this->getBehavior($name)) instanceof \nineinchnick\usr\components\FormModelBehavior)
-				$names[] = $behavior->attributes();
+				$names = array_merge($names, $behavior->attributes());
 		}
 		return $names;
 	}

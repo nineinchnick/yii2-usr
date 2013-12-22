@@ -3,6 +3,7 @@
 namespace nineinchnick\usr\tests\unit;
 
 use nineinchnick\usr\tests\DatabaseTestCase as DatabaseTestCase;
+use nineinchnick\usr\models;
 
 class RecoveryFormTest extends DatabaseTestCase
 {
@@ -43,7 +44,7 @@ class RecoveryFormTest extends DatabaseTestCase
 
 	public function testWithBehavior()
 	{
-		$form = new RecoveryForm;
+		$form = new models\RecoveryForm;
 		$formAttributes = $form->attributeNames();
 		$formRules = $form->rules();
 		$formLabels = $form->attributeLabels();
@@ -64,7 +65,7 @@ class RecoveryFormTest extends DatabaseTestCase
 	 */
 	public function testValid($scenario, $attributes)
 	{
-		$form = new RecoveryForm($scenario);
+		$form = new models\RecoveryForm($scenario);
 		$form->userIdentityClass = 'UserIdentity';
 		$form->setAttributes($attributes);
 		$this->assertTrue($form->validate(), 'Failed with following validation errors: '.print_r($form->getErrors(),true));
@@ -77,7 +78,7 @@ class RecoveryFormTest extends DatabaseTestCase
 	 */
 	public function testInvalid($scenario, $attributes, $errors)
 	{
-		$form = new RecoveryForm($scenario);
+		$form = new models\RecoveryForm($scenario);
 		$form->userIdentityClass = 'UserIdentity';
 		$form->setAttributes($attributes);
 		$this->assertFalse($form->validate());

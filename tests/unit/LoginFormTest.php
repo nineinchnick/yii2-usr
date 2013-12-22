@@ -3,6 +3,7 @@
 namespace nineinchnick\usr\tests\unit;
 
 use nineinchnick\usr\tests\DatabaseTestCase as DatabaseTestCase;
+use nineinchnick\usr\models;
 
 class LoginFormTest extends DatabaseTestCase
 {
@@ -54,20 +55,20 @@ class LoginFormTest extends DatabaseTestCase
 
 	public function testWithBehavior()
 	{
-		$form = new LoginForm;
-		$formAttributes = $form->attributeNames();
+		$form = new models\LoginForm;
+		$formAttributes = $form->attributes();
 		$formRules = $form->rules();
 		$formLabels = $form->attributeLabels();
-		$form->attachBehavior('captcha', array('class' => 'CaptchaFormBehavior'));
-		$behaviorAttributes = $form->asa('captcha')->attributeNames();
-		$behaviorRules = $form->asa('captcha')->rules();
-		$behaviorLabels = $form->asa('captcha')->attributeLabels();
-		$this->assertEquals(array_merge($formAttributes, $behaviorAttributes), $form->attributeNames());
+		$form->attachBehavior('captcha', array('class' => 'nineinchnick\usr\components\CaptchaFormBehavior'));
+		$behaviorAttributes = $form->getBehavior('captcha')->attributes();
+		$behaviorRules = $form->getBehavior('captcha')->rules();
+		$behaviorLabels = $form->getBehavior('captcha')->attributeLabels();
+		$this->assertEquals(array_merge($formAttributes, $behaviorAttributes), $form->attributes());
 		$this->assertEquals(array_merge($formRules, $behaviorRules), $form->rules());
 		$this->assertEquals(array_merge($formLabels, $behaviorLabels), $form->attributeLabels());
 		$form->detachBehavior('captcha');
-		$this->assertEquals($formAttributes, $form->attributeNames());
-		$this->assertEquals($formAttributes, $form->attributeNames());
+		$this->assertEquals($formAttributes, $form->attributes());
+		$this->assertEquals($formAttributes, $form->attributes());
 	}
 
 	/**
@@ -75,8 +76,7 @@ class LoginFormTest extends DatabaseTestCase
 	 */
 	public function testValid($scenario, $attributes)
 	{
-		$form = new LoginForm($scenario);
-		$form->userIdentityClass = 'UserIdentity';
+		$form = new models\LoginForm($scenario);
 		$form->setAttributes($attributes);
 		$this->assertTrue($form->validate(), 'Failed with following validation errors: '.print_r($form->getErrors(),true));
 		$this->assertEmpty($form->getErrors());
@@ -88,8 +88,7 @@ class LoginFormTest extends DatabaseTestCase
 	 */
 	public function testInvalid($scenario, $attributes, $errors)
 	{
-		$form = new LoginForm($scenario);
-		$form->userIdentityClass = 'UserIdentity';
+		$form = new models\LoginForm($scenario);
 		$form->setAttributes($attributes);
 		$this->assertFalse($form->validate());
 		$this->assertEquals($errors, $form->getErrors());

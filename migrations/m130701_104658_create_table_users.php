@@ -18,9 +18,9 @@ class m130701_104658_create_table_users extends \yii\db\Migration
 			'updated_on'=>'timestamp',
 			'last_visit_on'=>'timestamp',
 			'password_set_on'=>'timestamp',
-			'email_verified'=>'boolean NOT NULL DEFAULT FALSE',
-			'is_active'=>'boolean NOT NULL DEFAULT FALSE',
-			'is_disabled'=>'boolean NOT NULL DEFAULT FALSE',
+			'email_verified'=>'boolean NOT NULL DEFAULT 0',
+			'is_active'=>'boolean NOT NULL DEFAULT 0',
+			'is_disabled'=>'boolean NOT NULL DEFAULT 0',
 		));
 		$prefix = $this->db->tablePrefix;
 		$this->createIndex($prefix.'users_username_idx', '{{%users}}', 'username', true);

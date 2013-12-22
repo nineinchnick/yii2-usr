@@ -6,63 +6,81 @@ use yii\db\Connection;
 
 abstract class DatabaseTestCase extends TestCase
 {
-	protected $database;
-	protected $driverName = 'mysql';
-	/**
-	 * @var Connection
-	 */
-	protected $db;
-
 	protected function setUp()
 	{
 		parent::setUp();
-		$databases = $this->getParam('databases');
-		$this->database = $databases[$this->driverName];
-		$pdo_database = 'pdo_'.$this->driverName;
-
-		if (!extension_loaded('pdo') || !extension_loaded($pdo_database)) {
-			$this->markTestSkipped('pdo and '.$pdo_database.' extension are required.');
-		}
-		$this->mockApplication();
+		$appConfig = $this->getParam('app');
+		$appConfig['components']['db'] = $this->getParam('db');
+		$this->mockApplication($appConfig, '\yii\web\Application');
+		$this->runMigrations();
+		$this->runFixtures();
 	}
 
 	protected function tearDown()
 	{
-		if ($this->db) {
-			$this->db->close();
-		}
 		$this->destroyApplication();
 	}
 
-	/**
-	 * @param bool $reset whether to clean up the test database
-	 * @param bool $open whether to open and populate test database
-	 * @return \yii\db\Connection
-	 */
-	public function getConnection($reset = true, $open = true)
+	protected function getDbConnection()
 	{
-		if (!$reset && $this->db) {
-			return $this->db;
+		return \Yii::$app->getComponent('db');
+	}
+
+	protected function runMigrations()
+	{
+		$migrationPath = \Yii::getAlias('@nineinchnick/usr/migrations');
+		$migrations = [];
+
+		$handle = opendir($migrationPath);
+		while (($file = readdir($handle)) !== false) {
+			if ($file === '.' || $file === '..') {
+				continue;
+			}
+			$path = $migrationPath . DIRECTORY_SEPARATOR . $file;
+			if (preg_match('/^(m(\d{6}_\d{6})_.*?)\.php$/', $file, $matches) && is_file($path))
+				$migrations[] = $matches[1];
 		}
-		$db = new \yii\db\Connection;
-		$db->dsn = $this->database['dsn'];
-		if (isset($this->database['username'])) {
-			$db->username = $this->database['username'];
-			$db->password = $this->database['password'];
-		}
-		if (isset($this->database['attributes'])) {
-			$db->attributes = $this->database['attributes'];
-		}
-		if ($open) {
-			$db->open();
-			$lines = explode(';', file_get_contents($this->database['fixture']));
-			foreach ($lines as $line) {
-				if (trim($line) !== '') {
-					$db->pdo->exec($line);
-				}
+		closedir($handle);
+		sort($migrations);
+
+		ob_start();
+		foreach($migrations as $class) {
+			$file = $migrationPath . DIRECTORY_SEPARATOR . $class . '.php';
+			require_once($file);
+			$migration = new $class(['db' => $this->getDbConnection()]);
+
+			if ($migration->up() === false) {
+				echo "something went terribly wrong!\n";
+				echo ob_get_contents();
+				echo "\n";
 			}
 		}
-		$this->db = $db;
-		return $db;
+		ob_end_clean();
+	}
+
+	protected function runFixtures()
+	{
+		$fixturesPath = \Yii::getAlias('@nineinchnick/usr/tests/fixtures');
+		$fixtures = [];
+
+		$handle = opendir($fixturesPath);
+		while (($file = readdir($handle)) !== false) {
+			if ($file === '.' || $file === '..') {
+				continue;
+			}
+			$path = $fixturesPath . DIRECTORY_SEPARATOR . $file;
+			if (preg_match('/^(.*)\.php$/', $file, $matches) && is_file($path))
+				$fixtures[] = $matches[1];
+		}
+		closedir($handle);
+		sort($fixtures);
+
+		foreach($fixtures as $file) {
+			$fixture = require($fixturesPath . DIRECTORY_SEPARATOR . $file . '.php');
+
+			foreach($fixture as $row) {
+				$this->getDbConnection()->createCommand()->insert($file, $row)->execute();
+			}
+		}
 	}
 }
