@@ -7,6 +7,12 @@ use nineinchnick\usr\Module as Module;
 
 class ModuleTest extends TestCase
 {
+	protected function setUp()
+	{
+		parent::setUp();
+		$this->mockApplication($this->getParam('app'), '\yii\web\Application');
+	}
+
 	public function testModule()
 	{
 		$module = new Module('usr',\Yii::$app);
@@ -19,6 +25,6 @@ class ModuleTest extends TestCase
 		$module = new Module('usr',\Yii::$app);
 		$module->passwordTimeout = 300;
 		$form = $module->createFormModel('LoginForm');
-		$this->assertTrue($form->getBehavior('expiredPasswordBehavior') instanceof ExpiredPasswordBehavior);
+		$this->assertTrue($form->getBehavior('expiredPasswordBehavior') instanceof \nineinchnick\usr\components\ExpiredPasswordBehavior);
 	}
 }

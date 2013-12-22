@@ -4,6 +4,7 @@ namespace nineinchnick\usr\tests\unit;
 
 use nineinchnick\usr\tests\DatabaseTestCase as DatabaseTestCase;
 use nineinchnick\usr\models;
+use nineinchnick\usr\tests\User;
 
 class PasswordFormTest extends DatabaseTestCase
 {
@@ -35,8 +36,8 @@ class PasswordFormTest extends DatabaseTestCase
 				),
 				'errors ' => array(
 					'password' => array('Invalid password.'),
-					'newVerify' => array('Verify cannot be blank.', 'Please type the same new password twice to verify it.'),
-					'newPassword' => array('New password is too short (minimum is 8 characters).', 'New password must contain at least one lower and upper case character and a digit.'),
+					'newVerify' => array('Verify cannot be blank.'),
+					'newPassword' => array('New password should contain at least 8 characters.'),
 				),
 			),
 		);
@@ -52,8 +53,7 @@ class PasswordFormTest extends DatabaseTestCase
 	public function testValid($scenario, $attributes)
 	{
 		$form = new models\PasswordForm($scenario);
-		$form->userIdentityClass = 'UserIdentity';
-		$form->setIdentity(new UserIdentity('neo', 'Test1233'));
+		$form->setIdentity(User::find(['username'=>'neo']));
 		$form->setAttributes($attributes);
 		$this->assertTrue($form->validate(), 'Failed with following validation errors: '.print_r($form->getErrors(),true));
 		$this->assertEmpty($form->getErrors());
@@ -66,8 +66,7 @@ class PasswordFormTest extends DatabaseTestCase
 	public function testInvalid($scenario, $attributes, $errors)
 	{
 		$form = new models\PasswordForm($scenario);
-		$form->userIdentityClass = 'UserIdentity';
-		$form->setIdentity(new UserIdentity('neo', 'Test1233'));
+		$form->setIdentity(User::find(['username'=>'neo']));
 		$form->setAttributes($attributes);
 		$this->assertFalse($form->validate());
 		$this->assertEquals($errors, $form->getErrors());
