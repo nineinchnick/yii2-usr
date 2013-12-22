@@ -47,10 +47,10 @@ abstract class FormModelBehavior extends \yii\base\Behavior
 	 */
 	public function attributes()
 	{
-		$class = new ReflectionClass($this);
+		$class = new \ReflectionClass($this);
 		$names = [];
 		foreach ($class->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
-			if (!$property->isStatic()) {
+			if (!$property->isStatic() && $property->getName() != 'owner') {
 				$names[] = $property->getName();
 			}
 		}

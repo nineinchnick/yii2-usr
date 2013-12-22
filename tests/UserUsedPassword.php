@@ -1,11 +1,7 @@
 <?php
 
-Yii::import('vendors.nineinchnick.yii-usr.models.ExampleUserUsedPassword');
+namespace nineinchnick\usr\tests;
 
-class UserUsedPassword extends ExampleUserUsedPassword
+class UserUsedPassword extends nineinchnick\usr\models\ExampleUserUsedPassword
 {
-	public static function model($className=__CLASS__)
-	{
-		return parent::model($className);
-	}
 }

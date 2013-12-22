@@ -1,11 +1,9 @@
 <?php
 
-Yii::import('vendors.nineinchnick.yii-usr.models.ExampleUser');
+namespace nineinchnick\usr\tests;
 
-class User extends ExampleUser
+require_once(dirname(__DIR__).'/models/ExampleUser.php');
+
+class User extends \nineinchnick\usr\models\ExampleUser
 {
-	public static function model($className=__CLASS__)
-	{
-		return parent::model($className);
-	}
 }

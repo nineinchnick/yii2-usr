@@ -1,11 +1,7 @@
 <?php
 
-Yii::import('vendors.nineinchnick.yii-usr.models.ExampleUserRemoteIdentity');
+namespace nineinchnick\usr\tests;
 
-class UserRemoteIdentity extends ExampleUserRemoteIdentity
+class UserRemoteIdentity extends nineinchnick\usr\models\ExampleUserRemoteIdentity
 {
-	public static function model($className=__CLASS__)
-	{
-		return parent::model($className);
-	}
 }

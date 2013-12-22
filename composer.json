@@ -17,6 +17,9 @@
 		"yiisoft/yii2-swiftmailer": "*",
 		"nineinchnick/diceware": "*"
     },
+	"require-dev": {
+		"phpunit/phpunit": "3.8.*"
+	},
 	"suggest": {
 		"hybridauth/hybridauth": "*",
 		"sonata-project/google-authenticator": "*"

@@ -2,8 +2,6 @@
 
 namespace nineinchnick\usr\tests\unit;
 
-require_once(dirname(__DIR__).'/../Module.php');
-
 use nineinchnick\usr\tests\TestCase as TestCase;
 use nineinchnick\usr\Module as Module;
 

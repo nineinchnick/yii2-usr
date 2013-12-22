@@ -397,6 +397,8 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 	 */
 	public function setOneTimePasswordSecret($secret)
 	{
+		if ($this->getIsNewRecord())
+			return false;
 		$this->one_time_password_secret = $secret;
 		return $this->save(false);
 	}
@@ -419,6 +421,8 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 	 */
 	public function setOneTimePassword($password, $counter = 1)
 	{
+		if ($this->getIsNewRecord())
+			return false;
 		$this->one_time_password_code = $password;
 		$this->one_time_password_counter = $counter;
 		return $this->save(false);

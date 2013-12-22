@@ -5,3 +5,4 @@
 .DS_Store
 *.swp
 /tests/report
+/tests/runtime

@@ -2,8 +2,6 @@
 
 namespace nineinchnick\usr\tests\unit;
 
-require_once(dirname(__DIR__).'/DatabaseTestCase.php');
-
 use nineinchnick\usr\tests\DatabaseTestCase as DatabaseTestCase;
 
 class LoginFormTest extends DatabaseTestCase
