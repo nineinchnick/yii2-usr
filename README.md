@@ -29,7 +29,7 @@ See [the demo](http://demo2.niix.pl).
   * Run `php composer.phar require nineinchnick/yii2-usr "dev-master"` OR add to composer.json require section `"nineinchnick/yii2-usr": "dev-master"`
   * If one time passwords will be used, also install "sonata-project/google-authenticator"
   * If Hybridauth will be used, also install "hybridauth/hybridauth"
-3. Update config file *config/web.php* as shown below. Check out the Module for more available options.
+3. Update config file *config/web.php* as shown below. Note the _from_ key in messageConfig property of the mail component. Check out the Module for more available options.
 4. Use provided example User model or implement required interfaces in existing User model. These are described in next chapter.
 
 
@@ -50,6 +50,13 @@ $config = [
 		'user' => [
 			'identityClass' => 'app\models\User',
 			'loginUrl' => ['usr/login'],
+		],
+		'mail' => [
+			'class' => 'yii\swiftmailer\Mailer',
+			'useFileTransport' => YII_DEBUG,
+			'messageConfig' => [
+				'from' => 'noreply@yoursite.com',
+			],
 		],
 		// ..........
 	],
