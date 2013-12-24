@@ -149,7 +149,7 @@ class HybridauthController extends UsrController
 			}
 		} else {
 			$profile = $remoteLogin->getHybridAuthAdapter()->getUserProfile();
-			$email = $profile->emailVerifier !== null ? $profile->emailVerifier : $profile->email;
+			$email = (isset($profile->emailVerifier) && $profile->emailVerifier !== null) ? $profile->emailVerifier : $profile->email;
 			$localProfile->setAttributes([
 				'username' => $email,
 				'email' => $email,
