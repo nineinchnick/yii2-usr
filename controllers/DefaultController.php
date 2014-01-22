@@ -12,6 +12,19 @@ use yii\web\AccessDeniedHttpException;
  */
 class DefaultController extends UsrController
 {
+	/* Add event after login
+	'components' => [
+		'user' => [
+			'identityClass' => 'app\models\User',
+			'loginUrl' => ['usr/login'],
+			'on afterLogin' => function($event) {
+	                var_dump(Yii::$app->user); exit;
+	            },
+		],
+	],
+	*/
+      const EVENT_AFTER_LOGIN = 'afterLogin';
+
 	public function actions()
 	{
 		$actions = [];
@@ -100,6 +113,8 @@ class DefaultController extends UsrController
 	 */ 
 	protected function afterLogin()
 	{
+		Yii::$app->trigger(self::EVENT_AFTER_LOGIN);
+
 		$returnUrlParts = explode('/',Yii::$app->user->returnUrl);
 		if(end($returnUrlParts)=='index.php'){
 			$url = '/';
