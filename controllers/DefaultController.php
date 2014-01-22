@@ -12,7 +12,9 @@ use yii\web\AccessDeniedHttpException;
  */
 class DefaultController extends UsrController
 {
-	/* Add event after login
+	/* 
+	  * Add event after login
+	  * 
 	'components' => [
 		'user' => [
 			'identityClass' => 'app\models\User',
