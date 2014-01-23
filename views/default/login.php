@@ -32,7 +32,9 @@ $this->params['breadcrumbs'][] = $this->title;
 		<div class="col-lg-5">
 			<?= $form->field($model, 'username', ['inputOptions'=>['autofocus'=>true, 'class' => 'form-control']]) ?>
 			<?= $form->field($model, 'password')->passwordInput() ?>
+<?php if ($this->context->module->rememberMeDuration > 0): ?>
 			<?= $form->field($model, 'rememberMe')->checkbox() ?>
+<?php endif; ?>
 <?php if ($this->context->module->recoveryEnabled): ?>
 			<p style="color:#999;margin:1em 0">
 				<?= Yii::t('usr', 'Don\'t remember username or password?') ?>
