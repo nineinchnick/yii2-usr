@@ -5,6 +5,8 @@ namespace nineinchnick\usr\models;
 use Yii;
 use yii\helpers\Security;
 use nineinchnick\usr\components;
+use app\models\UserUsedPassword;
+use app\models\UserRemoteIdentity;
 
 /**
  * This is the model class for table "{{users}}".
@@ -31,7 +33,14 @@ use nineinchnick\usr\components;
  * @property UserRemoteIdentity[] $userRemoteIdentities
  * @property UserUsedPassword[] $userUsedPassword
  */
-abstract class ExampleUser extends \yii\db\ActiveRecord implements components\IdentityInterface, components\ActivatedIdentityInterface, components\EditableIdentityInterface, components\OneTimePasswordIdentityInterface, components\PasswordHistoryIdentityInterface, components\HybridauthIdentityInterface
+abstract class ExampleUser extends \yii\db\ActiveRecord
+	implements
+	components\IdentityInterface,
+	components\ActivatedIdentityInterface,
+	components\EditableIdentityInterface,
+	components\OneTimePasswordIdentityInterface,
+	components\PasswordHistoryIdentityInterface,
+	components\HybridauthIdentityInterface
 {
 	/**
 	 * @inheritdoc
@@ -62,22 +71,13 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 
 	public function getUserRemoteIdentities()
 	{
-		return $this->hasMany(\app\models\UserRemoteIdentity::className(), ['user_id' => 'id']);
+		return $this->hasMany(UserRemoteIdentity::className(), ['user_id' => 'id']);
 	}
 
 	public function getUserUsedPasswords()
 	{
-		return $this->hasMany(\app\models\UserUsedPassword::className(), ['user_id' => 'id'])->orderBy('set_on DESC');
+		return $this->hasMany(UserUsedPassword::className(), ['user_id' => 'id'])->orderBy('set_on DESC');
 	}
-
-    /**
-     * @param ActiveQuery $query
-     */
-    public static function withUserRemoteIdentities($query)
-    {
-        $query->leftJoin(\app\models\UserRemoteIdentity::tableName(), self::tableName().'.[['.self::primaryKey()[0].']]='.\app\models\UserRemoteIdentity::tableName().'.[[user_id]]');
-    }
-
 
 	/**
 	 * @inheritdoc
@@ -226,7 +226,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 	public function resetPassword($password)
 	{
 		$hashedPassword = Security::generatePasswordHash($password);
-		$usedPassword = new \app\models\UserUsedPassword;
+		$usedPassword = new UserUsedPassword;
 		$usedPassword->setAttributes([
 			'user_id'=>$this->id,
 			'password'=>$hashedPassword,
@@ -444,10 +444,11 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 	 */
 	public static function findByProvider($provider, $identifier)
 	{
+		$t = UserRemoteIdentity::tableName();
 		return self::find()
-			->withUserRemoteIdentities()
-			->andWhere(\app\models\UserRemoteIdentity::tableName().'.[[provider]]=:provider',[':provider'=>$provider])
-			->andWhere(\app\models\UserRemoteIdentity::tableName().'.[[identifier]]=:identifier',[':identifier'=>$identifier])
+			->leftJoin($t, self::tableName().'.[['.self::primaryKey()[0].']]='.$t.'.[[user_id]]')
+			->andWhere($t.'.[[provider]]=:provider',[':provider'=>$provider])
+			->andWhere($t.'.[[identifier]]=:identifier',[':identifier'=>$identifier])
 			->one();
 	}
 
@@ -459,7 +460,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord implements components\Id
 	 */
 	public function addRemoteIdentity($provider, $identifier)
 	{
-		$model = new \app\models\UserRemoteIdentity;
+		$model = new UserRemoteIdentity;
 		$model->setAttributes(array(
 			'user_id' => $this->id,
 			'provider' => $provider,
