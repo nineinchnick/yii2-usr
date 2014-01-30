@@ -119,32 +119,39 @@ class HybridauthController extends UsrController
 		if (isset($_POST['ProfileForm'])) {
 			$localProfile->setAttributes($_POST['ProfileForm']);
 
-			if ($localProfile->register()) {
-				if ($this->module->requireVerifiedEmail) {
-					if ($this->sendEmail($localProfile, 'verify')) {
-						Yii::$app->user->setFlash('success', Yii::t('usr', 'An email containing further instructions has been sent to provided email address.'));
-					} else {
-						Yii::$app->user->setFlash('error', Yii::t('usr', 'Failed to send an email.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
-					}
-				}
-
-				// don't forget to associate the new profile with remote provider
-				if (!$remoteLogin->associate($localProfile->getIdentity()->getId())) {
-					Yii::$app->user->setFlash('error', Yii::t('usr', 'Failed to associate current user with {provider}.', ['provider'=>$remoteLogin->provider]));
-					return $this->redirect('login');
-				}
-
-				if ($localProfile->getIdentity()->isActive()) {
-					// don't use the $localProfile->login() method because there is no password set so we can't authenticate this identity
-					if (Yii::$app->user->login($localProfile->getIdentity(),0)) {
-						$this->afterLogin();
-					} else {
-						Yii::$app->user->setFlash('error', Yii::t('usr', 'Failed to log in.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
-					}
+			if ($localProfile->validate()) {
+				$trx = Yii::$app->db->beginTransaction();
+				if (!$localProfile->save()) {
+					$trx->rollback();
+					Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to register a new user.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
 				} else {
-					if (!Yii::$app->user->hasFlash('success'))
-						Yii::$app->user->setFlash('success', Yii::t('usr', 'Please wait for the account to be activated. A notification will be send to provided email address.'));
-					return $this->redirect(['login']);
+					$trx->commit();
+					if ($this->module->requireVerifiedEmail) {
+						if ($this->sendEmail($localProfile, 'verify')) {
+							Yii::$app->user->setFlash('success', Yii::t('usr', 'An email containing further instructions has been sent to provided email address.'));
+						} else {
+							Yii::$app->user->setFlash('error', Yii::t('usr', 'Failed to send an email.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
+						}
+					}
+
+					// don't forget to associate the new profile with remote provider
+					if (!$remoteLogin->associate($localProfile->getIdentity()->getId())) {
+						Yii::$app->user->setFlash('error', Yii::t('usr', 'Failed to associate current user with {provider}.', ['provider'=>$remoteLogin->provider]));
+						return $this->redirect('login');
+					}
+
+					if ($localProfile->getIdentity()->isActive()) {
+						// don't use the $localProfile->login() method because there is no password set so we can't authenticate this identity
+						if (Yii::$app->user->login($localProfile->getIdentity(),0)) {
+							$this->afterLogin();
+						} else {
+							Yii::$app->user->setFlash('error', Yii::t('usr', 'Failed to log in.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
+						}
+					} else {
+						if (!Yii::$app->user->hasFlash('success'))
+							Yii::$app->user->setFlash('success', Yii::t('usr', 'Please wait for the account to be activated. A notification will be send to provided email address.'));
+						return $this->redirect(['login']);
+					}
 				}
 			}
 		} else {
