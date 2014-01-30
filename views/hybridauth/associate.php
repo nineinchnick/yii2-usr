@@ -45,6 +45,10 @@ $this->params['breadcrumbs'][] = $this->title;
 			<?= $form->field($localProfile, 'firstName') ?>
 			<?= $form->field($localProfile, 'lastName') ?>
 
+<?php if($model->getBehavior('captcha') !== null): ?>
+<?= $this->render('/default/_captcha', ['form'=>$form, 'model'=>$localProfile]) ?>
+<?php endif; ?>
+
 			<div class="form-group">
 				<?= Html::submitButton(Yii::t('usr', 'Submit'), ['class' => 'btn btn-primary']) ?>
 			</div>
