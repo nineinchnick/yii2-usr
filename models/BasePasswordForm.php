@@ -22,6 +22,7 @@ abstract class BasePasswordForm extends BaseUsrForm
 	 * Returns default password strength rules. This is called from the rules() method.
 	 * If no rules has been set in the module configuration, uses sane defaults
 	 * of 8 characters containing at least one capital, lower case letter and number.
+	 * @return array
 	 */
 	public function getPasswordStrengthRules()
 	{
@@ -35,17 +36,25 @@ abstract class BasePasswordForm extends BaseUsrForm
 	}
 
 	/**
-	 * Sets rules to validate password strength.
+	 * Sets rules to validate password strength. Rules should NOT contain attribute name as this method adds it.
+	 * @param array $rules
 	 */
-	public function setPasswordStrengthRules($value)
+	public function setPasswordStrengthRules($rules)
 	{
-		$this->_passwordStrengthRules = $value;
+		$this->_passwordStrengthRules = [];
+		if (!is_array($rules)) {
+			return;
+		}
+		foreach($rules as $rule) {
+			$this->_passwordStrengthRules[] = array_merge(['newPassword'], $rule);
+		}
 	}
 
 	/**
 	 * Declares the validation rules.
 	 * The rules state that username and password are required,
 	 * and password needs to be authenticated.
+	 * @return array
 	 */
 	public function rules()
 	{
@@ -79,6 +88,7 @@ abstract class BasePasswordForm extends BaseUsrForm
 
 	/**
 	 * Declares attribute labels.
+	 * @return array
 	 */
 	public function attributeLabels()
 	{
@@ -103,6 +113,7 @@ abstract class BasePasswordForm extends BaseUsrForm
 	/**
 	 * Checkes if current password hasn't been used before.
 	 * This is the 'unusedNewPassword' validator as declared in rules().
+	 * @return boolean
 	 */
 	public function unusedNewPassword()
 	{

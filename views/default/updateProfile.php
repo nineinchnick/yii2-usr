@@ -28,6 +28,7 @@ $this->params['breadcrumbs'][] = $this->title;
     'enableAjaxValidation'=>true,
 	'enableClientValidation'=>false,
 	'validateOnSubmit'=>$model->getBehavior('captcha') === null,
+	'htmlOptions' => array('enctype' => 'multipart/form-data'),
 ]); ?>
 
 	<p class="note"><?= Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.') ?></p>
@@ -39,14 +40,25 @@ $this->params['breadcrumbs'][] = $this->title;
 			<?= $form->field($model, 'username', ['inputOptions'=>['autofocus'=>true, 'class'=>'form-control']]) ?>
 			<?= $form->field($model, 'email') ?>
 
-<?php if ($passwordForm->scenario !== 'register'): ?>
-			<?= $form->field($passwordForm, 'password')->passwordInput() ?>
+<?php if ($model->scenario !== 'register'): ?>
+			<?= $form->field($model, 'password')->passwordInput() ?>
 <?php endif; ?>
 
 <?= $this->render('_newpassword', ['form'=>$form, 'model'=>$passwordForm, 'focus'=>false]) ?>
 
 			<?= $form->field($model, 'firstName') ?>
 			<?= $form->field($model, 'lastName') ?>
+<?php if ($model->getIdentity() instanceof PictureIdentityInterface && !empty($model->pictureUploadRules)):
+		$picture = $model->getIdentity()->getPictureUrl(80,80);
+		$picture['alt'] = Yii::t('usr', 'Profile picture');
+		$url = $picture['url'];
+		unset($picture['url']);
+?>
+			<?= Html::img($url, $picture); ?>
+			<?= $form->field($model, 'picture')->fileInput() ?>
+			<?= $form->field($model, 'removePicture')->checkbox() ?>
+<?php endif; ?>
+
 
 <?php if($model->getBehavior('captcha') !== null): ?>
 <?= $this->render('_captcha', ['form'=>$form, 'model'=>$model]) ?>

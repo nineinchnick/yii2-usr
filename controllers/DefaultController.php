@@ -5,6 +5,8 @@ namespace nineinchnick\usr\controllers;
 use Yii;
 use yii\web\BadRequestHttpException;
 use yii\web\AccessDeniedHttpException;
+use yii\web\NotFoundHttpException;
+use yii\web\ForbiddenHttpException;
 
 /**
  * The default controller providing all basic actions.
@@ -101,11 +103,7 @@ class DefaultController extends UsrController
 	protected function afterLogin()
 	{
 		$returnUrlParts = explode('/',Yii::$app->user->returnUrl);
-		if(end($returnUrlParts)=='index.php'){
-			$url = '/';
-		}else{
-			$url = Yii::$app->user->returnUrl;
-		}
+		$url = end($returnUrlParts)=='index.php' ? '/' : Yii::$app->user->returnUrl;
 		return $this->redirect($url);
 	}
 
@@ -127,7 +125,7 @@ class DefaultController extends UsrController
 				Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 				return \yii\widgets\ActiveForm::validate($model);
 			}
-			if($model->validate()) {
+			if ($model->validate()) {
 				if (($model->scenario !== 'reset' || $model->resetPassword($model->newPassword)) && $model->login($this->module->rememberMeDuration)) {
 					return $this->afterLogin();
 				} else {
@@ -175,7 +173,7 @@ class DefaultController extends UsrController
 			 */
 			if ($model->activationKey !== null)
 				$model->scenario = 'reset';
-			if($model->validate()) {
+			if ($model->validate()) {
 				if ($model->scenario !== 'reset') {
 					/** 
 					 * Send email appropriate to the activation status. If verification is required, that must happen
@@ -188,7 +186,7 @@ class DefaultController extends UsrController
 					}
 				} else {
 					// a valid recovery form means the user confirmed his email address
-					$model->getIdentity()->verifyEmail();
+					$model->getIdentity()->verifyEmail($this->module->requireVerifiedEmail);
 					// regenerate the activation key to prevent reply attack
 					$model->getIdentity()->getActivationKey();
 					if ($model->resetPassword() && $model->login()) {
@@ -212,7 +210,7 @@ class DefaultController extends UsrController
 		/** @var RecoveryForm */
 		$model = $this->module->createFormModel('RecoveryForm', 'verify');
 		$model->setAttributes($_GET);
-		if($model->validate() && $model->getIdentity()->verifyEmail()) {
+		if ($model->validate() && $model->getIdentity()->verifyEmail($this->module->requireVerifiedEmail)) {
 			// regenerate the activation key to prevent reply attack
 			$model->getIdentity()->getActivationKey();
 			Yii::$app->session->setFlash('success', Yii::t('usr', 'Your email address has been successfully verified.'));
@@ -233,8 +231,11 @@ class DefaultController extends UsrController
 		/** @var PasswordForm */
 		$passwordForm = $this->module->createFormModel('PasswordForm', 'register');
 
-		if($model->load($_POST)) {
+		if ($model->load($_POST)) {
 			$passwordForm->load($_POST);
+			if ($model->getIdentity() instanceof PictureIdentityInterface && !empty($model->pictureUploadRules)) {
+				$model->picture = yii\web\UploadedFile::getInstance($model, 'picture');
+			}
 			if (Yii::$app->request->isAjax) {
 				Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 				return \yii\widgets\ActiveForm::validate($model, $passwordForm);
@@ -284,6 +285,10 @@ class DefaultController extends UsrController
 		/** @var PasswordForm */
 		$passwordForm = $this->module->createFormModel('PasswordForm');
 		$loadedPassword = isset($_POST[$passwordForm->formName()]) && trim($_POST[$passwordForm->formName()]['newPassword']) !== '' && $passwordForm->load($_POST);
+		if ($loadedModel && $model->getIdentity() instanceof PictureIdentityInterface && !empty($model->pictureUploadRules)) {
+			$model->picture = yii\web\UploadedFile::getInstance($model, 'picture');
+			$passwordForm->password = $model->password;
+		}
 
 		if (Yii::$app->request->isAjax) {
 			Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
@@ -301,7 +306,7 @@ class DefaultController extends UsrController
 		 * Only try to set new password if it has been specified in the form.
 		 * The current password could have been used to authorize other changes.
 		 */
-		if($loadedPassword) {
+		if ($loadedPassword) {
 			if ($passwordForm->validate()) {
 				if ($passwordForm->resetPassword($model->getIdentity())) {
 					$flashes['success'][] = Yii::t('usr', 'Changes have been saved successfully.');
@@ -310,8 +315,8 @@ class DefaultController extends UsrController
 				}
 			}
 		}
-		if($loadedModel && empty($flashes['error'])) {
-			if($model->validate()) {
+		if ($loadedModel && empty($flashes['error'])) {
+			if ($model->validate()) {
 				$oldEmail = $model->getIdentity()->getEmail();
 				if ($model->save()) {
 					if ($this->module->requireVerifiedEmail && $oldEmail != $model->email) {
@@ -341,5 +346,25 @@ class DefaultController extends UsrController
 		} else {
 			return $this->render('viewProfile', ['model'=>$model]);
 		}
+	}
+
+	/**
+	 * Allows users to view their profile picture.
+	 * @param integer $id
+	 * @return string
+	 */
+	public function actionProfilePicture($id)
+	{
+		/** @var ProfileForm */
+		$model = $this->module->createFormModel('ProfileForm');
+		if (!(($identity=$model->getIdentity()) instanceof PictureIdentityInterface)) {
+			throw new ForbiddenException(Yii::t('usr','The {class} class must implement the {interface} interface.', ['class'=>get_class($identity),'interface'=>'PictureIdentityInterface']));
+		}
+		$picture = $identity->getPicture($id);
+		if ($picture === null) {
+			throw new NotFoundHttpException(Yii::t('usr', 'Picture with id {id} is not found.', ['id'=>$id]));
+		}
+		header('Content-Type:'.$picture['mimetype']);
+		echo $picture['picture'];
 	}
 }

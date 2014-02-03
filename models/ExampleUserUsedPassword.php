@@ -31,11 +31,10 @@ abstract class ExampleUserUsedPassword extends \yii\db\ActiveRecord
 	 */
 	public function rules()
 	{
-		return array(
-		);
+		return [];
 	}
 
-	public function getUserRemoteIdentities()
+	public function getUser()
 	{
 		return $this->hasOne(User::className(), ['id' => 'user_id']);
 	}
@@ -45,12 +44,12 @@ abstract class ExampleUserUsedPassword extends \yii\db\ActiveRecord
 	 */
 	public function attributeLabels()
 	{
-		return array(
+		return [
 			'id' => Yii::t('models', 'ID'),
 			'user_id' => Yii::t('models', 'User'),
 			'password' => Yii::t('models', 'Password'),
 			'set_on' => Yii::t('models', 'Password Set On'),
-		);
+		];
 	}
 
 	/**

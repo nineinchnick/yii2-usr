@@ -8,9 +8,10 @@ interface EditableIdentityInterface
 	 * Saves a new or existing identity. Does not set or change the password.
 	 * @see PasswordHistoryIdentityInterface::resetPassword()
 	 * Should detect if the email changed and mark it as not verified.
+	 * @param boolean $requireVerifiedEmail
 	 * @return boolean
 	 */
-	public function saveIdentity();
+	public function saveIdentity($requireVerifiedEmail=false);
 	/**
 	 * Returns attributes like username, email, first and last name.
 	 * @return array

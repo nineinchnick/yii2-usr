@@ -32,6 +32,7 @@ use app\models\UserRemoteIdentity;
  * The followings are the available model relations:
  * @property UserRemoteIdentity[] $userRemoteIdentities
  * @property UserUsedPassword[] $userUsedPassword
+ * @property UserProfilePicture[] $userProfilePictures
  */
 abstract class ExampleUser extends \yii\db\ActiveRecord
 	implements
@@ -40,7 +41,8 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
 	components\EditableIdentityInterface,
 	components\OneTimePasswordIdentityInterface,
 	components\PasswordHistoryIdentityInterface,
-	components\HybridauthIdentityInterface
+	components\HybridauthIdentityInterface,
+	components\PictureIdentityInterface
 {
 	/**
 	 * @inheritdoc
@@ -77,6 +79,11 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
 	public function getUserUsedPasswords()
 	{
 		return $this->hasMany(UserUsedPassword::className(), ['user_id' => 'id'])->orderBy('set_on DESC');
+	}
+
+	public function getUserProfilePictures()
+	{
+		return $this->hasMany(UserProfilePicture::className(), ['user_id' => 'id']);
 	}
 
 	/**
@@ -258,13 +265,14 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
 	 * Saves a new or existing identity. Does not set or change the password.
 	 * @see PasswordHistoryIdentityInterface::resetPassword()
 	 * Should detect if the email changed and mark it as not verified.
+	 * @param boolean $requireVerifiedEmail
 	 * @return boolean
 	 */
-	public function saveIdentity()
+	public function saveIdentity($requireVerifiedEmail=false)
 	{
 		if ($this->isNewRecord) {
 			$this->password = 'x';
-			$this->is_active = 1;
+			$this->is_active = $requireVerifiedEmail ? 0 : 1;
 			$this->is_disabled = 0;
 			$this->email_verified = 0;
 		}
@@ -300,7 +308,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
 	public function getIdentityAttributes()
 	{
 		$allowedAttributes = array_flip($this->identityAttributesMap());
-		$result = array();
+		$result = [];
 		foreach($this->getAttributes() as $name=>$value) {
 			if (isset($allowedAttributes[$name])) {
 				$result[$allowedAttributes[$name]] = $value;
@@ -361,14 +369,18 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
 	/**
 	 * Verify users email address, which could also activate his account and allow him to log in.
 	 * Call only after verifying the activation key.
+	 * @param boolean $requireVerifiedEmail
 	 * @return boolean
 	 */
-	public function verifyEmail()
+	public function verifyEmail($requireVerifiedEmail=false)
 	{
 		if ($this->email_verified) {
 			return true;
 		}
 		$this->email_verified = 1;
+		if ($requireVerifiedEmail && !$this->is_active) {
+			$this->is_active = 1;
+		}
 		return $this->save(false);
 	}
 	
@@ -409,14 +421,14 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
 
 	/**
 	 * Returns previously used one time password and value of counter used to generate current one time password, used in counter mode.
-	 * @return array array(string, integer) 
+	 * @return array [string, integer] 
 	 */
 	public function getOneTimePassword()
 	{
-		return array(
+		return [
 			$this->one_time_password_code,
 			$this->one_time_password_counter === null ? 1 : $this->one_time_password_counter,
-		);
+		];
 	}
 
 	/**
@@ -461,12 +473,167 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
 	public function addRemoteIdentity($provider, $identifier)
 	{
 		$model = new UserRemoteIdentity;
-		$model->setAttributes(array(
+		$model->setAttributes([
 			'user_id' => $this->id,
 			'provider' => $provider,
 			'identifier' => $identifier,
-		), false);
+		], false);
 		return $model->save();
+	}
+
+	// }}}
+
+	// {{{ IPictureIdentity
+
+	/**
+	 * @inheritdoc
+	 */
+	public function savePicture($picture)
+	{
+		if ($this->getIsNewRecord())
+			return false;
+		$pictureRecord = $this->userProfilePictures(['condition'=>'original_picture_id IS NULL']);
+		if (!empty($pictureRecord)) {
+			$pictureRecord = $pictureRecord[0];
+		} else {
+			$pictureRecord = new UserProfilePicture;
+			$pictureRecord->user_id = $this->id;
+		}
+		$picturePath = $picture->getTempName();
+		$pictureRecord->filename = $picture;
+		$pictureRecord->mimetype = yii\helpers\FileHelper::getMimeType($picturePath);
+		$pictureRecord->contents = base64_encode(file_get_contents($picturePath));
+
+		if (($size = @getimagesize($picturePath)) !== false) {
+			list($width, $height, $type, $attr) = $size;
+			$pictureRecord->width = $width;
+			$pictureRecord->height = $height;
+		} else {
+			$pictureRecord->width = 0;
+			$pictureRecord->height = 0;
+		}
+		return $pictureRecord->save() && $this->saveThumbnail($picture, $pictureRecord);
+	}
+
+	protected function saveThumbnail($picture, $pictureRecord)
+	{
+		// skip thumbnail if couldn't read size of original picture
+		if ($pictureRecord->width == 0 || $pictureRecord->height == 0) {
+			return true;
+		}
+		// calculate thumbnail dimensions with max width and height at 80
+		$max_width = 80;
+		$max_height = 80;
+
+		$width = $pictureRecord->width;
+		$height = $pictureRecord->height;
+		if ($width > $max_width || $height > $max_height ) {
+			if ($width > $height) {
+				$height = floor($height / ($width / $max_width));
+				$width = $max_width;
+			} else {
+				$width = floor($width / ($height / $max_height));
+				$height = $max_height;
+			}
+		}
+
+		// create the thumbnail image (always a jpeg)
+		$thumbImage = imagecreatetruecolor($width, $height);
+		$sourceImage = imagecreatefromstring(base64_decode($pictureRecord->contents));
+		imagecopyresized($thumbImage, $sourceImage, 0, 0, 0, 0, $width, $height, $pictureRecord->width, $pictureRecord->height);
+		ob_start();
+		imagejpeg($thumbImage);
+		$contents = ob_get_clean();
+
+		// update existing thumbnail or create a new one
+		$thumbnail = $pictureRecord->thumbnails;
+		if (!empty($thumbnail)) {
+			$thumbnail = $thumbnail[0];
+		} else {
+			$thumbnail = new UserProfilePicture;
+			$thumbnail->original_picture_id = $pictureRecord->id;
+			$thumbnail->user_id = $pictureRecord->user_id;
+			$thumbnail->filename = $pictureRecord->filename;
+			$thumbnail->mimetype = 'image/jpeg';
+		}
+		$thumbnail->width = $width;
+		$thumbnail->height = $height;
+		$thumbnail->contents = base64_encode($contents);
+		return $thumbnail->save();
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getPictureUrl($width=null, $height=null)
+	{
+		if ($this->getIsNewRecord())
+			return false;
+		// try to locate biggest picture smaller than specified dimensions
+		$criteria = ['select' => 'id', 'order' => 'width DESC', 'limit' => 1];
+		if ($width !== null && $height !== null) {
+			$criteria['condition'] = 'width <= :width AND height <= :height';
+			$criteria['params'] = [':width'=>$width, ':height'=>$height];
+		}
+		$pictures = $this->userProfilePictures($criteria);
+		if (!empty($pictures)) {
+			return [
+				'url'	=> Yii::$app->createAbsoluteUrl('/usr/profilePicture', ['id'=>$pictures[0]->id]),
+				'width'	=> $pictures[0]->width,
+				'height'=> $pictures[0]->height,
+			];
+		}
+
+		// if no picture has been found, use a Gravatar
+		$hash = md5(strtolower(trim($this->email)));
+		// more at http://gravatar.com/site/implement/images/
+		$options = [
+			//'forcedefault' => 'y',
+			'rating'=> 'g',
+			'd'		=> 'retro',
+			's'		=> $width,
+		];
+		$host = Yii::$app->request->isSecureConnection ? 'https://secure.gravatar.com' : 'http://gravatar.com';
+		return [
+			'url'	=> $host.'/avatar/'.$hash.'?'.http_build_query($options),
+			'width'	=> $width,
+			'height'=> $height,
+		];
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getPicture($id, $currentIdentity=true)
+	{
+		$criteria = new CDbCriteria;
+		$criteria->addColumnCondition(['id'=>$id]);
+		if ($currentIdentity) {
+			$criteria->addColumnCondition(['user_id'=>$this->_id]);
+		}
+		if (($picture=UserProfilePicture::model()->find($criteria)) === null) {
+			return null;
+		}
+		return [
+			'mimetype'=>$picture->mimetype,
+			'width'=>$picture->width,
+			'height'=>$picture->height,
+			'picture'=>base64_decode($picture->contents),
+		];
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function removePicture($id=null)
+	{
+		if ($this->getIsNewRecord())
+			return 0;
+		$attributes = ['user_id'=>$this->id];
+		if ($id !== null) {
+			$attributes['id'] = $id;
+		}
+		return UserProfilePicture::model()->deleteAllByAttributes($attributes);
 	}
 
 	// }}}

@@ -146,6 +146,17 @@ class HybridauthForm extends BaseUsrForm
 			throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>get_class($identity),'interface'=>'\nineinchnick\usr\components\HybridauthIdentityInterface']));
 		}
 		$profile = $this->_hybridAuthAdapter->getUserProfile();
+		if ($identity instanceof PictureIdentityInterface && !empty($profile->photoURL)) {
+			$picture = $identity->getPictureUrl();
+			if ($picture['url'] != $profile->photoURL) {
+				$path = tempnam(sys_get_temp_dir(), 'external_profile_picture_');
+				if (copy($profile->photoURL, $path)) {
+					$uploadedFile = new yii\web\UploadedFile(['name'=>basename($path), 'tempName'=>$path, 'type'=>yii\helpers\FileHelper::getMimeType($path), 'size'=>filesize($path), 'error'=>UPLOAD_ERR_OK]);
+					$identity->removePicture();
+					$identity->savePicture($uploadedFile);
+				}
+			}
+		}
 		return $identity->addRemoteIdentity(strtolower($this->provider), $profile->identifier);
 	}
 }

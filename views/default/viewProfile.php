@@ -27,5 +27,18 @@ if ($this->context->module->oneTimePasswordMode === nineinchnick\usr\Module::OTP
 		'value'=>$model->getIdentity()->getOneTimePasswordSecret() === null ? Html::a(Yii::t('usr', 'Enable'), ['toggleOneTimePassword']) : Html::a(Yii::t('usr', 'Disable'), ['toggleOneTimePassword']),
 	];
 }
+if ($model->getIdentity() instanceof PictureIdentityInterface) {
+       $picture = $model->getIdentity()->getPictureUrl(80,80);
+	   $picture['alt'] = Yii::t('usr', 'Profile picture');
+       $url = $picture['url'];
+       unset($picture['url']);
+       array_unshift($attributes, array(
+		   'name'=>'picture',
+		   'type'=>'raw',
+		   'label'=>Yii::t('usr', 'Profile picture'),
+		   'value'=>yii\helpers\Html::img($url, $picture),
+       ));
+}
+
 echo DetailView::widget(['model' => $model, 'attributes' => $attributes]);
 

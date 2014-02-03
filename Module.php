@@ -38,10 +38,21 @@ class Module extends \yii\base\Module
 	public $passwordTimeout;
 	/**
 	 * @var array Set of rules to measure the password strength when choosing new password in the registration or recovery forms.
+	 * Rules should NOT include attribute name, it will be added when they are used.
 	 * If null, defaults to minimum 8 characters and at least one of each: lower and upper case character and a digit.
 	 * @see BasePasswordForm
 	 */
 	public $passwordStrengthRules;
+	/**
+	 * @var array Set of rules that restricts what images can be uploaded as user picture. If null, picture upload is disabled.
+	 * Rules should NOT include attribute name, it will be added when they are used.
+	 * This should probably include a 'file' validator, like in the following example:
+	 * [
+	 *     ['file', 'allowEmpty' => true, 'types'=>'jpg, gif, png', 'maxSize'=>2*1024*1024, 'safe' => false, 'maxFiles' => 1],
+	 * ],
+	 * @see yii\validators\FileValidator
+	 */
+	public $pictureUploadRules;
 	/**
 	 * @var string CSS class for html forms.
 	 */
@@ -85,6 +96,7 @@ class Module extends \yii\base\Module
 
 	/**
 	 * @var array If not null, CAPTCHA will be enabled on the registration and recovery form and this will be passed as arguments to the CCaptcha widget.
+	 * Remember to include the 'captchaAction'=>'/usr/default/captcha' property. Adjust the module id.
 	 */
 	public $captcha;
 
@@ -181,6 +193,7 @@ class Module extends \yii\base\Module
 			default:
 				break;
 			case 'ProfileForm':
+				$form->pictureUploadRules = $this->pictureUploadRules;
 			case 'RecoveryForm':
 				if ($this->captcha !== null && \yii\captcha\Captcha::checkRequirements()) {
 					$form->attachBehavior('captcha', [
