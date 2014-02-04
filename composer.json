@@ -26,7 +26,7 @@
 		}
 	},
 	"suggest": {
-		"hybridauth/hybridauth": "*",
-		"sonata-project/google-authenticator": "*"
+		"hybridauth/hybridauth": "Support for Hybridauth for logging using social site identities.",
+		"sonata-project/google-authenticator": "Support for Google Authenticator for two step authentication using one time passwords."
 	}
 }
