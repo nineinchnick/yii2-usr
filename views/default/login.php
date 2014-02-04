@@ -51,7 +51,7 @@ $this->params['breadcrumbs'][] = $this->title;
 			<p>
 				<ul>
 <?php
-list($path,$url) = $this->assetManager->publish(Yii::getAlias('@nineinchnick/usr/components/assets/zocial/zocial.css'));
+list($path,$url) = $this->assetManager->publish(Yii::getAlias('@usr/components/assets/zocial/zocial.css'));
 $this->registerCssFile($url);
 ?>
 <?php foreach ($this->context->module->hybridauthProviders as $provider => $settings): if(!$settings['enabled']) continue; ?>
