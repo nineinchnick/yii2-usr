@@ -20,6 +20,11 @@
 	"require-dev": {
 		"phpunit/phpunit": "3.8.*"
 	},
+	"autoload": {
+		"psr-4": {
+			"nineinchnick\\usr\\": ""
+		}
+	},
 	"suggest": {
 		"hybridauth/hybridauth": "*",
 		"sonata-project/google-authenticator": "*"
