@@ -21,10 +21,10 @@ abstract class UsrController extends \yii\web\Controller
 		case 'recovery':
 		case 'verify':
 			$subject = $mode == 'recovery' ? Yii::t('usr', 'Password recovery') : Yii::t('usr', 'Email address verification');
-			$params['actionUrl'] = Yii::$app->getUrlManager()->createAbsoluteUrl('default/'.$mode, array(
+			$params['actionUrl'] = Yii::$app->getUrlManager()->createAbsoluteUrl('default/'.$mode, [
 				'activationKey'=>$model->getIdentity()->getActivationKey(),
 				'username'=>$model->getIdentity()->username,
-			));
+			]);
 			break;
 		case 'oneTimePassword':
 			$subject = Yii::t('usr', 'One Time Password');
@@ -34,11 +34,6 @@ abstract class UsrController extends \yii\web\Controller
 		$message = Yii::$app->mail->compose($mode, $params);
 		$message->setTo([$model->getIdentity()->getEmail() => $model->getIdentity()->username]);
 		$message->setSubject($subject);
-		if ($message->send()) {
-			return true;
-		} else {
-			Yii::error($message->ErrorInfo, 'usr');
-			return false;
-		}
+		return $message->send();
 	}
 }

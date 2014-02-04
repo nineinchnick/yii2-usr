@@ -19,7 +19,7 @@ interface OneTimePasswordIdentityInterface
 
 	/**
 	 * Returns previously used one time password and value of counter used to generate current one time password, used in counter mode.
-	 * @return array array(string, integer) 
+	 * @return array [string, integer] 
 	 */
 	public function getOneTimePassword();
 

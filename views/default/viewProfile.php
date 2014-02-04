@@ -32,12 +32,12 @@ if ($model->getIdentity() instanceof PictureIdentityInterface) {
 	   $picture['alt'] = Yii::t('usr', 'Profile picture');
        $url = $picture['url'];
        unset($picture['url']);
-       array_unshift($attributes, array(
+       array_unshift($attributes, [
 		   'name'=>'picture',
 		   'type'=>'raw',
 		   'label'=>Yii::t('usr', 'Profile picture'),
 		   'value'=>yii\helpers\Html::img($url, $picture),
-       ));
+       ]);
 }
 
 echo DetailView::widget(['model' => $model, 'attributes' => $attributes]);

@@ -17,7 +17,7 @@ namespace nineinchnick\usr\components;
  */
 abstract class FormModelBehavior extends \yii\base\Behavior
 {
-	private $_ruleOptions = array();
+	private $_ruleOptions = [];
 
 	/**
 	 * Validation rules for attributes of this behavior, that should be merged with rules in the owner model.
@@ -26,7 +26,7 @@ abstract class FormModelBehavior extends \yii\base\Behavior
 	 */
 	public function rules()
 	{
-		return array();
+		return [];
 	}
 
 	/**
@@ -36,7 +36,7 @@ abstract class FormModelBehavior extends \yii\base\Behavior
 	 */
 	public function attributeLabels()
 	{
-		return array();
+		return [];
 	}
 
 	/**

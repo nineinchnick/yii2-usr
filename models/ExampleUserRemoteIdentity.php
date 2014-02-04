@@ -66,14 +66,14 @@ abstract class ExampleUserRemoteIdentity extends \yii\db\ActiveRecord
 	 */
 	public function attributeLabels()
 	{
-		return array(
+		return [
 			'id' => Yii::t('models', 'ID'),
 			'user_id' => Yii::t('models', 'User'),
 			'provider' => Yii::t('models', 'Provider'),
 			'identifier' => Yii::t('models', 'Identifier'),
 			'created_on' => Yii::t('models', 'Created On'),
 			'last_used_on' => Yii::t('models', 'Last Used On'),
-		);
+		];
 	}
 
 	/**

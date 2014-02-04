@@ -28,7 +28,7 @@ $this->params['breadcrumbs'][] = $this->title;
     'enableAjaxValidation'=>true,
 	'enableClientValidation'=>false,
 	'validateOnSubmit'=>$model->getBehavior('captcha') === null,
-	'htmlOptions' => array('enctype' => 'multipart/form-data'),
+	'options' => ['enctype' => 'multipart/form-data'],
 ]); ?>
 
 	<p class="note"><?= Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.') ?></p>
