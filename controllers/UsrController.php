@@ -37,7 +37,7 @@ abstract class UsrController extends \yii\web\Controller
 		if ($message->send()) {
 			return true;
 		} else {
-			Yii::error($message->ErrorInfo, 'usr');
+			Yii::error($message, 'usr'); // TODO: extract error from message
 			return false;
 		}
 	}
