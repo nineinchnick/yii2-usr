@@ -483,7 +483,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
 
 	// }}}
 
-	// {{{ IPictureIdentity
+	// {{{ PictureIdentityInterface
 
 	/**
 	 * @inheritdoc
