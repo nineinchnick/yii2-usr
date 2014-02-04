@@ -1,22 +1,22 @@
 {
-    "name": "nineinchnick/yii2-usr",
-    "description": "Yii 2.0 framework module for user authentication, password reset, registration and profile updating.",
+	"name": "nineinchnick/yii2-usr",
+	"description": "Yii 2.0 framework module for user authentication, password reset, registration and profile updating.",
 	"version": "0.9.9",
-    "license": "MIT",
+	"license": "MIT",
 	"type": "yii2-module",
-    "authors": [
-        {
-            "name": "Jan Waś",
-            "email": "janek.jan@gmail.com",
+	"authors": [
+		{
+			"name": "Jan Waś",
+			"email": "janek.jan@gmail.com",
 			"homepage": "http://niix.pl/"
-        }
-    ],
-    "require": {
+		}
+	],
+	"require": {
 		"yiisoft/yii2": "*",
 		"yiisoft/yii2-bootstrap": "*",
 		"yiisoft/yii2-swiftmailer": "*",
 		"nineinchnick/diceware": "*"
-    },
+	},
 	"require-dev": {
 		"phpunit/phpunit": "3.8.*"
 	},
