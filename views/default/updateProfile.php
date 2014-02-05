@@ -50,11 +50,13 @@ $this->params['breadcrumbs'][] = $this->title;
 			<?= $form->field($model, 'lastName') ?>
 <?php if ($model->getIdentity() instanceof nineinchnick\usr\components\PictureIdentityInterface && !empty($model->pictureUploadRules)):
 		$picture = $model->getIdentity()->getPictureUrl(80,80);
-		$picture['alt'] = Yii::t('usr', 'Profile picture');
-		$url = $picture['url'];
-		unset($picture['url']);
+		if ($picture !== false) {
+			$picture['alt'] = Yii::t('usr', 'Profile picture');
+			$url = $picture['url'];
+			unset($picture['url']);
+		}
 ?>
-			<?= Html::img($url, $picture); ?>
+			<?= $picture === false ? '' : Html::img($url, $picture); ?>
 			<?= $form->field($model, 'picture')->fileInput() ?>
 			<?= $form->field($model, 'removePicture')->checkbox() ?>
 <?php endif; ?>
