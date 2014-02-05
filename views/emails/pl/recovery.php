@@ -1,5 +1,5 @@
 <p>
-	Ta wiadomość zawiera instrukcje, jak wykonać odzyskiwanie hasła. Została wysłana na polecenie użytkownika w serwisie <?= \yii\helpers\Html::a(Yii::app()->name, $siteUrl); ?>. Jeśli nie jesteś adresatem tej wiadomości, prosimy o jej zignorowanie lub kontakt z naszym administratorem.
+	Ta wiadomość zawiera instrukcje, jak wykonać odzyskiwanie hasła. Została wysłana na polecenie użytkownika w serwisie <?= \yii\helpers\Html::a(Yii::$app->name, $siteUrl); ?>. Jeśli nie jesteś adresatem tej wiadomości, prosimy o jej zignorowanie lub kontakt z naszym administratorem.
 </p>
 
 <p>Aby ustawić nowe hasło, otwórz poniższy link:</p>
