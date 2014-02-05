@@ -112,14 +112,6 @@ class Module extends \yii\base\Module
 	/**
 	 * @inheritdoc
 	 */
-	public function getVersion()
-	{
-		return '0.9.9';
-	}
-
-	/**
-	 * @inheritdoc
-	 */
 	public function init()
 	{
 		parent::init();

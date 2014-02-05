@@ -67,7 +67,7 @@ class ProfileForm extends BaseUsrForm
 			[['username', 'email'], 'uniqueIdentity'],
 
 			['removePicture', 'boolean'],
-			['password', 'validCurrentPassword', 'except'=>'register'],
+			['password', 'validCurrentPassword', 'except'=>'register', 'skipOnEmpty'=>false],
 		], $this->pictureUploadRules);
 	}
 
@@ -143,8 +143,7 @@ class ProfileForm extends BaseUsrForm
 		if ($identity->getEmail() === $this->email) {
 			return true;
 		}
-		$identity->password = $this->$attribute;
-		if(!$identity->authenticate()) {
+		if(!$identity->authenticate($this->$attribute)) {
 			$this->addError($attribute, Yii::t('usr', 'Changing email address requires providing the current password.'));
 			return false;
 		}

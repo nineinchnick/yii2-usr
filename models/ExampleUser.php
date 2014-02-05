@@ -7,6 +7,7 @@ use yii\helpers\Security;
 use nineinchnick\usr\components;
 use app\models\UserUsedPassword;
 use app\models\UserRemoteIdentity;
+use app\models\UserProfilePicture;
 
 /**
  * This is the model class for table "{{users}}".
@@ -492,7 +493,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
 	{
 		if ($this->getIsNewRecord())
 			return false;
-		$pictureRecord = $this->userProfilePictures(['condition'=>'original_picture_id IS NULL']);
+		$pictureRecord = $this->getUserProfilePictures()->andWhere('original_picture_id IS NULL')->all();
 		if (!empty($pictureRecord)) {
 			$pictureRecord = $pictureRecord[0];
 		} else {
@@ -570,12 +571,11 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
 		if ($this->getIsNewRecord())
 			return false;
 		// try to locate biggest picture smaller than specified dimensions
-		$criteria = ['select' => 'id', 'order' => 'width DESC', 'limit' => 1];
+		$query = $this->getUserProfilePictures()->select('id')->orderBy('width DESC')->limit(1);
 		if ($width !== null && $height !== null) {
-			$criteria['condition'] = 'width <= :width AND height <= :height';
-			$criteria['params'] = [':width'=>$width, ':height'=>$height];
+			$query->andWhere('width <= :width AND height <= :height', [':width'=>$width, ':height'=>$height]);
 		}
-		$pictures = $this->userProfilePictures($criteria);
+		$pictures = $query->all();
 		if (!empty($pictures)) {
 			return [
 				'url'	=> Yii::$app->createAbsoluteUrl('/usr/profilePicture', ['id'=>$pictures[0]->id]),

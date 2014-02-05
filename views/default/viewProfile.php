@@ -27,14 +27,14 @@ if ($this->context->module->oneTimePasswordMode === nineinchnick\usr\Module::OTP
 		'value'=>$model->getIdentity()->getOneTimePasswordSecret() === null ? Html::a(Yii::t('usr', 'Enable'), ['toggleOneTimePassword']) : Html::a(Yii::t('usr', 'Disable'), ['toggleOneTimePassword']),
 	];
 }
-if ($model->getIdentity() instanceof PictureIdentityInterface) {
+if ($model->getIdentity() instanceof nineinchnick\usr\components\PictureIdentityInterface) {
        $picture = $model->getIdentity()->getPictureUrl(80,80);
 	   $picture['alt'] = Yii::t('usr', 'Profile picture');
        $url = $picture['url'];
        unset($picture['url']);
        array_unshift($attributes, [
 		   'name'=>'picture',
-		   'type'=>'raw',
+		   'format'=>'raw',
 		   'label'=>Yii::t('usr', 'Profile picture'),
 		   'value'=>yii\helpers\Html::img($url, $picture),
        ]);

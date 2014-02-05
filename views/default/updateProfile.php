@@ -48,7 +48,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 			<?= $form->field($model, 'firstName') ?>
 			<?= $form->field($model, 'lastName') ?>
-<?php if ($model->getIdentity() instanceof PictureIdentityInterface && !empty($model->pictureUploadRules)):
+<?php if ($model->getIdentity() instanceof nineinchnick\usr\components\PictureIdentityInterface && !empty($model->pictureUploadRules)):
 		$picture = $model->getIdentity()->getPictureUrl(80,80);
 		$picture['alt'] = Yii::t('usr', 'Profile picture');
 		$url = $picture['url'];
