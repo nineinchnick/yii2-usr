@@ -21,7 +21,7 @@ abstract class UsrController extends \yii\web\Controller
 		case 'recovery':
 		case 'verify':
 			$subject = $mode == 'recovery' ? Yii::t('usr', 'Password recovery') : Yii::t('usr', 'Email address verification');
-			$params['actionUrl'] = Yii::$app->getUrlManager()->createAbsoluteUrl($mode, [
+			$params['actionUrl'] = Yii::$app->getUrlManager()->createAbsoluteUrl($this->module->id.'/default/'.$mode, [
 				'activationKey'=>$model->getIdentity()->getActivationKey(),
 				'username'=>$model->getIdentity()->username,
 			]);
