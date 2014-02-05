@@ -65,7 +65,7 @@ class ProfileForm extends BaseUsrForm
 
 			[['username', 'email'], 'required'],
 			[['username', 'email'], 'uniqueIdentity'],
-			[['email'], 'email'],
+			['email', 'email'],
 
 			['removePicture', 'boolean'],
 			['password', 'validCurrentPassword', 'except'=>'register', 'skipOnEmpty'=>false],

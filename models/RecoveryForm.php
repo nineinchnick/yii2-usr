@@ -30,7 +30,7 @@ class RecoveryForm extends BasePasswordForm
 			[['username', 'email'], 'filter', 'filter'=>'trim'],
 			[['username', 'email'], 'default'],
 			[['username', 'email'], 'existingIdentity'],
-			[['email'], 'email', 'skipOnEmpty'=>true],
+			['email', 'email'],
 
 			['activationKey', 'filter', 'filter'=>'trim', 'on'=>['reset', 'verify']],
 			['activationKey', 'default', 'on'=>['reset', 'verify']],
