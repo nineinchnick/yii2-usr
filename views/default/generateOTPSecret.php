@@ -20,33 +20,33 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <div class="<?= $this->context->module->formCssClass; ?>">
 <?php $form = ActiveForm::begin([
-	'id'=>'secret-form',
-	'enableClientValidation'=>false,
-	'validateOnSubmit'=>false,
+    'id'=>'secret-form',
+    'enableClientValidation'=>false,
+    'validateOnSubmit'=>false,
 ]); ?>
 
-	<?= $form->errorSummary($model) ?>
+    <?= $form->errorSummary($model) ?>
 
-	<div class="row">
-		<div class="col-lg-5">
+    <div class="row">
+        <div class="col-lg-5">
 
-	<p>
+    <p>
 <?php if ($this->context->module->oneTimePasswordMode === \nineinchnick\usr\Module::OTP_TIME): ?>
-		<?php echo Yii::t('usr', 'Scan this QR code using the Google Authenticator application in your mobile phone.'); ?><br/>
-		<?php echo Html::img($url, ['alt'=>Yii::t('usr', 'One Time Password Secret')]); ?><br/>
-		<?php echo Yii::t('usr', 'Use the Google Authenticator application to generate a one time password and enter it below.'); ?><br/>
+        <?php echo Yii::t('usr', 'Scan this QR code using the Google Authenticator application in your mobile phone.'); ?><br/>
+        <?php echo Html::img($url, ['alt'=>Yii::t('usr', 'One Time Password Secret')]); ?><br/>
+        <?php echo Yii::t('usr', 'Use the Google Authenticator application to generate a one time password and enter it below.'); ?><br/>
 <?php elseif ($this->context->module->oneTimePasswordMode === \nineinchnick\usr\Module::OTP_COUNTER): ?>
-		<?php echo Yii::t('usr', 'A one time password has been sent to your email. Enter it below.'); ?><br/>
+        <?php echo Yii::t('usr', 'A one time password has been sent to your email. Enter it below.'); ?><br/>
 <?php endif; ?>
-	</p>
+    </p>
 
-			<?= $form->field($model, 'oneTimePassword', ['inputOptions'=>['autofocus'=>true, 'class' => 'form-control']]) ?>
+            <?= $form->field($model, 'oneTimePassword', ['inputOptions'=>['autofocus'=>true, 'class' => 'form-control']]) ?>
 
-			<div class="form-group">
-				<?= Html::submitButton(Yii::t('usr', 'Submit'), ['class' => 'btn btn-primary']) ?>
-			</div>
-		</div>
-	</div>
+            <div class="form-group">
+                <?= Html::submitButton(Yii::t('usr', 'Submit'), ['class' => 'btn btn-primary']) ?>
+            </div>
+        </div>
+    </div>
 
 <?php ActiveForm::end(); ?>
 </div><!-- form -->

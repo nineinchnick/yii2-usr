@@ -3,7 +3,6 @@
 namespace nineinchnick\usr\components;
 
 use Yii;
-use yii\helpers\Html;
 
 /**
  * Alerts displays flash messages.
@@ -17,19 +16,19 @@ use yii\helpers\Html;
  */
 class Alerts extends \yii\base\Widget
 {
-	private $_map = ['error'=>'danger'];
-	/**
-	 * Renders the widget.
-	 */
-	public function run()
-	{
-		if (($flashMessages = Yii::$app->session->getAllFlashes())) {
-			echo '<div class="flashes">';
-			foreach($flashMessages as $key => $message) {
-				$cssClasses = 'alert alert-'.(isset($this->_map[$key]) ? $this->_map[$key] : $key);
-				echo '<div class="'.$cssClasses.'">'.$message.'</div>';
-			}
-			echo '</div>';
-		}
-	}
+    private $_map = ['error'=>'danger'];
+    /**
+     * Renders the widget.
+     */
+    public function run()
+    {
+        if (($flashMessages = Yii::$app->session->getAllFlashes())) {
+            echo '<div class="flashes">';
+            foreach ($flashMessages as $key => $message) {
+                $cssClasses = 'alert alert-'.(isset($this->_map[$key]) ? $this->_map[$key] : $key);
+                echo '<div class="'.$cssClasses.'">'.$message.'</div>';
+            }
+            echo '</div>';
+        }
+    }
 }

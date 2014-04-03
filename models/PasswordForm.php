@@ -10,89 +10,94 @@ use Yii;
  */
 class PasswordForm extends BasePasswordForm
 {
-	public $password;
+    public $password;
 
-	/**
-	 * @var IdentityInterface cached object returned by @see getIdentity()
-	 */
-	private $_identity;
+    /**
+     * @var IdentityInterface cached object returned by @see getIdentity()
+     */
+    private $_identity;
 
-	/**
-	 * Declares the validation rules.
-	 */
-	public function rules()
-	{
-		$rules = array_merge([
-			['password', 'filter', 'filter'=>'trim', 'except'=>'register'],
-			['password', 'required', 'except'=>'register'],
-			['password', 'authenticate', 'except'=>'register'],
-		], parent::rules());
+    /**
+     * Declares the validation rules.
+     */
+    public function rules()
+    {
+        $rules = array_merge([
+            ['password', 'filter', 'filter'=>'trim', 'except'=>'register'],
+            ['password', 'required', 'except'=>'register'],
+            ['password', 'authenticate', 'except'=>'register'],
+        ], parent::rules());
 
-		return $rules;
-	}
+        return $rules;
+    }
 
-	/**
-	 * Declares attribute labels.
-	 */
-	public function attributeLabels()
-	{
-		return array_merge(parent::attributeLabels(), [
-			'password' => Yii::t('usr','Current password'),
-		]);
-	}
+    /**
+     * Declares attribute labels.
+     */
+    public function attributeLabels()
+    {
+        return array_merge(parent::attributeLabels(), [
+            'password' => Yii::t('usr','Current password'),
+        ]);
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function getIdentity()
-	{
-		if($this->_identity===null) {
-			if ($this->scenario === 'register')
-				return $this->_identity;
-			$this->_identity = Yii::$app->user->getIdentity();
-		}
-		return $this->_identity;
-	}
+    /**
+     * @inheritdoc
+     */
+    public function getIdentity()
+    {
+        if ($this->_identity===null) {
+            if ($this->scenario === 'register')
+                return $this->_identity;
+            $this->_identity = Yii::$app->user->getIdentity();
+        }
 
-	public function setIdentity($identity)
-	{
-		$this->_identity = $identity;
-	}
+        return $this->_identity;
+    }
 
-	/**
-	 * Authenticates the password.
-	 * This is the 'authenticate' validator as declared in rules().
-	 */
-	public function authenticate($attribute,$params)
-	{
-		if($this->hasErrors()) {
-			return;
-		}
-		if (($identity=$this->getIdentity()) === null) {
-			throw new \yii\base\Exception('Current user has not been found in the database.');
-		}
-		if(!$identity->verifyPassword($this->$attribute)) {
-			$this->addError($attribute,Yii::t('usr','Invalid password.'));
-			return false;
-		}
-		return true;
-	}
+    public function setIdentity($identity)
+    {
+        $this->_identity = $identity;
+    }
 
-	/**
-	 * Resets user password using the new one given in the model.
-	 * @return boolean whether password reset was successful
-	 */
-	public function resetPassword($identity=null)
-	{
-		if($this->hasErrors()) {
-			return;
-		}
-		if ($identity === null)
-			$identity = $this->getIdentity();
-		if (!$identity->resetPassword($this->newPassword)) {
-			$this->addError('newPassword',Yii::t('usr','Failed to reset the password.'));
-			return false;
-		}
-		return true;
-	}
+    /**
+     * Authenticates the password.
+     * This is the 'authenticate' validator as declared in rules().
+     */
+    public function authenticate($attribute,$params)
+    {
+        if ($this->hasErrors()) {
+            return;
+        }
+        if (($identity=$this->getIdentity()) === null) {
+            throw new \yii\base\Exception('Current user has not been found in the database.');
+        }
+        if (!$identity->verifyPassword($this->$attribute)) {
+            $this->addError($attribute,Yii::t('usr','Invalid password.'));
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Resets user password using the new one given in the model.
+     * @return boolean whether password reset was successful
+     */
+    public function resetPassword($identity=null)
+    {
+        if ($this->hasErrors()) {
+            return;
+        }
+        if ($identity === null)
+            $identity = $this->getIdentity();
+        if (!$identity->resetPassword($this->newPassword)) {
+            $this->addError('newPassword',Yii::t('usr','Failed to reset the password.'));
+
+            return false;
+        }
+
+        return true;
+    }
 }

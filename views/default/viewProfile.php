@@ -20,25 +20,24 @@ $this->params['breadcrumbs'][] = $this->title;
 <?php
 $attributes = ['username', 'email', 'firstName', 'lastName'];
 if ($this->context->module->oneTimePasswordMode === nineinchnick\usr\Module::OTP_TIME || $this->context->module->oneTimePasswordMode === nineinchnick\usr\Module::OTP_COUNTER) {
-	$attributes[] = [
-		'name'=>'twoStepAuth',
-		'format'=>'raw',
-		'label'=>Yii::t('usr', 'Two step authentication'),
-		'value'=>$model->getIdentity()->getOneTimePasswordSecret() === null ? Html::a(Yii::t('usr', 'Enable'), ['toggleOneTimePassword']) : Html::a(Yii::t('usr', 'Disable'), ['toggleOneTimePassword']),
-	];
+    $attributes[] = [
+        'name'=>'twoStepAuth',
+        'format'=>'raw',
+        'label'=>Yii::t('usr', 'Two step authentication'),
+        'value'=>$model->getIdentity()->getOneTimePasswordSecret() === null ? Html::a(Yii::t('usr', 'Enable'), ['toggleOneTimePassword']) : Html::a(Yii::t('usr', 'Disable'), ['toggleOneTimePassword']),
+    ];
 }
 if ($model->getIdentity() instanceof nineinchnick\usr\components\PictureIdentityInterface) {
        $picture = $model->getIdentity()->getPictureUrl(80,80);
-	   $picture['alt'] = Yii::t('usr', 'Profile picture');
+       $picture['alt'] = Yii::t('usr', 'Profile picture');
        $url = $picture['url'];
        unset($picture['url']);
        array_unshift($attributes, [
-		   'name'=>'picture',
-		   'format'=>'raw',
-		   'label'=>Yii::t('usr', 'Profile picture'),
-		   'value'=>yii\helpers\Html::img($url, $picture),
+           'name'=>'picture',
+           'format'=>'raw',
+           'label'=>Yii::t('usr', 'Profile picture'),
+           'value'=>yii\helpers\Html::img($url, $picture),
        ]);
 }
 
 echo DetailView::widget(['model' => $model, 'attributes' => $attributes]);
-

@@ -19,204 +19,218 @@ use nineinchnick\usr\Module;
  */
 class OneTimePasswordFormBehavior extends FormModelBehavior
 {
-	public $oneTimePassword;
+    public $oneTimePassword;
 
-	private $_oneTimePasswordConfig = [
-		'authenticator' => null,
-		'mode' => null,
-		'required' => null,
-		'timeout' => null,
-		'secret' => null,
-		'previousCode' => null,
-		'previousCounter' => null,
-	];
+    private $_oneTimePasswordConfig = [
+        'authenticator' => null,
+        'mode' => null,
+        'required' => null,
+        'timeout' => null,
+        'secret' => null,
+        'previousCode' => null,
+        'previousCounter' => null,
+    ];
 
-	private $_controller;
+    private $_controller;
 
-	/**
-	 * @inheritdoc
-	 */
-	public function events() {
-		return array_merge(parent::events(), [
-			\yii\base\Model::EVENT_AFTER_VALIDATE=>'afterValidate',
-		]);
-	}
+    /**
+     * @inheritdoc
+     */
+    public function events()
+    {
+        return array_merge(parent::events(), [
+            \yii\base\Model::EVENT_AFTER_VALIDATE=>'afterValidate',
+        ]);
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function rules()
-	{
-		$rules = [
-			['oneTimePassword', 'filter', 'filter'=>'trim', 'on'=>'verifyOTP'],
-			['oneTimePassword', 'default', 'on'=>'verifyOTP'],
-			['oneTimePassword', 'required', 'on'=>'verifyOTP'],
-			['oneTimePassword', 'validOneTimePassword', 'skipOnEmpty'=>false, 'except'=>'hybridauth'],
-		];
-		return $this->applyRuleOptions($rules);
-	}
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        $rules = [
+            ['oneTimePassword', 'filter', 'filter'=>'trim', 'on'=>'verifyOTP'],
+            ['oneTimePassword', 'default', 'on'=>'verifyOTP'],
+            ['oneTimePassword', 'required', 'on'=>'verifyOTP'],
+            ['oneTimePassword', 'validOneTimePassword', 'skipOnEmpty'=>false, 'except'=>'hybridauth'],
+        ];
 
-	/**
-	 * @inheritdoc
-	 */
-	public function attributeLabels()
-	{
-		return [
-			'oneTimePassword' => Yii::t('usr','One Time Password'),
-		];
-	}
+        return $this->applyRuleOptions($rules);
+    }
 
-	public function getController()
-	{
-		return $this->_controller;
-	}
+    /**
+     * @inheritdoc
+     */
+    public function attributeLabels()
+    {
+        return [
+            'oneTimePassword' => Yii::t('usr','One Time Password'),
+        ];
+    }
 
-	public function setController($value)
-	{
-		$this->_controller = $value;
-	}
+    public function getController()
+    {
+        return $this->_controller;
+    }
 
-	public function getOneTimePasswordConfig()
-	{
-		return $this->_oneTimePasswordConfig;
-	}
+    public function setController($value)
+    {
+        $this->_controller = $value;
+    }
 
-	public function setOneTimePasswordConfig(array $config)
-	{
-		foreach($config as $key => $value) {
-			if ($this->_oneTimePasswordConfig[$key] === null)
-				$this->_oneTimePasswordConfig[$key] = $value;
-		}
-		return $this;
-	}
+    public function getOneTimePasswordConfig()
+    {
+        return $this->_oneTimePasswordConfig;
+    }
 
-	protected function loadOneTimePasswordConfig()
-	{
-		$identity = $this->owner->getIdentity();
-		if (!($identity instanceof \nineinchnick\usr\components\OneTimePasswordIdentityInterface))
-			throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.', ['class'=>get_class($identity),'interface'=>'\nineinchnick\usr\components\OneTimePasswordIdentityInterface']));
-		list($previousCode, $previousCounter) = $identity->getOneTimePassword();
-		$this->setOneTimePasswordConfig([
-			'secret' => $identity->getOneTimePasswordSecret(),
-			'previousCode' => $previousCode,
-			'previousCounter' => $previousCounter,
-		]);
-		return $this;
-	}
+    public function setOneTimePasswordConfig(array $config)
+    {
+        foreach ($config as $key => $value) {
+            if ($this->_oneTimePasswordConfig[$key] === null)
+                $this->_oneTimePasswordConfig[$key] = $value;
+        }
 
-	public function getOTP($key)
-	{
-		if ($this->_oneTimePasswordConfig[$key] === null) {
-			$this->loadOneTimePasswordConfig();
-		}
-		return $this->_oneTimePasswordConfig[$key];
-	}
+        return $this;
+    }
 
-	public function getNewCode()
-	{
-		$this->loadOneTimePasswordConfig();
-		// extracts: $authenticator, $mode, $required, $timeout, $secret, $previousCode, $previousCounter
-		extract($this->_oneTimePasswordConfig);
-		return $authenticator->getCode($secret, $mode == Module::OTP_TIME ? null : $previousCounter);
-	}
+    protected function loadOneTimePasswordConfig()
+    {
+        $identity = $this->owner->getIdentity();
+        if (!($identity instanceof \nineinchnick\usr\components\OneTimePasswordIdentityInterface))
+            throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.', ['class'=>get_class($identity),'interface'=>'\nineinchnick\usr\components\OneTimePasswordIdentityInterface']));
+        list($previousCode, $previousCounter) = $identity->getOneTimePassword();
+        $this->setOneTimePasswordConfig([
+            'secret' => $identity->getOneTimePasswordSecret(),
+            'previousCode' => $previousCode,
+            'previousCounter' => $previousCounter,
+        ]);
 
-	public function validOneTimePassword($attribute,$params)
-	{
-		if($this->owner->hasErrors()) {
-			return;
-		}
-		$this->loadOneTimePasswordConfig();
-		// extracts: $authenticator, $mode, $required, $timeout, $secret, $previousCode, $previousCounter
-		extract($this->_oneTimePasswordConfig);
+        return $this;
+    }
 
-		if (($mode !== Module::OTP_TIME && $mode !== Module::OTP_COUNTER) || (!$required && $secret === null)) {
-			return true;
-		}
-		if ($required && $secret === null) {
-			// generate and save a new secret only if required to do so, in other cases user must verify that the secret works
-			$secret = $this->_oneTimePasswordConfig['secret'] = $authenticator->generateSecret();
-			$this->owner->getIdentity()->setOneTimePasswordSecret($secret);
-		}
+    public function getOTP($key)
+    {
+        if ($this->_oneTimePasswordConfig[$key] === null) {
+            $this->loadOneTimePasswordConfig();
+        }
 
-		if ($this->isValidOTPCookie(Yii::$app->request->cookies->get(Module::OTP_COOKIE), $this->owner->username, $secret, $timeout)) {
-			return true;
-		}
-		if (empty($this->owner->$attribute)) {
-			$this->owner->addError($attribute,Yii::t('usr','Enter a valid one time password.'));
-			$this->owner->scenario = 'verifyOTP';
-			if ($mode === Module::OTP_COUNTER) {
-				$this->_controller->sendEmail($this, 'oneTimePassword');
-			}
-			if (YII_DEBUG) {
-				$this->oneTimePassword = $authenticator->getCode($secret, $mode === Module::OTP_TIME ? null : $previousCounter);
-			}
-			return false;
-		}
-		if ($mode === Module::OTP_TIME) {
-			$valid = $authenticator->checkCode($secret, $this->owner->$attribute);
-		} elseif ($mode === Module::OTP_COUNTER) {
-			$valid = $authenticator->getCode($secret, $previousCounter) == $this->owner->$attribute;
-		} else {
-			$valid = false;
-		}
-		if (!$valid) {
-			$this->owner->addError($attribute,Yii::t('usr','Entered code is invalid.'));
-			$this->owner->scenario = 'verifyOTP';
-			return false;
-		}
-		if ($this->owner->$attribute == $previousCode) {
-			if ($mode === Module::OTP_TIME) {
-				$message = Yii::t('usr','Please wait until next code will be generated.');
-			} elseif ($mode === Module::OTP_COUNTER) {
-				$message = Yii::t('usr','Please log in again to request a new code.');
-			}
-			$this->owner->addError($attribute,Yii::t('usr','Entered code has already been used.').' '.$message);
-			$this->owner->scenario = 'verifyOTP';
-			return false;
-		}
-		$this->owner->getIdentity()->setOneTimePassword($this->owner->$attribute, $mode === Module::OTP_TIME ? floor(time() / 30) : $previousCounter + 1);
-		return true;
-	}
+        return $this->_oneTimePasswordConfig[$key];
+    }
 
-	public function afterValidate($event)
-	{
-		if ($this->owner->scenario === 'hybridauth' || $this->owner->hasErrors())
-			return;
+    public function getNewCode()
+    {
+        $this->loadOneTimePasswordConfig();
+        // extracts: $authenticator, $mode, $required, $timeout, $secret, $previousCode, $previousCounter
+        extract($this->_oneTimePasswordConfig);
 
-		// extracts: $authenticator, $mode, $required, $timeout, $secret, $previousCode, $previousCounter
-		extract($this->_oneTimePasswordConfig);
+        return $authenticator->getCode($secret, $mode == Module::OTP_TIME ? null : $previousCounter);
+    }
 
-		$cookie = $this->createOTPCookie($this->owner->username, $secret, $timeout);
-		Yii::$app->response->cookies->add($cookie);
-	}
+    public function validOneTimePassword($attribute,$params)
+    {
+        if ($this->owner->hasErrors()) {
+            return;
+        }
+        $this->loadOneTimePasswordConfig();
+        // extracts: $authenticator, $mode, $required, $timeout, $secret, $previousCode, $previousCounter
+        extract($this->_oneTimePasswordConfig);
 
-	public function createOTPCookie($username, $secret, $timeout, $time = null) {
-		if ($time === null)
-			$time = time();
-		$data=['username'=>$username, 'time'=>$time, 'timeout'=>$timeout];
-		$cookie=new \yii\web\Cookie([
-			'name'=>Module::OTP_COOKIE,
-			'value'=>$time.':'.\yii\helpers\Security::hashData(serialize($data), $secret),
-			'expire'=>time() + ($timeout <= 0 ? 10*365*24*3600 : $timeout),
-			'httpOnly'=>true,
-		]);
-		return $cookie;
-	}
+        if (($mode !== Module::OTP_TIME && $mode !== Module::OTP_COUNTER) || (!$required && $secret === null)) {
+            return true;
+        }
+        if ($required && $secret === null) {
+            // generate and save a new secret only if required to do so, in other cases user must verify that the secret works
+            $secret = $this->_oneTimePasswordConfig['secret'] = $authenticator->generateSecret();
+            $this->owner->getIdentity()->setOneTimePasswordSecret($secret);
+        }
 
-	public function isValidOTPCookie($cookie, $username, $secret, $timeout, $time = null) {
-		if ($time === null)
-			$time = time();
+        if ($this->isValidOTPCookie(Yii::$app->request->cookies->get(Module::OTP_COOKIE), $this->owner->username, $secret, $timeout)) {
+            return true;
+        }
+        if (empty($this->owner->$attribute)) {
+            $this->owner->addError($attribute,Yii::t('usr','Enter a valid one time password.'));
+            $this->owner->scenario = 'verifyOTP';
+            if ($mode === Module::OTP_COUNTER) {
+                $this->_controller->sendEmail($this, 'oneTimePassword');
+            }
+            if (YII_DEBUG) {
+                $this->oneTimePassword = $authenticator->getCode($secret, $mode === Module::OTP_TIME ? null : $previousCounter);
+            }
 
-		if(!$cookie || empty($cookie->value) || !is_string($cookie->value)) {
-			return false;
-		}
-		$parts = explode(":",$cookie->value,2);
-		if (count($parts)!=2) {
-			return false;
-		}
-		list($creationTime,$hash) = $parts;
-		$data=['username'=>$username, 'time'=>(int)$creationTime, 'timeout'=>$timeout];
-		$validHash = \yii\helpers\Security::hashData(serialize($data), $secret);
-		return ($timeout <= 0 || $creationTime + $timeout >= $time) && $hash === $validHash;
-	}
+            return false;
+        }
+        if ($mode === Module::OTP_TIME) {
+            $valid = $authenticator->checkCode($secret, $this->owner->$attribute);
+        } elseif ($mode === Module::OTP_COUNTER) {
+            $valid = $authenticator->getCode($secret, $previousCounter) == $this->owner->$attribute;
+        } else {
+            $valid = false;
+        }
+        if (!$valid) {
+            $this->owner->addError($attribute,Yii::t('usr','Entered code is invalid.'));
+            $this->owner->scenario = 'verifyOTP';
+
+            return false;
+        }
+        if ($this->owner->$attribute == $previousCode) {
+            if ($mode === Module::OTP_TIME) {
+                $message = Yii::t('usr','Please wait until next code will be generated.');
+            } elseif ($mode === Module::OTP_COUNTER) {
+                $message = Yii::t('usr','Please log in again to request a new code.');
+            }
+            $this->owner->addError($attribute,Yii::t('usr','Entered code has already been used.').' '.$message);
+            $this->owner->scenario = 'verifyOTP';
+
+            return false;
+        }
+        $this->owner->getIdentity()->setOneTimePassword($this->owner->$attribute, $mode === Module::OTP_TIME ? floor(time() / 30) : $previousCounter + 1);
+
+        return true;
+    }
+
+    public function afterValidate($event)
+    {
+        if ($this->owner->scenario === 'hybridauth' || $this->owner->hasErrors())
+            return;
+
+        // extracts: $authenticator, $mode, $required, $timeout, $secret, $previousCode, $previousCounter
+        extract($this->_oneTimePasswordConfig);
+
+        $cookie = $this->createOTPCookie($this->owner->username, $secret, $timeout);
+        Yii::$app->response->cookies->add($cookie);
+    }
+
+    public function createOTPCookie($username, $secret, $timeout, $time = null)
+    {
+        if ($time === null)
+            $time = time();
+        $data=['username'=>$username, 'time'=>$time, 'timeout'=>$timeout];
+        $cookie=new \yii\web\Cookie([
+            'name'=>Module::OTP_COOKIE,
+            'value'=>$time.':'.\yii\helpers\Security::hashData(serialize($data), $secret),
+            'expire'=>time() + ($timeout <= 0 ? 10*365*24*3600 : $timeout),
+            'httpOnly'=>true,
+        ]);
+
+        return $cookie;
+    }
+
+    public function isValidOTPCookie($cookie, $username, $secret, $timeout, $time = null)
+    {
+        if ($time === null)
+            $time = time();
+
+        if (!$cookie || empty($cookie->value) || !is_string($cookie->value)) {
+            return false;
+        }
+        $parts = explode(":",$cookie->value,2);
+        if (count($parts)!=2) {
+            return false;
+        }
+        list($creationTime,$hash) = $parts;
+        $data=['username'=>$username, 'time'=>(int) $creationTime, 'timeout'=>$timeout];
+        $validHash = \yii\helpers\Security::hashData(serialize($data), $secret);
+
+        return ($timeout <= 0 || $creationTime + $timeout >= $time) && $hash === $validHash;
+    }
 }

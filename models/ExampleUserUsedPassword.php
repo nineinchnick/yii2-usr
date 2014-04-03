@@ -18,46 +18,46 @@ use \yii\helpers\Security;
  */
 abstract class ExampleUserUsedPassword extends \yii\db\ActiveRecord
 {
-	/**
-	 * @inheritdoc
-	 */
-	public static function tableName()
-	{
-		return '{{%user_used_passwords}}';
-	}
+    /**
+     * @inheritdoc
+     */
+    public static function tableName()
+    {
+        return '{{%user_used_passwords}}';
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function rules()
-	{
-		return [];
-	}
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [];
+    }
 
-	public function getUser()
-	{
-		return $this->hasOne(User::className(), ['id' => 'user_id']);
-	}
+    public function getUser()
+    {
+        return $this->hasOne(User::className(), ['id' => 'user_id']);
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function attributeLabels()
-	{
-		return [
-			'id' => Yii::t('models', 'ID'),
-			'user_id' => Yii::t('models', 'User'),
-			'password' => Yii::t('models', 'Password'),
-			'set_on' => Yii::t('models', 'Password Set On'),
-		];
-	}
+    /**
+     * @inheritdoc
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => Yii::t('models', 'ID'),
+            'user_id' => Yii::t('models', 'User'),
+            'password' => Yii::t('models', 'Password'),
+            'set_on' => Yii::t('models', 'Password Set On'),
+        ];
+    }
 
-	/**
-	 * @param string $password password to validate
-	 * @return bool if password provided is valid for saved one
-	 */
-	public function verifyPassword($password)
-	{
-		return $this->password !== null && Security::validatePassword($password, $this->password);
-	}
+    /**
+     * @param  string $password password to validate
+     * @return bool   if password provided is valid for saved one
+     */
+    public function verifyPassword($password)
+    {
+        return $this->password !== null && Security::validatePassword($password, $this->password);
+    }
 }

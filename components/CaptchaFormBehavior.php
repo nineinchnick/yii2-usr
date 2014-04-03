@@ -19,27 +19,28 @@ use Yii;
  */
 class CaptchaFormBehavior extends FormModelBehavior
 {
-	public $verifyCode;
+    public $verifyCode;
 
-	/**
-	 * @inheritdoc
-	 */
-	public function rules()
-	{
-		$module = Yii::$app->controller !== null ? Yii::$app->controller->module : null;
-		$rules = [
-			['verifyCode', 'captcha', 'captchaAction'=>($module !== null ? $module->id : 'usr').'/default/captcha'],
-		];
-		return $this->applyRuleOptions($rules);
-	}
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        $module = Yii::$app->controller !== null ? Yii::$app->controller->module : null;
+        $rules = [
+            ['verifyCode', 'captcha', 'captchaAction'=>($module !== null ? $module->id : 'usr').'/default/captcha'],
+        ];
 
-	/**
-	 * @inheritdoc
-	 */
-	public function attributeLabels()
-	{
-		return [
-			'verifyCode' => Yii::t('usr','Verification code'),
-		];
-	}
+        return $this->applyRuleOptions($rules);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function attributeLabels()
+    {
+        return [
+            'verifyCode' => Yii::t('usr','Verification code'),
+        ];
+    }
 }
