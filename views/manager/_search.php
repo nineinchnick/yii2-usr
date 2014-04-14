@@ -10,8 +10,8 @@ use yii\widgets\ActiveForm;
  * @var ActiveForm $form
  */
 
-$booleanData = array(Yii::t('manager', 'No'), Yii::t('manager', 'Yes'));
-$booleanOptions = array('empty'=>Yii::t('manager', 'Any'), 'separator' => '', 'labelOptions' => array('style'=>'display: inline; float: none;'));
+$booleanData = ['' => Yii::t('manager', 'Any'), 0 => Yii::t('manager', 'No'), 1 => Yii::t('manager', 'Yes')];
+$booleanOptions = ['labelOptions' => ['style'=>'display: inline; float: none;']];
 ?>
 
 <div class="wide form">
@@ -29,9 +29,9 @@ $booleanOptions = array('empty'=>Yii::t('manager', 'Any'), 'separator' => '', 'l
     <?= $form->field($model, 'createdOn') ?>
     <?= $form->field($model, 'updatedOn') ?>
     <?= $form->field($model, 'lastVisitOn') ?>
-    <?= $form->field($model, 'emailVerified')->radioList($booleanData, $booleanOptions) ?>
-    <?= $form->field($model, 'isActive')->radioList($booleanData, $booleanOptions) ?>
-    <?= $form->field($model, 'isDisabled')->radioList($booleanData, $booleanOptions) ?>
+    <?= $form->field($model, 'emailVerified', $booleanOptions)->radioList($booleanData) ?>
+    <?= $form->field($model, 'isActive', $booleanOptions)->radioList($booleanData) ?>
+    <?= $form->field($model, 'isDisabled', $booleanOptions)->radioList($booleanData) ?>
 
     <div class="form-group">
         <?= Html::submitButton(Yii::t('manager', 'Search'), ['class' => 'btn btn-primary']) ?>

@@ -62,61 +62,70 @@ $this->registerJs($script);
 <?php echo $this->render('_search',array('model'=>$model)); ?>
 </div><!-- search-form -->
 
-<?php $this->widget('zii.widgets.grid.CGridView', array(
+<?php echo \yii\grid\GridView::widget([
     'id'=>'identity-grid',
     'dataProvider'=>$model->getIdentity()->getDataProvider($model),
-    'filter'=>$model,
+    'filterModel'=>$model,
     'columns'=>array(
         'id:number:'.Yii::t('manager','ID'),
         'username:text:'.Yii::t('manager','Username'),
         'email:text:'.Yii::t('manager','Email'),
-        'firstName:text:'.Yii::t('manager','Firstname'),
-        'lastName:text:'.Yii::t('manager','Lastname'),
+        'firstname:text:'.Yii::t('manager','Firstname'),
+        'lastname:text:'.Yii::t('manager','Lastname'),
         /*array(
-            'name' => 'createdOn',
-            'type' => 'datetime',
+            'attribute' => 'created_on',
+            'format' => 'datetime',
             'header' => Yii::t('manager','Created On'),
-            'value' => '$data->getTimestamps("createdOn")',
+            'value' => function($model, $index, $widget){return $model->getTimestamps("createdOn");},
         ),*/
         array(
-            'name' => 'updatedOn',
-            'type' => 'datetime',
+            'attribute' => 'updated_on',
+            'format' => 'datetime',
             'header' => Yii::t('manager','Updated On'),
-            'value' => '$data->getTimestamps("updatedOn")',
+            'value' => function($model, $index, $widget){return $model->getTimestamps("updatedOn");},
         ),
         array(
-            'name' => 'lastVisitOn',
-            'type' => 'datetime',
+            'attribute' => 'last_visit_on',
+            'format' => 'datetime',
             'header' => Yii::t('manager','Last Visit On'),
-            'value' => '$data->getTimestamps("lastVisitOn")',
+            'value' => function($model, $index, $widget){return $model->getTimestamps("lastVisitOn");},
         ),
         array(
-            'name'=>'emailVerified',
-            'type'=>'raw',
+            'attribute'=>'email_verified',
+            'format'=>'raw',
             'header'=>Yii::t('manager', 'Email Verified'),
             'filter'=>$booleanFilter,
-            'value'=>'CHtml::link($data->isVerified() ? Yii::t("manager", "Verified") : Yii::t("manager", "Unverified"), array("verify", "id"=>$data->id), array("class"=>"actionButton", "title"=>Yii::t("manager", "Toggle")))',
+            'value'=>function($model, $index, $widget){return Html::a(
+                $model->isVerified() ? Yii::t("manager", "Verified") : Yii::t("manager", "Unverified"),
+                array("verify", "id"=>$model->id),
+                array("class"=>"actionButton", "title"=>Yii::t("manager", "Toggle"))
+            );},
         ),
         array(
-            'name'=>'isActive',
-            'type'=>'raw',
+            'attribute'=>'isActive',
+            'format'=>'raw',
             'header'=>Yii::t('manager', 'Is Active'),
             'filter'=>$booleanFilter,
-            'value'=>'CHtml::link($data->isActive() ? Yii::t("manager", "Active") : Yii::t("manager", "Not active"), array("activate", "id"=>$data->id), array("class"=>"actionButton", "title"=>Yii::t("manager", "Toggle")))',
+            'value'=>function($model, $index, $widget){return Html::a(
+                $model->isActive() ? Yii::t("manager", "Active") : Yii::t("manager", "Not active"),
+                array("activate", "id"=>$model->id),
+                array("class"=>"actionButton", "title"=>Yii::t("manager", "Toggle"))
+            );},
         ),
         array(
-            'name'=>'isDisabled',
-            'type'=>'raw',
+            'attribute'=>'isDisabled',
+            'format'=>'raw',
             'header'=>Yii::t('manager', 'Is Disabled'),
             'filter'=>$booleanFilter,
-            'value'=>'CHtml::link($data->isDisabled() ? Yii::t("manager", "Disabled") : Yii::t("manager", "Enabled"), array("disable", "id"=>$data->id), array("class"=>"actionButton", "title"=>Yii::t("manager", "Toggle")))',
+            'value'=>function($model, $index, $widget){return Html::a(
+                $model->isDisabled() ? Yii::t("manager", "Disabled") : Yii::t("manager", "Enabled"),
+                array("disable", "id"=>$model->id),
+                array("class"=>"actionButton", "title"=>Yii::t("manager", "Toggle"))
+            );},
         ),
         array(
-            'class'=>'CButtonColumn',
+            'class'=>'yii\grid\ActionColumn',
             'template'=>'{update} {delete}',// {activate} {deactivate} {enable} {disable} {verify} {unverify}',
-            'viewButtonUrl'=>'Yii::app()->controller->createUrl("view",array("id"=>$data->id))',
-            'updateButtonUrl'=>'Yii::app()->controller->createUrl("update",array("id"=>$data->id))',
-            'deleteButtonUrl'=>'Yii::app()->controller->createUrl("delete",array("id"=>$data->id))',
             'buttons' => array(
                     //'imageUrl'=>'...',  // image URL of the button. If not set or false, a text link is used
                     //'options'=>array(...), // HTML options for the button tag
@@ -160,4 +169,4 @@ $this->registerJs($script);
             ),
         ),
     ),
-)); ?>
+]); ?>

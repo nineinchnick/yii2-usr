@@ -723,26 +723,19 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function getDataProvider(SearchForm $searchForm)
     {
-        //! @todo port, possibly remove becuase this is an AR
-        $criteria=new CDbCriteria;
-
-        $criteria->compare('id', $searchForm->id);
-        $criteria->compare('username', $searchForm->username,true);
-        $criteria->compare('email', $searchForm->email,true);
-        $criteria->compare('firstname', $searchForm->firstName,true);
-        $criteria->compare('lastname', $searchForm->lastName,true);
-        $criteria->compare('created_on', $searchForm->createdOn);
-        $criteria->compare('updated_on', $searchForm->updatedOn);
-        $criteria->compare('last_visit_on', $searchForm->lastVisitOn);
-        $criteria->compare('email_verified', $searchForm->emailVerified);
-        $criteria->compare('is_active', $searchForm->isActive);
-        $criteria->compare('is_disabled', $searchForm->isDisabled);
-        $dataProvider = new CActiveDataProvider('User', array('criteria'=>$criteria, 'keyAttribute'=>'id'));
-        $identities = array();
-        foreach ($dataProvider->getData() as $row) {
-            $identities[] = self::createFromUser($row);
-        }
-        $dataProvider->setData($identities);
+        $criteria = ['or'];
+        if (!empty($searchForm->id)) $criteria['id'] = $searchForm->id;
+        if (!empty($searchForm->username)) $criteria['username'] = $searchForm->username;
+        if (!empty($searchForm->emal)) $criteria['email'] = $searchForm->email;
+        if (!empty($searchForm->firstName)) $criteria['firstname'] = $searchForm->firstName;
+        if (!empty($searchForm->lastName)) $criteria['lastname'] = $searchForm->lastName;
+        if (!empty($searchForm->createdOn)) $criteria['created_on'] = $searchForm->createdOn;
+        if (!empty($searchForm->updatedOn)) $criteria['updated_on'] = $searchForm->updatedOn;
+        if (!empty($searchForm->lastVisitOn)) $criteria['last_visit_on'] = $searchForm->lastVisitOn;
+        if (!empty($searchForm->emailVerified)) $criteria['email_verified'] = $searchForm->emailVerified;
+        if (!empty($searchForm->isActive)) $criteria['is_active'] = $searchForm->isActive;
+        if (!empty($searchForm->isDisabled)) $criteria['is_disabled'] = $searchForm->isDisabled;
+        $dataProvider = new \yii\data\ActiveDataProvider(['query'=>\app\models\User::find()->onCondition($criteria), 'key'=>'id']);
 
         return $dataProvider;
     }
@@ -783,15 +776,11 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function getTimestamps($key=null)
     {
-        //! @todo port
-        if (($record=$this->getActiveRecord())===null) {
-            return false;
-        }
         $timestamps = array(
-            'createdOn' => $record->created_on,
-            'updatedOn' => $record->updated_on,
-            'lastVisitOn' => $record->last_visit_on,
-            'passwordSetOn' => $record->password_set_on,
+            'createdOn' => $this->created_on,
+            'updatedOn' => $this->updated_on,
+            'lastVisitOn' => $this->last_visit_on,
+            'passwordSetOn' => $this->password_set_on,
         );
         // can't use isset, since it returns false for null values
         return $key === null || !array_key_exists($key, $timestamps) ? $timestamps : $timestamps[$key];

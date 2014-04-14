@@ -73,10 +73,10 @@ class SearchForm extends \yii\base\Model
     public function getIdentity($id=null)
     {
         if ($this->_identity===null) {
-            $userIdentityClass = $this->userIdentityClass;
-            $this->_identity = $userIdentityClass::find()->onCondition(['id'=>$id !== null ? $id : Yii::$app->user->getId()])->one();
-            if ($this->_identity !== null && !($this->_identity instanceof ManagedIdentity)) {
-                throw new Exception(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>get_class($this->_identity),'interface'=>'ManagedIdentity']));
+            $identityClass = Yii::$app->user->identityClass;
+            $this->_identity = $identityClass::find()->onCondition(['id'=>$id !== null ? $id : Yii::$app->user->getId()])->one();
+            if ($this->_identity !== null && !($this->_identity instanceof \nineinchnick\usr\components\ManagedIdentityInterface)) {
+                throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>get_class($this->_identity),'interface'=>'\nineinchnick\usr\components\ManagedIdentityInterface']));
             }
         }
 
