@@ -37,29 +37,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <div class="row">
         <div class="col-lg-5">
-            <?= $form->field($model, 'username', ['inputOptions'=>['autofocus'=>true, 'class'=>'form-control']]) ?>
-            <?= $form->field($model, 'email') ?>
 
-<?php if ($model->scenario !== 'register'): ?>
-            <?= $form->field($model, 'password')->passwordInput() ?>
-<?php endif; ?>
-
-<?= $this->render('_newpassword', ['form'=>$form, 'model'=>$passwordForm, 'focus'=>false]) ?>
-
-            <?= $form->field($model, 'firstName') ?>
-            <?= $form->field($model, 'lastName') ?>
-<?php if ($model->getIdentity() instanceof nineinchnick\usr\components\PictureIdentityInterface && !empty($model->pictureUploadRules)):
-        $picture = $model->getIdentity()->getPictureUrl(80,80);
-        if ($picture !== false) {
-            $picture['alt'] = Yii::t('usr', 'Profile picture');
-            $url = $picture['url'];
-            unset($picture['url']);
-        }
-?>
-            <?= $picture === false ? '' : Html::img($url, $picture); ?>
-            <?= $form->field($model, 'picture')->fileInput() ?>
-            <?= $form->field($model, 'removePicture')->checkbox() ?>
-<?php endif; ?>
+<?php echo $this->render('_form', ['form'=>$form, 'model'=>$model, 'passwordForm'=>$passwordForm]); ?>
 
 <?php if($model->getBehavior('captcha') !== null): ?>
 <?= $this->render('_captcha', ['form'=>$form, 'model'=>$model]) ?>

@@ -51,7 +51,7 @@ class HybridauthForm extends BaseUsrForm
         $scenarios = parent::scenarios();
         foreach ($this->_validProviders as $provider=>$options) {
             if (!isset($scenarios[$provider])) {
-                $scenarios[$provider] = $scenarios[self::DEFAULT_SCENARIO];
+                $scenarios[$provider] = $scenarios[self::SCENARIO_DEFAULT];
             }
         }
 
@@ -128,6 +128,8 @@ class HybridauthForm extends BaseUsrForm
 
         $params = $this->getAttributes();
         unset($params['provider']);
+        if (empty($params['openid_identifier']))
+            unset($params['openid_identifier']);
         $this->_hybridAuthAdapter = $this->_hybridAuth->authenticate(strtolower($this->provider), $params);
 
         if ($this->_hybridAuthAdapter->isUserConnected()) {

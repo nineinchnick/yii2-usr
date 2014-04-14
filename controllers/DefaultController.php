@@ -46,7 +46,7 @@ class DefaultController extends UsrController
     /**
      * Redirect user depending on whether is he logged in or not.
      * Performs additional authorization checks.
-     * @param  Action  $action the action to be executed.
+     * @param  Action $action the action to be executed.
      * @return boolean whether the action should continue to be executed.
      */
     public function beforeAction($action)

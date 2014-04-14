@@ -17,6 +17,8 @@ namespace nineinchnick\usr\components;
  */
 abstract class FormModelBehavior extends \yii\base\Behavior
 {
+    private static $_names = [];
+
     private $_ruleOptions = [];
 
     /**
@@ -47,15 +49,19 @@ abstract class FormModelBehavior extends \yii\base\Behavior
      */
     public function attributes()
     {
-        $class = new \ReflectionClass($this);
-        $names = [];
-        foreach ($class->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
-            if (!$property->isStatic() && $property->getName() != 'owner') {
-                $names[] = $property->getName();
+        $className = get_class($this);
+        if (!isset(self::$_names[$className])) {
+            $class = new ReflectionClass(get_class($this));
+            $names = [];
+            foreach ($class->getProperties() as $property) {
+                $name = $property->getName();
+                if($property->isPublic() && !$property->isStatic())
+                    $names[] = $name;
             }
-        }
 
-        return $names;
+            return self::$_names[$className] = $names;
+        } else
+            return self::$_names[$className];
     }
 
     /**

@@ -79,6 +79,12 @@ class Module extends \yii\base\Module
      */
     public $hybridauthProviders = [];
     /**
+     * @var array list of identity attribute names that should be passed to UserIdentity::find() to find a local identity matching a remote one.
+     * If one is found, user must authorize to associate it. If none has been found, a new local identity is automatically registered.
+     * If the attribute list is empty a full pre-filled registration and login forms are displayed.
+     */
+    public $associateByAttributes = ['email'];
+    /**
      * @var string If set to nineinchnick\usr\Module::OTP_TIME or nineinchnick\usr\Module::OTP_COUNTER, two step authentication is enabled using one time passwords.
      * Time mode uses codes generated using current time and requires the user to use an external application, like Google Authenticator on Android.
      * Counter mode uses codes generated using a sequence and sends them to user's email.
@@ -99,6 +105,11 @@ class Module extends \yii\base\Module
      * Remember to include the 'captchaAction'=>'/usr/default/captcha' property. Adjust the module id.
      */
     public $captcha;
+    /**
+     * @var array Extra behaviors to attach to the profile form. If the view/update views are overriden in a theme
+     * this can be used to display/update extra profile fields. @see FormModelBehavior
+     */
+    public $profileFormBehaviors;
 
     /**
      * @var GoogleAuthenticator set if $oneTimePasswordMode is not nineinchnick\usr\Module::OTP_NONE
@@ -115,18 +126,23 @@ class Module extends \yii\base\Module
     public function init()
     {
         parent::init();
-        \Yii::setAlias('@usr', dirname(__FILE__));
-        \Yii::$app->i18n->translations['usr'] = [
+        Yii::setAlias('@usr', dirname(__FILE__));
+        $messageSource = [
             'class' => 'yii\i18n\PhpMessageSource',
             'sourceLanguage' => 'en-US',
             'basePath' => '@usr/messages',
         ];
+        Yii::$app->i18n->translations['usr'] = $messageSource;
+        Yii::$app->i18n->translations['manager'] = $messageSource;
+        Yii::$app->i18n->translations['auth'] = $messageSource;
         if (\Yii::$app->mail !== null)
             \Yii::$app->mail->viewPath = '@usr/views/emails';
         if ($this->hybridauthEnabled()) {
             $hybridauthConfig = [
                 'base_url' => Yii::$app->getUrlManager()->createAbsoluteUrl('/'.$this->id.'/hybridauth/callback'),
                 'providers' => $this->hybridauthProviders,
+                //'debug_mode' => YII_DEBUG,
+                //'debug_file' => Yii::app()->runtimePath . '/hybridauth.log',
             ];
             $this->_hybridauth = new \Hybrid_Auth($hybridauthConfig);
         }
@@ -188,6 +204,11 @@ class Module extends \yii\base\Module
                 break;
             case 'ProfileForm':
                 $form->pictureUploadRules = $this->pictureUploadRules;
+                if (!empty($this->profileFormBehaviors)) {
+                    foreach ($this->profileFormBehaviors as $name=>$config) {
+                        $form->attachBehavior($name, $config);
+                    }
+                }
             case 'RecoveryForm':
                 if ($this->captcha !== null && \yii\captcha\Captcha::checkRequirements()) {
                     $form->attachBehavior('captcha', [
@@ -216,6 +237,10 @@ class Module extends \yii\base\Module
                     ]);
                 }
                 break;
+            case 'HybridauthForm':
+                $form->setValidProviders($this->hybridauthProviders);
+                $form->setHybridAuth($this->getHybridAuth());
+                break;
         }
 
         return $form;
@@ -236,7 +261,7 @@ class Module extends \yii\base\Module
     public function createController($route)
     {
         // check valid routes
-        $validRoutes = [$this->defaultRoute, "hybridauth"];
+        $validRoutes = [$this->defaultRoute, "hybridauth", "manager"];
         $isValidRoute = false;
         foreach ($validRoutes as $validRoute) {
             if (strpos($route, $validRoute) === 0) {

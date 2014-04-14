@@ -9,8 +9,13 @@ use Yii;
  *
  * @property integer $id
  * @property integer $user_id
- * @property string $password
- * @property string $set_on
+ * @property integer $original_picture_id
+ * @property string $filename
+ * @property integer $width
+ * @property integer $height
+ * @property string $mimetype
+ * @property string $created_on
+ * @property string $contents
  *
  * The followings are the available model relations:
  * @property UserProfilePicture $originalPicture

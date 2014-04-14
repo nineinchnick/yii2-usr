@@ -10,6 +10,7 @@ use Yii;
  */
 abstract class BaseUsrForm extends \yii\base\Model
 {
+    private static $_names=array();
     /**
      * @inheritdoc
      */
@@ -23,6 +24,7 @@ abstract class BaseUsrForm extends \yii\base\Model
     public function attachBehavior($name, $behavior)
     {
         $this->_behaviors[$name] = $name;
+        unset(self::$_names[get_class($this)]);
 
         return parent::attachBehavior($name, $behavior);
     }
@@ -36,6 +38,7 @@ abstract class BaseUsrForm extends \yii\base\Model
     {
         if (isset($this->_behaviors[$name]))
             unset($this->_behaviors[$name]);
+        unset(self::$_names[get_class($this)]);
 
         return parent::detachBehavior($name);
     }
@@ -47,13 +50,23 @@ abstract class BaseUsrForm extends \yii\base\Model
      */
     public function attributes()
     {
-        $names=parent::attributes();
-        foreach ($this->_behaviors as $name=>$name) {
-            if (($behavior=$this->getBehavior($name)) instanceof \nineinchnick\usr\components\FormModelBehavior)
-                $names = array_merge($names, $behavior->attributes());
-        }
+        $className=get_class($this);
+        if (!isset(self::$_names[$className])) {
+            $class=new ReflectionClass(get_class($this));
+            $names=array();
+            foreach ($class->getProperties() as $property) {
+                $name=$property->getName();
+                if($property->isPublic() && !$property->isStatic())
+                    $names[]=$name;
+            }
+            foreach ($this->_behaviors as $name=>$name) {
+                if (($behavior=$this->getBehavior($name)) instanceof \nineinchnick\usr\components\FormModelBehavior)
+                    $names = array_merge($names, $behavior->attributes());
+            }
 
-        return $names;
+            return self::$_names[$className]=$names;
+        } else
+            return self::$_names[$className];
     }
 
     /**
@@ -86,5 +99,25 @@ abstract class BaseUsrForm extends \yii\base\Model
         }
 
         return $rules;
+    }
+
+    /**
+     * A wrapper for inline validators from behaviors extending FormModelBehavior.
+     * Set the behavior name in 'behavior' param and validator name in 'validator' param.
+     * @todo port
+     * @param $attribute string
+     * @param $params array
+     */
+    public function behaviorValidator($attribute, $params)
+    {
+        $behavior = $params['behavior'];
+        $validator = $params['validator'];
+        unset($params['behavior']);
+        unset($params['validator']);
+        if (($behavior=$this->getBehavior($behavior)) !== null) {
+            return $behavior->{$validator}($attribute, $params);
+        }
+
+        return true;
     }
 }

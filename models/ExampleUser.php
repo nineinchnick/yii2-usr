@@ -43,7 +43,8 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     components\OneTimePasswordIdentityInterface,
     components\PasswordHistoryIdentityInterface,
     components\HybridauthIdentityInterface,
-    components\PictureIdentityInterface
+    components\PictureIdentityInterface,
+    components\ManagedIdentityInterface
 {
     /**
      * @inheritdoc
@@ -135,7 +136,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public static function findByUsername($username)
     {
-        return self::find(['username'=>$username]);
+        return self::find()->onCondition(['username'=>$username])->one();
     }
 
     /**
@@ -161,7 +162,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public static function findIdentity($id)
     {
-        return self::find($id);
+        return self::find()->onCondition(['id'=>$id])->one();
     }
 
     /**
@@ -362,6 +363,15 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     }
 
     /**
+     * Checkes if user email address is verified.
+     * @return boolean
+     */
+    public function isVerified()
+    {
+        return (bool) $this->email_verified;
+    }
+
+    /**
      * Generates and saves a new activation key used for verifying email and restoring lost password.
      * The activation key is then sent by email to the user.
      *
@@ -497,6 +507,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function addRemoteIdentity($provider, $identifier)
     {
+        //! @todo delete all by provider and identifier
         $model = new UserRemoteIdentity;
         $model->setAttributes([
             'user_id' => $this->id,
@@ -505,6 +516,44 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
         ], false);
 
         return $model->save();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function removeRemoteIdentity($provider)
+    {
+        //! @todo port
+        UserRemoteIdentity::model()->deleteAllByAttributes(array('provider'=>$provider, 'user_id'=>$this->_id));
+
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function hasRemoteIdentity($provider)
+    {
+        //! @todo port
+        return 0 != UserRemoteIdentity::model()->countByAttributes(array('provider'=>$provider, 'user_id'=>$this->_id));
+    }
+
+    /**
+     * Similar to @see getAttributes() but reads the remote profile instead of current identity.
+     * @param  mixed $remoteProfie
+     * @return array
+     */
+    public static function getRemoteAttributes($remoteProfile)
+    {
+        //! @todo port
+        $email = (isset($remoteProfile->emailVerifier) && $remoteProfile->emailVerifier !== null) ? $remoteProfile->emailVerifier : $remoteProfile->email;
+
+        return array(
+            'username' => $email,
+            'email' => $email,
+            'firstName' => $remoteProfile->firstName,
+            'lastName' => $remoteProfile->lastName,
+        );
     }
 
     // }}}
@@ -634,12 +683,11 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function getPicture($id, $currentIdentity=true)
     {
-        $criteria = new CDbCriteria;
-        $criteria->addColumnCondition(['id'=>$id]);
+        $condition = ['id' => $id];
         if ($currentIdentity) {
-            $criteria->addColumnCondition(['user_id'=>$this->_id]);
+            $condition['user_id'] = $this->_id;
         }
-        if (($picture=UserProfilePicture::model()->find($criteria)) === null) {
+        if (($picture=UserProfilePicture::find()->onCondition($condition)->one()) === null) {
             return null;
         }
 
@@ -664,6 +712,89 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
         }
 
         return UserProfilePicture::model()->deleteAllByAttributes($attributes);
+    }
+
+    // }}}
+
+    // {{{ IManagedIdentity
+
+    /**
+     * @inheritdoc
+     */
+    public function getDataProvider(SearchForm $searchForm)
+    {
+        //! @todo port, possibly remove becuase this is an AR
+        $criteria=new CDbCriteria;
+
+        $criteria->compare('id', $searchForm->id);
+        $criteria->compare('username', $searchForm->username,true);
+        $criteria->compare('email', $searchForm->email,true);
+        $criteria->compare('firstname', $searchForm->firstName,true);
+        $criteria->compare('lastname', $searchForm->lastName,true);
+        $criteria->compare('created_on', $searchForm->createdOn);
+        $criteria->compare('updated_on', $searchForm->updatedOn);
+        $criteria->compare('last_visit_on', $searchForm->lastVisitOn);
+        $criteria->compare('email_verified', $searchForm->emailVerified);
+        $criteria->compare('is_active', $searchForm->isActive);
+        $criteria->compare('is_disabled', $searchForm->isDisabled);
+        $dataProvider = new CActiveDataProvider('User', array('criteria'=>$criteria, 'keyAttribute'=>'id'));
+        $identities = array();
+        foreach ($dataProvider->getData() as $row) {
+            $identities[] = self::createFromUser($row);
+        }
+        $dataProvider->setData($identities);
+
+        return $dataProvider;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function toggleStatus($status)
+    {
+        //! @todo port
+        if (($record=$this->getActiveRecord())===null) {
+            return false;
+        }
+        switch ($status) {
+        case self::STATUS_EMAIL_VERIFIED: $attributes['email_verified'] = !$record->email_verified; break;
+        case self::STATUS_IS_ACTIVE: $attributes['is_active'] = !$record->is_active; break;
+        case self::STATUS_IS_DISABLED: $attributes['is_disabled'] = !$record->is_disabled; break;
+        }
+
+        return $record->saveAttributes($attributes);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function delete()
+    {
+        //! @todo port, possibly remove becuase this is an AR
+        if (($record=$this->getActiveRecord())===null) {
+            return false;
+        }
+
+        return $record->delete();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTimestamps($key=null)
+    {
+        //! @todo port
+        if (($record=$this->getActiveRecord())===null) {
+            return false;
+        }
+        $timestamps = array(
+            'createdOn' => $record->created_on,
+            'updatedOn' => $record->updated_on,
+            'lastVisitOn' => $record->last_visit_on,
+            'passwordSetOn' => $record->password_set_on,
+        );
+        // can't use isset, since it returns false for null values
+        return $key === null || !array_key_exists($key, $timestamps) ? $timestamps : $timestamps[$key];
     }
 
     // }}}

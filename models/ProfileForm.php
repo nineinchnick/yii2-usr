@@ -122,7 +122,7 @@ class ProfileForm extends BaseUsrForm
             return;
         }
         $identityClass = Yii::$app->user->identityClass;
-        $existingIdentity = $identityClass::find([$attribute => $this->$attribute]);
+        $existingIdentity = $identityClass::find()->onCondition([$attribute => $this->$attribute])->one();
         if ($existingIdentity !== null && ($this->scenario == 'register' || (($identity=$this->getIdentity()) !== null && $existingIdentity->getId() != $identity->getId()))) {
             $this->addError($attribute, Yii::t('usr','{attribute} has already been used by another user.', ['attribute'=>$this->$attribute]));
 

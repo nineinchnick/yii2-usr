@@ -10,6 +10,7 @@ interface ActivatedIdentityInterface
 
     /**
      * Loads a specific user identity using one of supplied attributes, such as username or email.
+     * Note: should only return a result if exactly one match has been found.
      * @param  array  $attributes contains at least one of keys: 'username', 'email'
      * @return object a user identity object or null if not found.
      */
@@ -26,6 +27,11 @@ interface ActivatedIdentityInterface
      * @return boolean
      */
     public function isDisabled();
+    /**
+     * Checkes if user email address is verified.
+     * @return boolean
+     */
+    public function isVerified();
     /**
      * Generates and saves a new activation key used for verifying email and restoring lost password.
      * The activation key is then sent by email to the user.

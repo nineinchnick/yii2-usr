@@ -41,3 +41,10 @@ if ($model->getIdentity() instanceof nineinchnick\usr\components\PictureIdentity
 }
 
 echo DetailView::widget(['model' => $model, 'attributes' => $attributes]);
+
+
+if ($this->context->module->hybridauthEnabled()) {
+    echo '<p>';
+    echo $this->render('_login_remote', ['model'=>$model]);
+    echo '</p>';
+}
