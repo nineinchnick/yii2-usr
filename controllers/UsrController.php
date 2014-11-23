@@ -15,15 +15,17 @@ abstract class UsrController extends \yii\web\Controller
      */
     public function sendEmail(\yii\base\Model $model, $mode)
     {
-        $params = ['siteUrl' => Yii::$app->getUrlManager()->createAbsoluteUrl('/')];
+        $params = [
+            'siteUrl' => Yii::$app->getUrlManager()->createAbsoluteUrl('/'),
+        ];
         switch ($mode) {
         default: return false;
         case 'recovery':
         case 'verify':
             $subject = $mode == 'recovery' ? Yii::t('usr', 'Password recovery') : Yii::t('usr', 'Email address verification');
             $params['actionUrl'] = Yii::$app->getUrlManager()->createAbsoluteUrl($this->module->id.'/default/'.$mode, [
-                'activationKey'=>$model->getIdentity()->getActivationKey(),
-                'username'=>$model->getIdentity()->username,
+                'activationKey' => $model->getIdentity()->getActivationKey(),
+                'username' => $model->getIdentity()->username,
             ]);
             break;
         case 'oneTimePassword':

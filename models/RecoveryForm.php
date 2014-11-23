@@ -28,15 +28,15 @@ class RecoveryForm extends BasePasswordForm
     public function rules()
     {
         $rules = array_merge($this->getBehaviorRules(), [
-            [['username', 'email'], 'filter', 'filter'=>'trim'],
+            [['username', 'email'], 'filter', 'filter' => 'trim'],
             [['username', 'email'], 'default'],
             [['username', 'email'], 'existingIdentity'],
             ['email', 'email'],
 
-            ['activationKey', 'filter', 'filter'=>'trim', 'on'=>['reset', 'verify']],
-            ['activationKey', 'default', 'on'=>['reset', 'verify']],
-            ['activationKey', 'required', 'on'=>['reset', 'verify']],
-            ['activationKey', 'validActivationKey', 'on'=>['reset', 'verify']],
+            ['activationKey', 'filter', 'filter' => 'trim', 'on' => ['reset', 'verify']],
+            ['activationKey', 'default', 'on' => ['reset', 'verify']],
+            ['activationKey', 'required', 'on' => ['reset', 'verify']],
+            ['activationKey', 'validActivationKey', 'on' => ['reset', 'verify']],
         ], $this->rulesAddScenario(parent::rules(), 'reset'));
 
         return $rules;
@@ -48,9 +48,9 @@ class RecoveryForm extends BasePasswordForm
     public function attributeLabels()
     {
         return array_merge($this->getBehaviorLabels(), parent::attributeLabels(), [
-            'username'		=> Yii::t('usr','Username'),
-            'email'			=> Yii::t('usr','Email'),
-            'activationKey'	=> Yii::t('usr','Activation Key'),
+            'username'        => Yii::t('usr', 'Username'),
+            'email'            => Yii::t('usr', 'Email'),
+            'activationKey'    => Yii::t('usr', 'Activation Key'),
         ]);
     }
 
@@ -59,18 +59,23 @@ class RecoveryForm extends BasePasswordForm
      */
     public function getIdentity()
     {
-        if ($this->_identity===null) {
+        if ($this->_identity === null) {
             // generate a fake object just to check if it implements a correct interface
             $identityClass = Yii::$app->user->identityClass;
             $fakeIdentity = new $identityClass(null, null);
             if (!($fakeIdentity instanceof \nineinchnick\usr\components\ActivatedIdentityInterface)) {
-                throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>$identityClass, 'interface'=>'\nineinchnick\usr\components\ActivatedIdentityInterface']));
+                throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => $identityClass, 'interface' => '\nineinchnick\usr\components\ActivatedIdentityInterface']));
             }
             $attributes = [];
-            if ($this->username !== null) $attributes['username'] = $this->username;
-            if ($this->email !== null) $attributes['email'] = $this->email;
-            if (!empty($attributes))
-                $this->_identity=$identityClass::find($attributes);
+            if ($this->username !== null) {
+                $attributes['username'] = $this->username;
+            }
+            if ($this->email !== null) {
+                $attributes['email'] = $this->email;
+            }
+            if (!empty($attributes)) {
+                $this->_identity = $identityClass::find($attributes);
+            }
         }
 
         return $this->_identity;
@@ -82,7 +87,7 @@ class RecoveryForm extends BasePasswordForm
      * @param  array   $params
      * @return boolean
      */
-    public function existingIdentity($attribute,$params)
+    public function existingIdentity($attribute, $params)
     {
         if ($this->hasErrors()) {
             return;
@@ -90,16 +95,16 @@ class RecoveryForm extends BasePasswordForm
         $identity = $this->getIdentity();
         if ($identity === null) {
             if ($this->username !== null) {
-                $this->addError('username',Yii::t('usr','No user found matching this username.'));
+                $this->addError('username', Yii::t('usr', 'No user found matching this username.'));
             } elseif ($this->email !== null) {
-                $this->addError('email',Yii::t('usr','No user found matching this email address.'));
+                $this->addError('email', Yii::t('usr', 'No user found matching this email address.'));
             } else {
-                $this->addError('username',Yii::t('usr','Please specify username or email.'));
+                $this->addError('username', Yii::t('usr', 'Please specify username or email.'));
             }
 
             return false;
         } elseif ($identity->isDisabled()) {
-            $this->addError('username',Yii::t('usr','User account has been disabled.'));
+            $this->addError('username', Yii::t('usr', 'User account has been disabled.'));
 
             return false;
         }
@@ -110,23 +115,24 @@ class RecoveryForm extends BasePasswordForm
     /**
      * Validates the activation key.
      */
-    public function validActivationKey($attribute,$params)
+    public function validActivationKey($attribute, $params)
     {
         if ($this->hasErrors()) {
             return;
         }
-        if (($identity = $this->getIdentity()) === null)
+        if (($identity = $this->getIdentity()) === null) {
             return false;
+        }
 
         $errorCode = $identity->verifyActivationKey($this->activationKey);
         switch ($errorCode) {
             default:
             case $identity::ERROR_AKEY_INVALID:
-                $this->addError('activationKey',Yii::t('usr','Activation key is invalid.'));
+                $this->addError('activationKey', Yii::t('usr', 'Activation key is invalid.'));
 
                 return false;
             case $identity::ERROR_AKEY_TOO_OLD:
-                $this->addError('activationKey',Yii::t('usr','Activation key is too old.'));
+                $this->addError('activationKey', Yii::t('usr', 'Activation key is too old.'));
 
                 return false;
             case $identity::ERROR_AKEY_NONE:
@@ -156,7 +162,7 @@ class RecoveryForm extends BasePasswordForm
         $identity = $this->getIdentity();
 
         if ($identity->authenticate($this->newPassword)) {
-            return Yii::$app->user->login($identity,0);
+            return Yii::$app->user->login($identity, 0);
         }
 
         return false;

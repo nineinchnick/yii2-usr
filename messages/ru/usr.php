@@ -16,7 +16,7 @@
  *
  * NOTE, this file must be saved in UTF-8 encoding.
  */
-return array (
+return [
 //  'A one time password has been sent to your email. Enter it below.' => '',
 //  'Create a new account' => '',
 //  'Current password' => '',
@@ -52,8 +52,8 @@ return array (
   'Activation key is invalid.' => 'Неверный код активации.',
   'Activation key is missing.' => 'Код активации отсутствует.',
   'Activation key is too old.' => 'Код активации устарел.',
-  'An email containing further instructions has been sent to email associated with specified user account.' => 'На пользовательский email адрес отправлено письмо с дальнейшими инструкциями.',
-  'An email containing further instructions has been sent to provided email address.' => 'На указанный email адрес отправлено письмо с дальнейшими инструкциями.',
+  'An email containing further instructions has been sent to the email address associated with the specified user account.' => 'На пользовательский email адрес отправлено письмо с дальнейшими инструкциями.',
+  'An email containing further instructions has been sent to the provided email address.' => 'На указанный email адрес отправлено письмо с дальнейшими инструкциями.',
   'Change password' => 'Смена пароля',
   'Changes have been saved successfully.' => 'Изменения были успешно сохранены.',
   'Current password has been used too long and needs to be changed.' => 'Текущий пароль использовался слишком долго, его необходимо сменить.',
@@ -103,4 +103,4 @@ return array (
   'registration' => 'регистрации',
   'update' => 'изменить',
   '{attribute} has already been used by another user.' => '{attribute} занят(о) другим пользователем.',
-);
+];

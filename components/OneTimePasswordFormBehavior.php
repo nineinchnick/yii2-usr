@@ -39,7 +39,7 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
     public function events()
     {
         return array_merge(parent::events(), [
-            \yii\base\Model::EVENT_AFTER_VALIDATE=>'afterValidate',
+            \yii\base\Model::EVENT_AFTER_VALIDATE => 'afterValidate',
         ]);
     }
 
@@ -49,10 +49,10 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
     public function rules()
     {
         $rules = [
-            ['oneTimePassword', 'filter', 'filter'=>'trim', 'on'=>'verifyOTP'],
-            ['oneTimePassword', 'default', 'on'=>'verifyOTP'],
-            ['oneTimePassword', 'required', 'on'=>'verifyOTP'],
-            ['oneTimePassword', 'validOneTimePassword', 'skipOnEmpty'=>false, 'except'=>'hybridauth'],
+            ['oneTimePassword', 'filter', 'filter' => 'trim', 'on' => 'verifyOTP'],
+            ['oneTimePassword', 'default', 'on' => 'verifyOTP'],
+            ['oneTimePassword', 'required', 'on' => 'verifyOTP'],
+            ['oneTimePassword', 'validOneTimePassword', 'skipOnEmpty' => false, 'except' => 'hybridauth'],
         ];
 
         return $this->applyRuleOptions($rules);
@@ -64,7 +64,7 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
     public function attributeLabels()
     {
         return [
-            'oneTimePassword' => Yii::t('usr','One Time Password'),
+            'oneTimePassword' => Yii::t('usr', 'One Time Password'),
         ];
     }
 
@@ -86,8 +86,9 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
     public function setOneTimePasswordConfig(array $config)
     {
         foreach ($config as $key => $value) {
-            if ($this->_oneTimePasswordConfig[$key] === null)
+            if ($this->_oneTimePasswordConfig[$key] === null) {
                 $this->_oneTimePasswordConfig[$key] = $value;
+            }
         }
 
         return $this;
@@ -96,8 +97,9 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
     protected function loadOneTimePasswordConfig()
     {
         $identity = $this->owner->getIdentity();
-        if (!($identity instanceof \nineinchnick\usr\components\OneTimePasswordIdentityInterface))
-            throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.', ['class'=>get_class($identity),'interface'=>'\nineinchnick\usr\components\OneTimePasswordIdentityInterface']));
+        if (!($identity instanceof \nineinchnick\usr\components\OneTimePasswordIdentityInterface)) {
+            throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($identity), 'interface' => '\nineinchnick\usr\components\OneTimePasswordIdentityInterface']));
+        }
         list($previousCode, $previousCounter) = $identity->getOneTimePassword();
         $this->setOneTimePasswordConfig([
             'secret' => $identity->getOneTimePasswordSecret(),
@@ -126,7 +128,7 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
         return $authenticator->getCode($secret, $mode == Module::OTP_TIME ? null : $previousCounter);
     }
 
-    public function validOneTimePassword($attribute,$params)
+    public function validOneTimePassword($attribute, $params)
     {
         if ($this->owner->hasErrors()) {
             return;
@@ -148,7 +150,7 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
             return true;
         }
         if (empty($this->owner->$attribute)) {
-            $this->owner->addError($attribute,Yii::t('usr','Enter a valid one time password.'));
+            $this->owner->addError($attribute, Yii::t('usr', 'Enter a valid one time password.'));
             $this->owner->scenario = 'verifyOTP';
             if ($mode === Module::OTP_COUNTER) {
                 $this->_controller->sendEmail($this, 'oneTimePassword');
@@ -167,18 +169,18 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
             $valid = false;
         }
         if (!$valid) {
-            $this->owner->addError($attribute,Yii::t('usr','Entered code is invalid.'));
+            $this->owner->addError($attribute, Yii::t('usr', 'Entered code is invalid.'));
             $this->owner->scenario = 'verifyOTP';
 
             return false;
         }
         if ($this->owner->$attribute == $previousCode) {
             if ($mode === Module::OTP_TIME) {
-                $message = Yii::t('usr','Please wait until next code will be generated.');
+                $message = Yii::t('usr', 'Please wait until next code will be generated.');
             } elseif ($mode === Module::OTP_COUNTER) {
-                $message = Yii::t('usr','Please log in again to request a new code.');
+                $message = Yii::t('usr', 'Please log in again to request a new code.');
             }
-            $this->owner->addError($attribute,Yii::t('usr','Entered code has already been used.').' '.$message);
+            $this->owner->addError($attribute, Yii::t('usr', 'Entered code has already been used.').' '.$message);
             $this->owner->scenario = 'verifyOTP';
 
             return false;
@@ -190,8 +192,9 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
 
     public function afterValidate($event)
     {
-        if ($this->owner->scenario === 'hybridauth' || $this->owner->hasErrors())
+        if ($this->owner->scenario === 'hybridauth' || $this->owner->hasErrors()) {
             return;
+        }
 
         // extracts: $authenticator, $mode, $required, $timeout, $secret, $previousCode, $previousCounter
         extract($this->_oneTimePasswordConfig);
@@ -202,14 +205,15 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
 
     public function createOTPCookie($username, $secret, $timeout, $time = null)
     {
-        if ($time === null)
+        if ($time === null) {
             $time = time();
-        $data=['username'=>$username, 'time'=>$time, 'timeout'=>$timeout];
-        $cookie=new \yii\web\Cookie([
-            'name'=>Module::OTP_COOKIE,
-            'value'=>$time.':'.\yii\helpers\Security::hashData(serialize($data), $secret),
-            'expire'=>time() + ($timeout <= 0 ? 10*365*24*3600 : $timeout),
-            'httpOnly'=>true,
+        }
+        $data = ['username' => $username, 'time' => $time, 'timeout' => $timeout];
+        $cookie = new \yii\web\Cookie([
+            'name' => Module::OTP_COOKIE,
+            'value' => $time.':'.\yii\helpers\Security::hashData(serialize($data), $secret),
+            'expire' => time() + ($timeout <= 0 ? 10*365*24*3600 : $timeout),
+            'httpOnly' => true,
         ]);
 
         return $cookie;
@@ -217,18 +221,19 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
 
     public function isValidOTPCookie($cookie, $username, $secret, $timeout, $time = null)
     {
-        if ($time === null)
+        if ($time === null) {
             $time = time();
+        }
 
         if (!$cookie || empty($cookie->value) || !is_string($cookie->value)) {
             return false;
         }
-        $parts = explode(":",$cookie->value,2);
-        if (count($parts)!=2) {
+        $parts = explode(":", $cookie->value, 2);
+        if (count($parts) != 2) {
             return false;
         }
-        list($creationTime,$hash) = $parts;
-        $data=['username'=>$username, 'time'=>(int) $creationTime, 'timeout'=>$timeout];
+        list($creationTime, $hash) = $parts;
+        $data = ['username' => $username, 'time' => (int) $creationTime, 'timeout' => $timeout];
         $validHash = \yii\helpers\Security::hashData(serialize($data), $secret);
 
         return ($timeout <= 0 || $creationTime + $timeout >= $time) && $hash === $validHash;

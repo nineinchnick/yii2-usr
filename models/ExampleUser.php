@@ -31,9 +31,10 @@ use app\models\UserProfilePicture;
  * @property integer $one_time_password_counter
  *
  * The followings are the available model relations:
+ * @property UserLoginAttempt[] $userLoginAttempts
+ * @property UserProfilePicture[] $userProfilePictures
  * @property UserRemoteIdentity[] $userRemoteIdentities
  * @property UserUsedPassword[] $userUsedPassword
- * @property UserProfilePicture[] $userProfilePictures
  */
 abstract class ExampleUser extends \yii\db\ActiveRecord
     implements
@@ -43,7 +44,8 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     components\OneTimePasswordIdentityInterface,
     components\PasswordHistoryIdentityInterface,
     components\HybridauthIdentityInterface,
-    components\PictureIdentityInterface
+    components\PictureIdentityInterface,
+    components\ManagedIdentityInterface
 {
     /**
      * @inheritdoc
@@ -66,10 +68,20 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
             [['activation_key', 'created_on', 'updated_on', 'last_visit_on', 'password_set_on', 'email_verified'], 'default', 'on' => 'search'],
             [['username', 'email', 'is_active', 'is_disabled', 'email_verified'], 'required', 'except' => 'search'],
             [['created_on', 'updated_on', 'last_visit_on', 'password_set_on'], 'date', 'format' => ['yyyy-MM-dd', 'yyyy-MM-dd HH:mm', 'yyyy-MM-dd HH:mm:ss'], 'on' => 'search'],
-            ['activation_key', 'string', 'max'=>128, 'on' => 'search'],
+            ['activation_key', 'string', 'max' => 128, 'on' => 'search'],
             [['is_active', 'is_disabled', 'email_verified'], 'boolean'],
             [['username', 'email'], 'unique', 'except' => 'search'],
         ];
+    }
+
+    public function getUserLoginAttempts()
+    {
+        return $this->hasMany(UserLoginAttempt::className(), ['user_id' => 'id'])->orderBy('performed_on DESC');
+    }
+
+    public function getUserProfilePictures()
+    {
+        return $this->hasMany(UserProfilePicture::className(), ['user_id' => 'id']);
     }
 
     public function getUserRemoteIdentities()
@@ -80,11 +92,6 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     public function getUserUsedPasswords()
     {
         return $this->hasMany(UserUsedPassword::className(), ['user_id' => 'id'])->orderBy('set_on DESC');
-    }
-
-    public function getUserProfilePictures()
-    {
-        return $this->hasMany(UserProfilePicture::className(), ['user_id' => 'id']);
     }
 
     /**
@@ -135,7 +142,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public static function findByUsername($username)
     {
-        return self::find(['username'=>$username]);
+        return self::find()->onCondition(['username' => $username])->one();
     }
 
     /**
@@ -161,7 +168,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public static function findIdentity($id)
     {
-        return self::find($id);
+        return self::find()->onCondition(['id' => $id])->one();
     }
 
     /**
@@ -188,7 +195,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function getAuthKey()
     {
-        return Security::hashData($this->id,$this->password);
+        return Security::hashData($this->id, $this->password);
     }
 
     /**
@@ -197,7 +204,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function validateAuthKey($authKey)
     {
-        return Security::validateData($authKey,$this->getAuthKey());
+        return Security::validateData($authKey, $this->getAuthKey());
     }
 
     /**
@@ -231,8 +238,9 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
             return $this->password_set_on;
         } else {
             foreach ($this->userUsedPasswords as $usedPassword) {
-                if ($usedPassword->verifyPassword($password))
+                if ($usedPassword->verifyPassword($password)) {
                     return $usedPassword->set_on;
+                }
             }
         }
 
@@ -248,15 +256,15 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     public function resetPassword($password)
     {
         $hashedPassword = Security::generatePasswordHash($password);
-        $usedPassword = new UserUsedPassword;
+        $usedPassword = new UserUsedPassword();
         $usedPassword->setAttributes([
-            'user_id'=>$this->id,
-            'password'=>$hashedPassword,
-            'set_on'=>date('Y-m-d H:i:s'),
+            'user_id' => $this->id,
+            'password' => $hashedPassword,
+            'set_on' => date('Y-m-d H:i:s'),
         ], false);
         $this->setAttributes([
-            'password'=>$hashedPassword,
-            'password_set_on'=>date('Y-m-d H:i:s'),
+            'password' => $hashedPassword,
+            'password_set_on' => date('Y-m-d H:i:s'),
         ], false);
 
         return $usedPassword->save() && $this->save();
@@ -284,7 +292,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      * @param  boolean $requireVerifiedEmail
      * @return boolean
      */
-    public function saveIdentity($requireVerifiedEmail=false)
+    public function saveIdentity($requireVerifiedEmail = false)
     {
         if ($this->isNewRecord) {
             $this->password = 'x';
@@ -293,7 +301,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
             $this->email_verified = 0;
         }
         if (!$this->save()) {
-            Yii::warning('Failed to save user: '.print_r($this->getErrors(),true), 'usr');
+            Yii::warning('Failed to save user: '.print_r($this->getErrors(), true), 'usr');
 
             return false;
         }
@@ -310,7 +318,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     public function setIdentityAttributes(array $attributes)
     {
         $allowedAttributes = $this->identityAttributesMap();
-        foreach ($attributes as $name=>$value) {
+        foreach ($attributes as $name => $value) {
             if (isset($allowedAttributes[$name])) {
                 $key = $allowedAttributes[$name];
                 $this->$key = $value;
@@ -328,7 +336,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     {
         $allowedAttributes = array_flip($this->identityAttributesMap());
         $result = [];
-        foreach ($this->getAttributes() as $name=>$value) {
+        foreach ($this->getAttributes() as $name => $value) {
             if (isset($allowedAttributes[$name])) {
                 $result[$allowedAttributes[$name]] = $value;
             }
@@ -359,6 +367,15 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     public function isDisabled()
     {
         return (bool) $this->is_disabled;
+    }
+
+    /**
+     * Checkes if user email address is verified.
+     * @return boolean
+     */
+    public function isVerified()
+    {
+        return (bool) $this->email_verified;
     }
 
     /**
@@ -393,7 +410,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      * @param  boolean $requireVerifiedEmail
      * @return boolean
      */
-    public function verifyEmail($requireVerifiedEmail=false)
+    public function verifyEmail($requireVerifiedEmail = false)
     {
         if ($this->email_verified) {
             return true;
@@ -435,8 +452,9 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function setOneTimePasswordSecret($secret)
     {
-        if ($this->getIsNewRecord())
+        if ($this->getIsNewRecord()) {
             return false;
+        }
         $this->one_time_password_secret = $secret;
 
         return $this->save(false);
@@ -460,8 +478,9 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function setOneTimePassword($password, $counter = 1)
     {
-        if ($this->getIsNewRecord())
+        if ($this->getIsNewRecord()) {
             return false;
+        }
         $this->one_time_password_code = $password;
         $this->one_time_password_counter = $counter;
 
@@ -484,8 +503,8 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
 
         return self::find()
             ->leftJoin($t, self::tableName().'.[['.self::primaryKey()[0].']]='.$t.'.[[user_id]]')
-            ->andWhere($t.'.[[provider]]=:provider',[':provider'=>$provider])
-            ->andWhere($t.'.[[identifier]]=:identifier',[':identifier'=>$identifier])
+            ->andWhere($t.'.[[provider]]=:provider', [':provider' => $provider])
+            ->andWhere($t.'.[[identifier]]=:identifier', [':identifier' => $identifier])
             ->one();
     }
 
@@ -497,7 +516,8 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function addRemoteIdentity($provider, $identifier)
     {
-        $model = new UserRemoteIdentity;
+        //! @todo delete all by provider and identifier
+        $model = new UserRemoteIdentity();
         $model->setAttributes([
             'user_id' => $this->id,
             'provider' => $provider,
@@ -505,6 +525,44 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
         ], false);
 
         return $model->save();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function removeRemoteIdentity($provider)
+    {
+        //! @todo port
+        UserRemoteIdentity::model()->deleteAllByAttributes(['provider' => $provider, 'user_id' => $this->_id]);
+
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function hasRemoteIdentity($provider)
+    {
+        //! @todo port
+        return 0 != UserRemoteIdentity::model()->countByAttributes(['provider' => $provider, 'user_id' => $this->_id]);
+    }
+
+    /**
+     * Similar to @see getAttributes() but reads the remote profile instead of current identity.
+     * @param  mixed $remoteProfie
+     * @return array
+     */
+    public static function getRemoteAttributes($remoteProfile)
+    {
+        //! @todo port
+        $email = (isset($remoteProfile->emailVerifier) && $remoteProfile->emailVerifier !== null) ? $remoteProfile->emailVerifier : $remoteProfile->email;
+
+        return [
+            'username' => $email,
+            'email' => $email,
+            'firstName' => $remoteProfile->firstName,
+            'lastName' => $remoteProfile->lastName,
+        ];
     }
 
     // }}}
@@ -516,13 +574,14 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function savePicture($picture)
     {
-        if ($this->getIsNewRecord())
+        if ($this->getIsNewRecord()) {
             return false;
+        }
         $pictureRecord = $this->getUserProfilePictures()->andWhere('original_picture_id IS NULL')->all();
         if (!empty($pictureRecord)) {
             $pictureRecord = $pictureRecord[0];
         } else {
-            $pictureRecord = new UserProfilePicture;
+            $pictureRecord = new UserProfilePicture();
             $pictureRecord->user_id = $this->id;
         }
         $picturePath = $picture->getTempName();
@@ -577,7 +636,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
         if (!empty($thumbnail)) {
             $thumbnail = $thumbnail[0];
         } else {
-            $thumbnail = new UserProfilePicture;
+            $thumbnail = new UserProfilePicture();
             $thumbnail->original_picture_id = $pictureRecord->id;
             $thumbnail->user_id = $pictureRecord->user_id;
             $thumbnail->filename = $pictureRecord->filename;
@@ -593,21 +652,22 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function getPictureUrl($width=null, $height=null)
+    public function getPictureUrl($width = null, $height = null)
     {
-        if ($this->getIsNewRecord())
+        if ($this->getIsNewRecord()) {
             return false;
+        }
         // try to locate biggest picture smaller than specified dimensions
         $query = $this->getUserProfilePictures()->select('id')->orderBy('width DESC')->limit(1);
         if ($width !== null && $height !== null) {
-            $query->andWhere('width <= :width AND height <= :height', [':width'=>$width, ':height'=>$height]);
+            $query->andWhere('width <= :width AND height <= :height', [':width' => $width, ':height' => $height]);
         }
         $pictures = $query->all();
         if (!empty($pictures)) {
             return [
-                'url'	=> Yii::$app->createAbsoluteUrl('/usr/profilePicture', ['id'=>$pictures[0]->id]),
-                'width'	=> $pictures[0]->width,
-                'height'=> $pictures[0]->height,
+                'url'    => Yii::$app->createAbsoluteUrl('/usr/profilePicture', ['id' => $pictures[0]->id]),
+                'width'    => $pictures[0]->width,
+                'height' => $pictures[0]->height,
             ];
         }
 
@@ -616,54 +676,137 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
         // more at http://gravatar.com/site/implement/images/
         $options = [
             //'forcedefault' => 'y',
-            'rating'=> 'g',
-            'd'		=> 'retro',
-            's'		=> $width,
+            'rating' => 'g',
+            'd'        => 'retro',
+            's'        => $width,
         ];
         $host = Yii::$app->request->isSecureConnection ? 'https://secure.gravatar.com' : 'http://gravatar.com';
 
         return [
-            'url'	=> $host.'/avatar/'.$hash.'?'.http_build_query($options),
-            'width'	=> $width,
-            'height'=> $height,
+            'url'    => $host.'/avatar/'.$hash.'?'.http_build_query($options),
+            'width'    => $width,
+            'height' => $height,
         ];
     }
 
     /**
      * @inheritdoc
      */
-    public function getPicture($id, $currentIdentity=true)
+    public function getPicture($id, $currentIdentity = true)
     {
-        $criteria = new CDbCriteria;
-        $criteria->addColumnCondition(['id'=>$id]);
+        $condition = ['id' => $id];
         if ($currentIdentity) {
-            $criteria->addColumnCondition(['user_id'=>$this->_id]);
+            $condition['user_id'] = $this->_id;
         }
-        if (($picture=UserProfilePicture::model()->find($criteria)) === null) {
+        if (($picture = UserProfilePicture::find()->onCondition($condition)->one()) === null) {
             return null;
         }
 
         return [
-            'mimetype'=>$picture->mimetype,
-            'width'=>$picture->width,
-            'height'=>$picture->height,
-            'picture'=>base64_decode($picture->contents),
+            'mimetype' => $picture->mimetype,
+            'width' => $picture->width,
+            'height' => $picture->height,
+            'picture' => base64_decode($picture->contents),
         ];
     }
 
     /**
      * @inheritdoc
      */
-    public function removePicture($id=null)
+    public function removePicture($id = null)
     {
-        if ($this->getIsNewRecord())
+        if ($this->getIsNewRecord()) {
             return 0;
-        $attributes = ['user_id'=>$this->id];
+        }
+        $attributes = ['user_id' => $this->id];
         if ($id !== null) {
             $attributes['id'] = $id;
         }
 
         return UserProfilePicture::model()->deleteAllByAttributes($attributes);
+    }
+
+    // }}}
+
+    // {{{ IManagedIdentity
+
+    /**
+     * @inheritdoc
+     */
+    public function getDataProvider(SearchForm $searchForm)
+    {
+        //! @todo port, possibly remove becuase this is an AR
+        $criteria = new CDbCriteria();
+
+        $criteria->compare('id', $searchForm->id);
+        $criteria->compare('username', $searchForm->username, true);
+        $criteria->compare('email', $searchForm->email, true);
+        $criteria->compare('firstname', $searchForm->firstName, true);
+        $criteria->compare('lastname', $searchForm->lastName, true);
+        $criteria->compare('created_on', $searchForm->createdOn);
+        $criteria->compare('updated_on', $searchForm->updatedOn);
+        $criteria->compare('last_visit_on', $searchForm->lastVisitOn);
+        $criteria->compare('email_verified', $searchForm->emailVerified);
+        $criteria->compare('is_active', $searchForm->isActive);
+        $criteria->compare('is_disabled', $searchForm->isDisabled);
+        $dataProvider = new CActiveDataProvider('User', ['criteria' => $criteria, 'keyAttribute' => 'id']);
+        $identities = [];
+        foreach ($dataProvider->getData() as $row) {
+            $identities[] = self::createFromUser($row);
+        }
+        $dataProvider->setData($identities);
+
+        return $dataProvider;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function toggleStatus($status)
+    {
+        //! @todo port
+        if (($record = $this->getActiveRecord()) === null) {
+            return false;
+        }
+        switch ($status) {
+        case self::STATUS_EMAIL_VERIFIED: $attributes['email_verified'] = !$record->email_verified; break;
+        case self::STATUS_IS_ACTIVE: $attributes['is_active'] = !$record->is_active; break;
+        case self::STATUS_IS_DISABLED: $attributes['is_disabled'] = !$record->is_disabled; break;
+        }
+
+        return $record->saveAttributes($attributes);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function delete()
+    {
+        //! @todo port, possibly remove becuase this is an AR
+        if (($record = $this->getActiveRecord()) === null) {
+            return false;
+        }
+
+        return $record->delete();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTimestamps($key = null)
+    {
+        //! @todo port
+        if (($record = $this->getActiveRecord()) === null) {
+            return false;
+        }
+        $timestamps = [
+            'createdOn' => $record->created_on,
+            'updatedOn' => $record->updated_on,
+            'lastVisitOn' => $record->last_visit_on,
+            'passwordSetOn' => $record->password_set_on,
+        ];
+        // can't use isset, since it returns false for null values
+        return $key === null || !array_key_exists($key, $timestamps) ? $timestamps : $timestamps[$key];
     }
 
     // }}}

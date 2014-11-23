@@ -45,8 +45,9 @@ class ProfileForm extends BaseUsrForm
     public function setPictureUploadRules($rules)
     {
         $this->_pictureUploadRules = [];
-        if (!is_array($rules))
+        if (!is_array($rules)) {
             return;
+        }
         foreach ($rules as $rule) {
             $this->_pictureUploadRules[] = array_merge(['picture'], $rule);
         }
@@ -58,7 +59,7 @@ class ProfileForm extends BaseUsrForm
     public function rules()
     {
         return array_merge($this->getBehaviorRules(), [
-            [['username', 'email', 'firstName', 'lastName', 'removePicture'], 'filter', 'filter'=>'trim'],
+            [['username', 'email', 'firstName', 'lastName', 'removePicture'], 'filter', 'filter' => 'trim'],
             [['username', 'email', 'firstName', 'lastName', 'removePicture'], 'default'],
 
             [['username', 'email'], 'required'],
@@ -66,7 +67,7 @@ class ProfileForm extends BaseUsrForm
             ['email', 'email'],
 
             ['removePicture', 'boolean'],
-            ['password', 'validCurrentPassword', 'except'=>'register', 'skipOnEmpty'=>false],
+            ['password', 'validCurrentPassword', 'except' => 'register', 'skipOnEmpty' => false],
         ], $this->pictureUploadRules);
     }
 
@@ -86,13 +87,13 @@ class ProfileForm extends BaseUsrForm
     public function attributeLabels()
     {
         return array_merge($this->getBehaviorLabels(), [
-            'username'		=> Yii::t('usr','Username'),
-            'email'			=> Yii::t('usr','Email'),
-            'firstName'		=> Yii::t('usr','First name'),
-            'lastName'		=> Yii::t('usr','Last name'),
-            'picture'		=> Yii::t('usr','Profile picture'),
-            'removePicture'	=> Yii::t('usr','Remove picture'),
-            'password'		=> Yii::t('usr','Current password'),
+            'username'        => Yii::t('usr', 'Username'),
+            'email'            => Yii::t('usr', 'Email'),
+            'firstName'        => Yii::t('usr', 'First name'),
+            'lastName'        => Yii::t('usr', 'Last name'),
+            'picture'        => Yii::t('usr', 'Profile picture'),
+            'removePicture'    => Yii::t('usr', 'Remove picture'),
+            'password'        => Yii::t('usr', 'Current password'),
         ]);
     }
 
@@ -101,30 +102,30 @@ class ProfileForm extends BaseUsrForm
      */
     public function getIdentity()
     {
-        if ($this->_identity===null) {
+        if ($this->_identity === null) {
             if ($this->scenario == 'register') {
                 $identityClass = Yii::$app->user->identityClass;
-                $this->_identity = new $identityClass;
+                $this->_identity = new $identityClass();
             } else {
                 $this->_identity = Yii::$app->user->getIdentity();
             }
             if ($this->_identity !== null && !($this->_identity instanceof \nineinchnick\usr\components\EditableIdentityInterface)) {
-                throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.', ['class'=>get_class($this->_identity),'interface'=>'\nineinchnick\usr\components\EditableIdentityInterface']));
+                throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($this->_identity), 'interface' => '\nineinchnick\usr\components\EditableIdentityInterface']));
             }
         }
 
         return $this->_identity;
     }
 
-    public function uniqueIdentity($attribute,$params)
+    public function uniqueIdentity($attribute, $params)
     {
         if ($this->hasErrors()) {
             return;
         }
         $identityClass = Yii::$app->user->identityClass;
         $existingIdentity = $identityClass::find([$attribute => $this->$attribute]);
-        if ($existingIdentity !== null && ($this->scenario == 'register' || (($identity=$this->getIdentity()) !== null && $existingIdentity->getId() != $identity->getId()))) {
-            $this->addError($attribute, Yii::t('usr','{attribute} has already been used by another user.', ['attribute'=>$this->$attribute]));
+        if ($existingIdentity !== null && ($this->scenario == 'register' || (($identity = $this->getIdentity()) !== null && $existingIdentity->getId() != $identity->getId()))) {
+            $this->addError($attribute, Yii::t('usr', '{attribute} has already been used by another user.', ['attribute' => $this->$attribute]));
 
             return false;
         }
@@ -135,12 +136,12 @@ class ProfileForm extends BaseUsrForm
     /**
      * A valid current password is required only when changing email.
      */
-    public function validCurrentPassword($attribute,$params)
+    public function validCurrentPassword($attribute, $params)
     {
         if ($this->hasErrors()) {
             return;
         }
-        if (($identity=$this->getIdentity()) === null) {
+        if (($identity = $this->getIdentity()) === null) {
             throw new \yii\base\Exception('Current user has not been found in the database.');
         }
         if ($identity->getEmail() === $this->email) {
@@ -163,26 +164,22 @@ class ProfileForm extends BaseUsrForm
     {
         $identity = $this->getIdentity();
 
-        return Yii::$app->user->login($identity,0);
+        return Yii::$app->user->login($identity, 0);
     }
 
     /**
      * Updates the identity with this models attributes and saves it.
+     * @param  boolean $requireVerifiedEmail the Usr module property
      * @return boolean whether saving is successful
      */
-    public function save()
+    public function save($requireVerifiedEmail = false)
     {
-        $identity = $this->getIdentity();
-        if ($identity === null)
+        if (($identity = $this->getIdentity()) === null) {
             return false;
+        }
 
-        $identity->setIdentityAttributes([
-            'username'	=> $this->username,
-            'email'		=> $this->email,
-            'firstName'	=> $this->firstName,
-            'lastName'	=> $this->lastName,
-        ]);
-        if ($identity->saveIdentity(Yii::$app->controller->module->requireVerifiedEmail)) {
+        $identity->setIdentityAttributes($this->getAttributes());
+        if ($identity->saveIdentity($requireVerifiedEmail)) {
             if ((!($this->picture instanceof yii\web\UploadedFile) || $identity->savePicture($this->picture)) && (!$this->removePicture || $identity->removePicture())) {
                 $this->_identity = $identity;
 

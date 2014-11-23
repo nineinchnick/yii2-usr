@@ -11,7 +11,7 @@ use yii\widgets\ActiveForm;
  * @var models\ProfileForm $localProfile
  * @var ActiveForm $form
  */
-$this->title = Yii::t('usr', 'Log in using {provider}', ['provider'=>$remoteLogin->provider]);
+$this->title = Yii::t('usr', 'Log in using {provider}', ['provider' => $remoteLogin->provider]);
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -21,12 +21,12 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <div class="<?= $this->context->module->formCssClass; ?>">
 <?php $form = ActiveForm::begin([
-    'id'=>'remoteLogin-form',
-    'enableClientValidation'=>true,
-    'validateOnSubmit'=>true,
+    'id' => 'remoteLogin-form',
+    'enableClientValidation' => true,
+    'validateOnSubmit' => true,
 ]); ?>
 
-    <?= Html::activeHiddenInput($remoteLogin,'provider') ?>
+    <?= Html::activeHiddenInput($remoteLogin, 'provider') ?>
 
     <div style="<?= $remoteLogin->requiresFilling() ? '' : 'display: none;'; ?>">
         <p class="note"><?= Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.') ?></p>

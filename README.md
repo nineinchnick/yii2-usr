@@ -8,6 +8,7 @@ Usr provides basic user actions like:
 * Registration with optional email verification.
 * Viewing and updating a minimal user profile along with changing password.
 * Use good password hashing.
+* User managment.
 
 Advanced features:
 
@@ -16,9 +17,6 @@ Advanced features:
 * Easier to integrate into current projects by not requiring to modify existing user database table and model. Example models and migrations are provided.
 * Support for Google Authenticator for two step authentication using one time passwords.
 * Support for Hybridauth for logging using social site identities.
-
-Currently, there is no admin user managment provided and it is not planned. The reason for this is that the CRUDs vary much in every project and it should not be time-expensive to create another one for users utilizing interfaces implemented in User class for this module.
-Actions provided by this module does not require any more authorization than checking if a user is logged in. An admin interface on the other hand requires to define auth items to check for access.
 
 See [the demo](http://demo2.niix.pl).
 
@@ -94,6 +92,20 @@ This interface allows finding local identity associated with a remote one (from 
 ## One Time Password
 
 This interface allow saving and retrieving a secret used to generate one time passwords. Also, last used password and counter used to generate last password are saved and retrieve to protect against reply attacks.
+
+## Profile Pictures
+
+Allows users to upload a profile picture. The example identity uses [Gravatar](http://gravatar.com/) to provide a default picture.
+
+## Managable
+
+Allows to manage users:
+
+* update their profiles (and pictures)
+* change passwords
+* assign authorization roles
+* activate/disable and mark email as verified
+* see details as timestamps of account creation, last profile update and last visit
 
 # User model example
 

@@ -7,17 +7,17 @@ use nineinchnick\usr\tests\User;
 
 class UserTest extends DatabaseTestCase
 {
-    public $fixtures=array(
-        'users'=>'User',
-        'user_used_passwords'=>'UserUsedPassword',
-    );
+    public $fixtures = [
+        'users' => 'User',
+        'user_used_passwords' => 'UserUsedPassword',
+    ];
 
     /**
      */
     public function testGetSet()
     {
-        $identity = new User;
-        $attributes = array(
+        $identity = new User();
+        $attributes = [
             'id' => null,
             'username' => 'u1',
             'password' => 'x',
@@ -35,14 +35,14 @@ class UserTest extends DatabaseTestCase
             'one_time_password_secret' => null,
             'one_time_password_code' => null,
             'one_time_password_counter' => 1,
-        );
+        ];
         $identity->setAttributes($attributes, false);
         $this->assertEquals($attributes, $identity->getAttributes());
         $this->assertEquals($attributes['email'], $identity->getEmail());
-        $identity->id=800;
+        $identity->id = 800;
         $this->assertEquals(800, $identity->getId());
         //$this->assertFalse($identity->save());
-        $identity->id=null;
+        $identity->id = null;
         $this->assertTrue($identity->save());
         $this->assertEquals(5, $identity->getId());
         $attributes['id'] = '5';
@@ -50,32 +50,32 @@ class UserTest extends DatabaseTestCase
         $savedAttributes['created_on'] = null;
         $this->assertEquals($attributes, $savedAttributes);
 
-        $identity = User::find(array('username'=>'u1'));
+        $identity = User::find(['username' => 'u1']);
         $this->assertEquals(5, $identity->getId());
         $savedAttributes = $identity->getAttributes();
         $savedAttributes['created_on'] = null;
         $this->assertEquals($attributes, $savedAttributes);
 
-        $identity->setAttributes(array('username'=>null, 'password'=>null));
+        $identity->setAttributes(['username' => null, 'password' => null]);
         $this->assertFalse($identity->save());
     }
 
     public function testRecord()
     {
-        $fake = new User;
-        $fake->id=999;
+        $fake = new User();
+        $fake->id = 999;
         $this->assertFalse($fake->isDisabled());
         $this->assertFalse($fake->isActive());
 
-        $identity = new User;
-        $identity->setAttributes(['username'=>'neo', 'password'=>'xxx'], false);
+        $identity = new User();
+        $identity->setAttributes(['username' => 'neo', 'password' => 'xxx'], false);
         $this->assertFalse($identity->authenticate('xxx'));
 
-        $identity = new User;
-        $identity->setAttributes(['username'=>'tank', 'password'=>'Test1233'], false);
+        $identity = new User();
+        $identity->setAttributes(['username' => 'tank', 'password' => 'Test1233'], false);
         $this->assertFalse($identity->authenticate('Test1233'));
 
-        $identity = User::find(array('username'=>'neo'));
+        $identity = User::find(['username' => 'neo']);
         $this->assertTrue($identity->authenticate('Test1233'));
         $this->assertTrue($identity->isActive());
         $this->assertFalse($identity->isDisabled());
@@ -84,10 +84,10 @@ class UserTest extends DatabaseTestCase
         $this->assertEquals('2011-11-11 12:34', $identity->getPasswordDate('Test1233'));
         $this->assertNull($identity->getPasswordDate('xxx'));
 
-        $identity2 = User::find(array('username'=>'neo'));
+        $identity2 = User::find(['username' => 'neo']);
         $this->assertEquals($identity->getId(), $identity2->getId());
 
-        $identity3 = User::find(array('username'=>'tank'));
+        $identity3 = User::find(['username' => 'tank']);
         $this->assertEquals(2, $identity3->getId());
         $this->assertFalse($identity3->isActive());
         $this->assertTrue($identity3->isDisabled());
@@ -95,11 +95,11 @@ class UserTest extends DatabaseTestCase
 
     public function testPasswordReset()
     {
-        $fake = new User;
-        $fake->id=999;
+        $fake = new User();
+        $fake->id = 999;
         $this->assertFalse($fake->resetPassword('xx'));
 
-        $identity = User::find(array('username'=>'cat'));
+        $identity = User::find(['username' => 'cat']);
         $this->assertEquals(4, $identity->getId());
         $this->assertFalse($identity->authenticate(' '));
         $dateBefore = date('Y-m-d H:i:s');
@@ -115,7 +115,7 @@ class UserTest extends DatabaseTestCase
 
     public function testRemote()
     {
-        $identity = User::find(array('username'=>'neo'));
+        $identity = User::find(['username' => 'neo']);
         //$this->assertFalse($identity->addRemoteIdentity('facebook', 'one'));
         $this->assertTrue($identity->authenticate('Test1233'));
         $this->assertTrue($identity->addRemoteIdentity('facebook', 'one'));
@@ -125,7 +125,7 @@ class UserTest extends DatabaseTestCase
 
     public function testActivation()
     {
-        $identity = User::find(array('username'=>'neo'));
+        $identity = User::find(['username' => 'neo']);
         $this->assertEquals(User::ERROR_AKEY_INVALID, $identity->verifyActivationKey('xx'));
         $key = $identity->getActivationKey();
         $this->assertInternalType('string', $key);
@@ -134,11 +134,11 @@ class UserTest extends DatabaseTestCase
 
     public function testVerifyEmail()
     {
-        $fake = new User;
-        $fake->setAttributes(['id'=>999, 'username'=>'fake2', 'password'=>'Test1233', 'email'=>'fake2@matrix.com'], false);
+        $fake = new User();
+        $fake->setAttributes(['id' => 999, 'username' => 'fake2', 'password' => 'Test1233', 'email' => 'fake2@matrix.com'], false);
         $this->assertTrue($fake->verifyEmail());
 
-        $identity = User::find(array('username'=>'neo'));
+        $identity = User::find(['username' => 'neo']);
         $this->assertTrue($identity->verifyEmail());
     }
 }

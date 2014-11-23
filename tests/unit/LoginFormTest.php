@@ -7,48 +7,48 @@ use nineinchnick\usr\models;
 
 class LoginFormTest extends DatabaseTestCase
 {
-    public $fixtures=array(
-        'users'=>'User',
-    );
+    public $fixtures = [
+        'users' => 'User',
+    ];
 
     public static function validDataProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 'scenario' => '',
-                'attributes' => array(
-                    'username'=>'neo',
-                    'password'=>'Test1233',
-                ),
-            ),
-        );
+                'attributes' => [
+                    'username' => 'neo',
+                    'password' => 'Test1233',
+                ],
+            ],
+        ];
     }
 
     public static function invalidDataProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 'scenario' => '',
-                'attributes' => array(
-                    'username'=>'',
-                    'password'=>'',
-                ),
-                'errors ' => array(
-                    'username'=>array('Username cannot be blank.'),
-                    'password'=>array('Password cannot be blank.'),
-                ),
-            ),
-            array(
+                'attributes' => [
+                    'username' => '',
+                    'password' => '',
+                ],
+                'errors ' => [
+                    'username' => ['Username cannot be blank.'],
+                    'password' => ['Password cannot be blank.'],
+                ],
+            ],
+            [
                 'scenario' => '',
-                'attributes' => array(
-                    'username'=>'neo',
-                    'password'=>'xx',
-                ),
-                'errors' => array(
-                    'password'=>array('Invalid username or password.'),
-                ),
-            ),
-        );
+                'attributes' => [
+                    'username' => 'neo',
+                    'password' => 'xx',
+                ],
+                'errors' => [
+                    'password' => ['Invalid username or password.'],
+                ],
+            ],
+        ];
     }
 
     public static function allDataProvider()
@@ -58,11 +58,11 @@ class LoginFormTest extends DatabaseTestCase
 
     public function testWithBehavior()
     {
-        $form = new models\LoginForm;
+        $form = new models\LoginForm();
         $formAttributes = $form->attributes();
         $formRules = $form->rules();
         $formLabels = $form->attributeLabels();
-        $form->attachBehavior('captcha', array('class' => 'nineinchnick\usr\components\CaptchaFormBehavior'));
+        $form->attachBehavior('captcha', ['class' => 'nineinchnick\usr\components\CaptchaFormBehavior']);
         $behaviorAttributes = $form->getBehavior('captcha')->attributes();
         $behaviorRules = $form->getBehavior('captcha')->rules();
         $behaviorLabels = $form->getBehavior('captcha')->attributeLabels();
@@ -81,7 +81,7 @@ class LoginFormTest extends DatabaseTestCase
     {
         $form = new models\LoginForm($scenario);
         $form->setAttributes($attributes);
-        $this->assertTrue($form->validate(), 'Failed with following validation errors: '.print_r($form->getErrors(),true));
+        $this->assertTrue($form->validate(), 'Failed with following validation errors: '.print_r($form->getErrors(), true));
         $this->assertEmpty($form->getErrors());
     }
 

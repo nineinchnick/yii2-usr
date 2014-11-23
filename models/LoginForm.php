@@ -28,7 +28,7 @@ class LoginForm extends BasePasswordForm
     public function rules()
     {
         $rules = array_merge([
-            [['username', 'password'], 'filter', 'filter'=>'trim'],
+            [['username', 'password'], 'filter', 'filter' => 'trim'],
             [['username', 'password'], 'required'],
             ['rememberMe', 'boolean'],
             ['password', 'authenticate'],
@@ -43,9 +43,9 @@ class LoginForm extends BasePasswordForm
     public function attributeLabels()
     {
         return array_merge($this->getBehaviorLabels(), parent::attributeLabels(), [
-            'username'		=> Yii::t('usr','Username'),
-            'password'		=> Yii::t('usr','Password'),
-            'rememberMe'	=> Yii::t('usr','Remember me when logging in next time'),
+            'username'        => Yii::t('usr', 'Username'),
+            'password'        => Yii::t('usr', 'Password'),
+            'rememberMe'    => Yii::t('usr', 'Remember me when logging in next time'),
         ]);
     }
 
@@ -54,10 +54,11 @@ class LoginForm extends BasePasswordForm
      */
     public function getIdentity()
     {
-        if ($this->_identity===null) {
+        if ($this->_identity === null) {
             $identityClass = Yii::$app->user->identityClass;
-            if (($this->_identity = $identityClass::findByUsername($this->username)) === null)
+            if (($this->_identity = $identityClass::findByUsername($this->username)) === null) {
                 $this->_identity = false;
+            }
         }
 
         return $this->_identity;
@@ -70,14 +71,14 @@ class LoginForm extends BasePasswordForm
      * @param  array   $params
      * @return boolean
      */
-    public function authenticate($attribute,$params)
+    public function authenticate($attribute, $params)
     {
         if ($this->hasErrors()) {
             return;
         }
         $identity = $this->getIdentity();
         if (!$identity || !$identity->authenticate($this->$attribute)) {
-            $this->addError($attribute, Yii::t('usr','Invalid username or password.'));
+            $this->addError($attribute, Yii::t('usr', 'Invalid username or password.'));
 
             return false;
         }
@@ -92,7 +93,7 @@ class LoginForm extends BasePasswordForm
      */
     public function passwordHasNotExpired($attribute, $params)
     {
-        if (($behavior=$this->getBehavior('expiredPasswordBehavior')) !== null) {
+        if (($behavior = $this->getBehavior('expiredPasswordBehavior')) !== null) {
             return $behavior->passwordHasNotExpired($attribute, $params);
         }
 
@@ -106,7 +107,7 @@ class LoginForm extends BasePasswordForm
      */
     public function validOneTimePassword($attribute, $params)
     {
-        if (($behavior=$this->getBehavior('oneTimePasswordBehavior')) !== null) {
+        if (($behavior = $this->getBehavior('oneTimePasswordBehavior')) !== null) {
             return $behavior->validOneTimePassword($attribute, $params);
         }
 
@@ -124,7 +125,7 @@ class LoginForm extends BasePasswordForm
         }
         $identity = $this->getIdentity();
         if (!$identity || !$identity->resetPassword($this->newPassword)) {
-            $this->addError('newPassword',Yii::t('usr','Failed to reset the password.'));
+            $this->addError('newPassword', Yii::t('usr', 'Failed to reset the password.'));
 
             return false;
         }

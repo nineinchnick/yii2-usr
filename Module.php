@@ -79,6 +79,12 @@ class Module extends \yii\base\Module
      */
     public $hybridauthProviders = [];
     /**
+     * @var array list of identity attribute names that should be passed to UserIdentity::find() to find a local identity matching a remote one.
+     * If one is found, user must authorize to associate it. If none has been found, a new local identity is automatically registered.
+     * If the attribute list is empty a full pre-filled registration and login forms are displayed.
+     */
+    public $associateByAttributes = ['email'];
+    /**
      * @var string If set to nineinchnick\usr\Module::OTP_TIME or nineinchnick\usr\Module::OTP_COUNTER, two step authentication is enabled using one time passwords.
      * Time mode uses codes generated using current time and requires the user to use an external application, like Google Authenticator on Android.
      * Counter mode uses codes generated using a sequence and sends them to user's email.
@@ -99,6 +105,11 @@ class Module extends \yii\base\Module
      * Remember to include the 'captchaAction'=>'/usr/default/captcha' property. Adjust the module id.
      */
     public $captcha;
+    /**
+     * @var array Extra behaviors to attach to the profile form. If the view/update views are overriden in a theme
+     * this can be used to display/update extra profile fields. @see FormModelBehavior
+     */
+    public $profileFormBehaviors;
 
     /**
      * @var GoogleAuthenticator set if $oneTimePasswordMode is not nineinchnick\usr\Module::OTP_NONE
@@ -121,12 +132,15 @@ class Module extends \yii\base\Module
             'sourceLanguage' => 'en-US',
             'basePath' => '@usr/messages',
         ];
-        if (\Yii::$app->mail !== null)
+        if (\Yii::$app->mail !== null) {
             \Yii::$app->mail->viewPath = '@usr/views/emails';
+        }
         if ($this->hybridauthEnabled()) {
             $hybridauthConfig = [
                 'base_url' => Yii::$app->getUrlManager()->createAbsoluteUrl('/'.$this->id.'/hybridauth/callback'),
                 'providers' => $this->hybridauthProviders,
+                //'debug_mode' => YII_DEBUG,
+                //'debug_file' => Yii::app()->runtimePath . '/hybridauth.log',
             ];
             $this->_hybridauth = new \Hybrid_Auth($hybridauthConfig);
         }
@@ -159,7 +173,7 @@ class Module extends \yii\base\Module
     public function getGoogleAuthenticator()
     {
         if ($this->_googleAuthenticator === null) {
-            $this->_googleAuthenticator = new \Google\Authenticator\GoogleAuthenticator;
+            $this->_googleAuthenticator = new \Google\Authenticator\GoogleAuthenticator();
         }
 
         return $this->_googleAuthenticator;
@@ -173,13 +187,14 @@ class Module extends \yii\base\Module
      * @param  string $scenario
      * @return Model
      */
-    public function createFormModel($class, $scenario=null)
+    public function createFormModel($class, $scenario = null)
     {
         $namespacedClass = "\\nineinchnick\\usr\\models\\{$class}";
         /** @var Model */
-        $form = new $namespacedClass;
-        if ($scenario !== null)
+        $form = new $namespacedClass();
+        if ($scenario !== null) {
             $form->setScenario($scenario);
+        }
         if ($form instanceof BasePasswordForm) {
             $form->passwordStrengthRules = $this->passwordStrengthRules;
         }
@@ -188,11 +203,16 @@ class Module extends \yii\base\Module
                 break;
             case 'ProfileForm':
                 $form->pictureUploadRules = $this->pictureUploadRules;
+                if (!empty($this->profileFormBehaviors)) {
+                    foreach ($this->profileFormBehaviors as $name => $config) {
+                        $form->attachBehavior($name, $config);
+                    }
+                }
             case 'RecoveryForm':
                 if ($this->captcha !== null && \yii\captcha\Captcha::checkRequirements()) {
                     $form->attachBehavior('captcha', [
                         'class' => 'nineinchnick\usr\components\CaptchaFormBehavior',
-                        'ruleOptions' => $class == 'ProfileForm' ? ['on'=>'register'] : ['except'=>['reset','verify']],
+                        'ruleOptions' => $class == 'ProfileForm' ? ['on' => 'register'] : ['except' => ['reset', 'verify']],
                     ]);
                 }
                 break;
@@ -215,6 +235,10 @@ class Module extends \yii\base\Module
                         'passwordTimeout' => $this->passwordTimeout,
                     ]);
                 }
+                break;
+            case 'HybridauthForm':
+                $form->setValidProviders($this->hybridauthProviders);
+                $form->setHybridAuth($this->getHybridAuth());
                 break;
         }
 

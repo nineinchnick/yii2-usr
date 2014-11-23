@@ -14,14 +14,16 @@ class OneTimePasswordAction extends Action
 {
     public function run()
     {
-        if (Yii::$app->user->isGuest)
+        if (Yii::$app->user->isGuest) {
             $this->controller->redirect(['login']);
+        }
         /** @var Module */
         $module = $this->controller->module;
-        if ($module->oneTimePasswordRequired)
+        if ($module->oneTimePasswordRequired) {
             $this->controller->redirect(['profile']);
+        }
 
-        $model = new \nineinchnick\usr\models\OneTimePasswordForm;
+        $model = new \nineinchnick\usr\models\OneTimePasswordForm();
         /** @var IdentityInterface */
         $identity = $model->getIdentity();
         /**
@@ -41,7 +43,7 @@ class OneTimePasswordAction extends Action
          * When no secret has been set yet, generate a new secret and save it in session.
          * Do it if it hasn't been done yet.
          */
-        if (($secret=Yii::$app->session[Module::OTP_SECRET_PREFIX.'newSecret']) === null) {
+        if (($secret = Yii::$app->session[Module::OTP_SECRET_PREFIX.'newSecret']) === null) {
             $secret = Yii::$app->session[Module::OTP_SECRET_PREFIX.'newSecret'] = $module->googleAuthenticator->generateSecret();
 
             $model->setSecret($secret);
@@ -72,6 +74,6 @@ class OneTimePasswordAction extends Action
             $url = '';
         }
 
-        return $this->controller->render('generateOTPSecret', ['model'=>$model, 'url'=>$url]);
+        return $this->controller->render('generateOTPSecret', ['model' => $model, 'url' => $url]);
     }
 }

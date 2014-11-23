@@ -9,8 +9,13 @@ use Yii;
  *
  * @property integer $id
  * @property integer $user_id
- * @property string $password
- * @property string $set_on
+ * @property integer $original_picture_id
+ * @property string $filename
+ * @property integer $width
+ * @property integer $height
+ * @property string $mimetype
+ * @property string $created_on
+ * @property string $contents
  *
  * The followings are the available model relations:
  * @property UserProfilePicture $originalPicture
@@ -35,11 +40,6 @@ abstract class ExampleUserProfilePicture extends \yii\db\ActiveRecord
         return [];
     }
 
-    public function getUser()
-    {
-        return $this->hasOne(User::className(), ['id' => 'user_id']);
-    }
-
     public function getOriginalPicture()
     {
         return $this->hasOne(UserProfilePicture::className(), ['id' => 'original_picture_id']);
@@ -48,6 +48,11 @@ abstract class ExampleUserProfilePicture extends \yii\db\ActiveRecord
     public function getThumbnails()
     {
         return $this->hasMany(UserProfilePicture::className(), ['original_picture_id' => 'id']);
+    }
+
+    public function getUser()
+    {
+        return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
 
     /**

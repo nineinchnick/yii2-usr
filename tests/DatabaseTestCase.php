@@ -34,17 +34,18 @@ abstract class DatabaseTestCase extends TestCase
             if ($file === '.' || $file === '..') {
                 continue;
             }
-            $path = $migrationPath . DIRECTORY_SEPARATOR . $file;
-            if (preg_match('/^(m(\d{6}_\d{6})_.*?)\.php$/', $file, $matches) && is_file($path))
+            $path = $migrationPath.DIRECTORY_SEPARATOR.$file;
+            if (preg_match('/^(m(\d{6}_\d{6})_.*?)\.php$/', $file, $matches) && is_file($path)) {
                 $migrations[] = $matches[1];
+            }
         }
         closedir($handle);
         sort($migrations);
 
         ob_start();
         foreach ($migrations as $class) {
-            $file = $migrationPath . DIRECTORY_SEPARATOR . $class . '.php';
-            require_once($file);
+            $file = $migrationPath.DIRECTORY_SEPARATOR.$class.'.php';
+            require_once $file;
             $migration = new $class(['db' => $this->getDbConnection()]);
 
             if ($migration->up() === false) {
@@ -66,15 +67,16 @@ abstract class DatabaseTestCase extends TestCase
             if ($file === '.' || $file === '..') {
                 continue;
             }
-            $path = $fixturesPath . DIRECTORY_SEPARATOR . $file;
-            if (preg_match('/^(.*)\.php$/', $file, $matches) && is_file($path))
+            $path = $fixturesPath.DIRECTORY_SEPARATOR.$file;
+            if (preg_match('/^(.*)\.php$/', $file, $matches) && is_file($path)) {
                 $fixtures[] = $matches[1];
+            }
         }
         closedir($handle);
         sort($fixtures);
 
         foreach ($fixtures as $file) {
-            $fixture = require($fixturesPath . DIRECTORY_SEPARATOR . $file . '.php');
+            $fixture = require $fixturesPath.DIRECTORY_SEPARATOR.$file.'.php';
 
             foreach ($fixture as $row) {
                 $this->getDbConnection()->createCommand()->insert($file, $row)->execute();

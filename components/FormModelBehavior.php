@@ -17,12 +17,14 @@ namespace nineinchnick\usr\components;
  */
 abstract class FormModelBehavior extends \yii\base\Behavior
 {
+    private static $_names = [];
+
     private $_ruleOptions = [];
 
     /**
      * Validation rules for attributes of this behavior, that should be merged with rules in the owner model.
      * @return array validation rules
-     *               @see \yii\base\Model::rules()
+     * @see \yii\base\Model::rules()
      */
     public function rules()
     {
@@ -32,7 +34,7 @@ abstract class FormModelBehavior extends \yii\base\Behavior
     /**
      * Labels for attributes of this behavior, that should be merged with labels in the owner model.
      * @return array attribute labels (name => label)
-     *               @see \yii\base\Model::attributeLabels()
+     * @see \yii\base\Model::attributeLabels()
      */
     public function attributeLabels()
     {
@@ -47,15 +49,21 @@ abstract class FormModelBehavior extends \yii\base\Behavior
      */
     public function attributes()
     {
-        $class = new \ReflectionClass($this);
-        $names = [];
-        foreach ($class->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
-            if (!$property->isStatic() && $property->getName() != 'owner') {
-                $names[] = $property->getName();
+        $className = get_class($this);
+        if (!isset(self::$_names[$className])) {
+            $class = new ReflectionClass(get_class($this));
+            $names = [];
+            foreach ($class->getProperties() as $property) {
+                $name = $property->getName();
+                if ($property->isPublic() && !$property->isStatic()) {
+                    $names[] = $name;
+                }
             }
-        }
 
-        return $names;
+            return self::$_names[$className] = $names;
+        } else {
+            return self::$_names[$className];
+        }
     }
 
     /**
@@ -65,8 +73,8 @@ abstract class FormModelBehavior extends \yii\base\Behavior
      */
     public function applyRuleOptions($rules)
     {
-        foreach ($rules as $key=>$rule) {
-            foreach ($this->_ruleOptions as $name=>$value) {
+        foreach ($rules as $key => $rule) {
+            foreach ($this->_ruleOptions as $name => $value) {
                 $rules[$key][$name] = $value;
             }
         }

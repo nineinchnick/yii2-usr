@@ -6,8 +6,8 @@ class m130705_104658_create_table_user_profile_pictures extends \yii\db\Migratio
     {
         $this->createTable('{{%user_profile_pictures}}', [
             'id' => 'pk',
-            'user_id'=>'integer NOT NULL REFERENCES {{%users}} (id) ON UPDATE CASCADE ON DELETE CASCADE',
-            'original_picture_id'=>'integer REFERENCES {{%user_profile_pictures}} (id) ON UPDATE CASCADE ON DELETE CASCADE',
+            'user_id' => 'integer NOT NULL REFERENCES {{%users}} (id) ON UPDATE CASCADE ON DELETE CASCADE',
+            'original_picture_id' => 'integer REFERENCES {{%user_profile_pictures}} (id) ON UPDATE CASCADE ON DELETE CASCADE',
             'filename' => 'string NOT NULL',
             'width' => 'integer NOT NULL',
             'height' => 'integer NOT NULL',

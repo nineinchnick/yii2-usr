@@ -1,4 +1,4 @@
-                <?= $form->field($model, 'newPassword', ['inputOptions' => array_merge(['class'=>'form-control'], $focus ? ['autofocus'=>true] : [])])->passwordInput() ?>
+                <?= $form->field($model, 'newPassword', ['inputOptions' => array_merge(['class' => 'form-control'], $focus ? ['autofocus' => true] : [])])->passwordInput() ?>
 
 <?php if ($this->context->module->dicewareEnabled): ?>
         <p><a id="Users_generatePassword" href="#"><?= Yii::t('usr', 'Generate a password') ?></a></p>
@@ -11,9 +11,10 @@ $script = <<<JavaScript
 $('#Users_generatePassword').on('click',function () {
     $.getJSON('{$diceUrl}', function (data) {
         var text = window.prompt("{$diceLabel}", data);
-        if (text != null)
+        if (text != null) {
             $('#{$passwordId}').val(text);
             $('#{$verifyId}').val(text);
+        }
     });
 
     return false;

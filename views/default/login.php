@@ -20,8 +20,8 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="<?= $this->context->module->formCssClass; ?>">
 <?php $form = ActiveForm::begin([
     'id' => 'login-form',
-    'enableClientValidation'=>true,
-    'validateOnSubmit'=>true,
+    'enableClientValidation' => true,
+    'validateOnSubmit' => true,
 ]); ?>
 
     <p class="note"><?= Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.') ?></p>
@@ -30,7 +30,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <div class="row">
         <div class="col-lg-5">
-            <?= $form->field($model, 'username', ['inputOptions'=>['autofocus'=>true, 'class' => 'form-control']]) ?>
+            <?= $form->field($model, 'username', ['inputOptions' => ['autofocus' => true, 'class' => 'form-control']]) ?>
             <?= $form->field($model, 'password')->passwordInput() ?>
 <?php if ($this->context->module->rememberMeDuration > 0): ?>
             <?= $form->field($model, 'rememberMe')->checkbox() ?>
@@ -38,26 +38,28 @@ $this->params['breadcrumbs'][] = $this->title;
 <?php if ($this->context->module->recoveryEnabled): ?>
             <p style="color:#999;margin:1em 0">
                 <?= Yii::t('usr', 'Don\'t remember username or password?') ?>
-                <?= Yii::t('usr', 'Go to {link}.', ['link'=>Html::a(Yii::t('usr', 'password recovery'), ['recovery'])]) ?>
+                <?= Yii::t('usr', 'Go to {link}.', ['link' => Html::a(Yii::t('usr', 'password recovery'), ['recovery'])]) ?>
             </p>
 <?php endif; ?>
 <?php if ($this->context->module->registrationEnabled): ?>
             <p style="color:#999;margin:1em 0">
                 <?= Yii::t('usr', 'Don\'t have an account yet?') ?>
-                <?= Yii::t('usr', 'Go to {link}.', ['link'=>Html::a(Yii::t('usr', 'registration'), ['register'])]) ?>
+                <?= Yii::t('usr', 'Go to {link}.', ['link' => Html::a(Yii::t('usr', 'registration'), ['register'])]) ?>
             </p>
 <?php endif; ?>
 <?php if ($this->context->module->hybridauthEnabled()): ?>
             <p>
                 <ul>
 <?php
-list($path,$url) = $this->assetManager->publish(Yii::getAlias('@usr/components/assets/zocial/zocial.css'));
+list($path, $url) = $this->assetManager->publish(Yii::getAlias('@usr/components/assets/zocial/zocial.css'));
 $this->registerCssFile($url);
 ?>
-<?php foreach ($this->context->module->hybridauthProviders as $provider => $settings): if(!$settings['enabled']) continue; ?>
+<?php foreach ($this->context->module->hybridauthProviders as $provider => $settings): if (!$settings['enabled']) {
+     continue;
+ } ?>
                     <li>
-                        <a class="zocial <?= strtolower($provider) ?>" href="<?= $this->context->createUrl('hybridauth/login', ['provider'=>$provider]) ?>">
-                            <?= Yii::t('usr', 'Log in using {provider}', ['provider'=>$provider]); ?>
+                        <a class="zocial <?= strtolower($provider) ?>" href="<?= $this->context->createUrl('hybridauth/login', ['provider' => $provider]) ?>">
+                            <?= Yii::t('usr', 'Log in using {provider}', ['provider' => $provider]); ?>
                         </a>
                     </li>
 <?php endforeach; ?>

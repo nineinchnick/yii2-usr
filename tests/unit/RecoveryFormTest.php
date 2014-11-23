@@ -7,37 +7,37 @@ use nineinchnick\usr\models;
 
 class RecoveryFormTest extends DatabaseTestCase
 {
-    public $fixtures=array(
-        'users'=>'User',
-    );
+    public $fixtures = [
+        'users' => 'User',
+    ];
 
     public static function validDataProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 'scenario' => '',
-                'attributes' => array(
-                    'username'=>'neo',
-                    'email'=>'neo@matrix.com',
-                ),
-            ),
-        );
+                'attributes' => [
+                    'username' => 'neo',
+                    'email' => 'neo@matrix.com',
+                ],
+            ],
+        ];
     }
 
     public static function invalidDataProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 'scenario' => '',
-                'attributes' => array(
-                    'username'=>'trin',
-                    'email'=>'trinity@matrix.com',
-                ),
-                'errors ' => array(
-                    'username'=>array('No user found matching this username.'),
-                ),
-            ),
-        );
+                'attributes' => [
+                    'username' => 'trin',
+                    'email' => 'trinity@matrix.com',
+                ],
+                'errors ' => [
+                    'username' => ['No user found matching this username.'],
+                ],
+            ],
+        ];
     }
 
     public static function allDataProvider()
@@ -47,11 +47,11 @@ class RecoveryFormTest extends DatabaseTestCase
 
     public function testWithBehavior()
     {
-        $form = new models\RecoveryForm;
+        $form = new models\RecoveryForm();
         $formAttributes = $form->attributes();
         $formRules = $form->rules();
         $formLabels = $form->attributeLabels();
-        $form->attachBehavior('captcha', array('class' => 'nineinchnick\usr\components\CaptchaFormBehavior'));
+        $form->attachBehavior('captcha', ['class' => 'nineinchnick\usr\components\CaptchaFormBehavior']);
         $behaviorAttributes = $form->getBehavior('captcha')->attributes();
         $behaviorRules = $form->getBehavior('captcha')->rules();
         $behaviorLabels = $form->getBehavior('captcha')->attributeLabels();
@@ -68,11 +68,12 @@ class RecoveryFormTest extends DatabaseTestCase
      */
     public function testValid($scenario, $attributes)
     {
-        $form = new models\RecoveryForm;
-        if ($scenario != '')
+        $form = new models\RecoveryForm();
+        if ($scenario != '') {
             $form->setScenario($scenario);
+        }
         $form->setAttributes($attributes);
-        $this->assertTrue($form->validate(), 'Failed with following validation errors: '.print_r($form->getErrors(),true));
+        $this->assertTrue($form->validate(), 'Failed with following validation errors: '.print_r($form->getErrors(), true));
         $this->assertEmpty($form->getErrors());
     }
 
@@ -81,9 +82,10 @@ class RecoveryFormTest extends DatabaseTestCase
      */
     public function testInvalid($scenario, $attributes, $errors)
     {
-        $form = new models\RecoveryForm;
-        if ($scenario != '')
+        $form = new models\RecoveryForm();
+        if ($scenario != '') {
             $form->setScenario($scenario);
+        }
         $form->setAttributes($attributes);
         $this->assertFalse($form->validate());
         $this->assertEquals($errors, $form->getErrors());

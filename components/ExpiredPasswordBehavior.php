@@ -38,7 +38,7 @@ class ExpiredPasswordBehavior extends FormModelBehavior
     public function rules()
     {
         $rules = [
-            ['password', 'passwordHasNotExpired', 'except'=>['reset', 'hybridauth', 'verifyOTP']],
+            ['password', 'passwordHasNotExpired', 'except' => 'reset, hybridauth, verifyOTP'],
         ];
 
         return $this->applyRuleOptions($rules);
@@ -51,16 +51,17 @@ class ExpiredPasswordBehavior extends FormModelBehavior
         }
 
         $identity = $this->owner->getIdentity();
-        if (!($identity instanceof \nineinchnick\usr\components\PasswordHistoryIdentityInterface))
-            throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.', ['class'=>get_class($identity),'interface'=>'\nineinchnick\usr\components\PasswordHistoryIdentityInterface']));
+        if (!($identity instanceof \nineinchnick\usr\components\PasswordHistoryIdentityInterface)) {
+            throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($identity), 'interface' => '\nineinchnick\usr\components\PasswordHistoryIdentityInterface']));
+        }
         $lastUsed = $identity->getPasswordDate();
         $lastUsedDate = new DateTime($lastUsed);
         $today = new DateTime();
         if ($lastUsed === null || $today->diff($lastUsedDate)->days >= $this->passwordTimeout) {
             if ($lastUsed === null) {
-                $this->owner->addError('password',Yii::t('usr','This is the first time you login. Current password needs to be changed.'));
+                $this->owner->addError('password', Yii::t('usr', 'This is the first time you login. Current password needs to be changed.'));
             } else {
-                $this->owner->addError('password',Yii::t('usr','Current password has been used too long and needs to be changed.'));
+                $this->owner->addError('password', Yii::t('usr', 'Current password has been used too long and needs to be changed.'));
             }
             $this->owner->scenario = 'reset';
 

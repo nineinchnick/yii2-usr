@@ -19,24 +19,24 @@ class DefaultController extends UsrController
         if ($this->module->captcha !== null) {
             // captcha action renders the CAPTCHA image displayed on the register and recovery page
             $actions['captcha'] = [
-                'class'=>'\yii\captcha\CaptchaAction',
-                'backColor'=>0xFFFFFF,
-                'testLimit'=>0,
+                'class' => '\yii\captcha\CaptchaAction',
+                'backColor' => 0xFFFFFF,
+                'testLimit' => 0,
             ];
         }
         if ($this->module->dicewareEnabled) {
             // DicewareAction generates a random passphrase
             $actions['password'] = [
-                'class'=>'\nineinchnick\usr\components\DicewareAction',
-                'length'=>$this->module->dicewareLength,
-                'extraDigit'=>$this->module->dicewareExtraDigit,
-                'extraChar'=>$this->module->dicewareExtraChar,
+                'class' => '\nineinchnick\usr\components\DicewareAction',
+                'length' => $this->module->dicewareLength,
+                'extraDigit' => $this->module->dicewareExtraDigit,
+                'extraChar' => $this->module->dicewareExtraChar,
             ];
         }
         if ($this->module->oneTimePasswordMode != \nineinchnick\usr\Module::OTP_NONE) {
             // OneTimePasswordAction allows toggling two step auth in user profile
             $actions['toggleOneTimePassword'] = [
-                'class'=>'\nineinchnick\usr\components\OneTimePasswordAction',
+                'class' => '\nineinchnick\usr\components\OneTimePasswordAction',
             ];
         }
 
@@ -51,8 +51,9 @@ class DefaultController extends UsrController
      */
     public function beforeAction($action)
     {
-        if (!parent::beforeAction($action))
+        if (!parent::beforeAction($action)) {
             return false;
+        }
         switch ($action->id) {
         case 'index':
         case 'profile':
@@ -106,8 +107,8 @@ class DefaultController extends UsrController
      */
     protected function afterLogin()
     {
-        $returnUrlParts = explode('/',Yii::$app->user->returnUrl);
-        $url = end($returnUrlParts)=='index.php' ? '/' : Yii::$app->user->returnUrl;
+        $returnUrlParts = explode('/', Yii::$app->user->returnUrl);
+        $url = end($returnUrlParts) == 'index.php' ? '/' : Yii::$app->user->returnUrl;
 
         return $this->redirect($url);
     }
@@ -145,7 +146,7 @@ class DefaultController extends UsrController
         case 'verifyOTP': $view = 'verifyOTP'; break;
         }
 
-        return $this->render($view, ['model'=>$model]);
+        return $this->render($view, ['model' => $model]);
     }
 
     /**
@@ -153,8 +154,9 @@ class DefaultController extends UsrController
      */
     public function actionLogout()
     {
-        if (!Yii::$app->user->isGuest)
+        if (!Yii::$app->user->isGuest) {
             Yii::$app->user->logout();
+        }
 
         return $this->goHome();
     }
@@ -180,8 +182,9 @@ class DefaultController extends UsrController
             /**
              * If the activation key is missing that means the user is requesting a recovery email.
              */
-            if ($model->activationKey !== null)
+            if ($model->activationKey !== null) {
                 $model->scenario = 'reset';
+            }
             if ($model->validate()) {
                 if ($model->scenario !== 'reset') {
                     /**
@@ -209,7 +212,7 @@ class DefaultController extends UsrController
             }
         }
 
-        return $this->render('recovery', ['model'=>$model]);
+        return $this->render('recovery', ['model' => $model]);
     }
 
     /**
@@ -255,7 +258,7 @@ class DefaultController extends UsrController
             }
             if ($model->validate() && $passwordForm->validate()) {
                 $trx = Yii::$app->db->beginTransaction();
-                if (!$model->save() || !$passwordForm->resetPassword($model->getIdentity())) {
+                if (!$model->save($this->module->requireVerifiedEmail) || !$passwordForm->resetPassword($model->getIdentity())) {
                     $trx->rollback();
                     Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to register a new user.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
                 } else {
@@ -274,8 +277,9 @@ class DefaultController extends UsrController
                             Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to log in.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
                         }
                     } else {
-                        if (!Yii::$app->session->hasFlash('success'))
+                        if (!Yii::$app->session->hasFlash('success')) {
                             Yii::$app->session->setFlash('success', Yii::t('usr', 'Please wait for the account to be activated. A notification will be send to provided email address.'));
+                        }
 
                         return $this->redirect(['login']);
                     }
@@ -283,7 +287,7 @@ class DefaultController extends UsrController
             }
         }
 
-        return $this->render('updateProfile', ['model'=>$model, 'passwordForm'=>$passwordForm]);
+        return $this->render('updateProfile', ['model' => $model, 'passwordForm' => $passwordForm]);
     }
 
     /**
@@ -291,7 +295,7 @@ class DefaultController extends UsrController
      * @param  boolean $update
      * @return string
      */
-    public function actionProfile($update=false)
+    public function actionProfile($update = false)
     {
         /** @var ProfileForm */
         $model = $this->module->createFormModel('ProfileForm');
@@ -317,7 +321,7 @@ class DefaultController extends UsrController
 
             return \yii\widgets\ActiveForm::validateMultiple($models);
         }
-        $flashes = ['success'=>[], 'error'=>[]];
+        $flashes = ['success' => [], 'error' => []];
         /**
          * Only try to set new password if it has been specified in the form.
          * The current password could have been used to authorize other changes.
@@ -334,7 +338,7 @@ class DefaultController extends UsrController
         if ($loadedModel && empty($flashes['error'])) {
             if ($model->validate()) {
                 $oldEmail = $model->getIdentity()->getEmail();
-                if ($model->save()) {
+                if ($model->save($this->module->requireVerifiedEmail)) {
                     if ($this->module->requireVerifiedEmail && $oldEmail != $model->email) {
                         if ($this->sendEmail($model, 'verify')) {
                             $flashes['success'][] = Yii::t('usr', 'An email containing further instructions has been sent to provided email address.');
@@ -343,10 +347,12 @@ class DefaultController extends UsrController
                         }
                     }
                     $flashes['success'][] = Yii::t('usr', 'Changes have been saved successfully.');
-                    if (!empty($flashes['success']))
-                        Yii::$app->session->setFlash('success', implode('<br/>',$flashes['success']));
-                    if (!empty($flashes['error']))
-                        Yii::$app->session->setFlash('error', implode('<br/>',$flashes['error']));
+                    if (!empty($flashes['success'])) {
+                        Yii::$app->session->setFlash('success', implode('<br/>', $flashes['success']));
+                    }
+                    if (!empty($flashes['error'])) {
+                        Yii::$app->session->setFlash('error', implode('<br/>', $flashes['error']));
+                    }
 
                     return $this->redirect(['profile']);
                 } else {
@@ -354,14 +360,16 @@ class DefaultController extends UsrController
                 }
             }
         }
-        if (!empty($flashes['success']))
-            Yii::$app->session->setFlash('success', implode('<br/>',$flashes['success']));
-        if (!empty($flashes['error']))
-            Yii::$app->session->setFlash('error', implode('<br/>',$flashes['error']));
+        if (!empty($flashes['success'])) {
+            Yii::$app->session->setFlash('success', implode('<br/>', $flashes['success']));
+        }
+        if (!empty($flashes['error'])) {
+            Yii::$app->session->setFlash('error', implode('<br/>', $flashes['error']));
+        }
         if ($update) {
-            return $this->render('updateProfile', ['model'=>$model, 'passwordForm'=>$passwordForm]);
+            return $this->render('updateProfile', ['model' => $model, 'passwordForm' => $passwordForm]);
         } else {
-            return $this->render('viewProfile', ['model'=>$model]);
+            return $this->render('viewProfile', ['model' => $model]);
         }
     }
 
@@ -374,12 +382,12 @@ class DefaultController extends UsrController
     {
         /** @var ProfileForm */
         $model = $this->module->createFormModel('ProfileForm');
-        if (!(($identity=$model->getIdentity()) instanceof PictureIdentityInterface)) {
-            throw new ForbiddenException(Yii::t('usr','The {class} class must implement the {interface} interface.', ['class'=>get_class($identity),'interface'=>'PictureIdentityInterface']));
+        if (!(($identity = $model->getIdentity()) instanceof PictureIdentityInterface)) {
+            throw new ForbiddenException(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($identity), 'interface' => 'PictureIdentityInterface']));
         }
         $picture = $identity->getPicture($id);
         if ($picture === null) {
-            throw new NotFoundHttpException(Yii::t('usr', 'Picture with id {id} is not found.', ['id'=>$id]));
+            throw new NotFoundHttpException(Yii::t('usr', 'Picture with id {id} is not found.', ['id' => $id]));
         }
         header('Content-Type:'.$picture['mimetype']);
         echo $picture['picture'];

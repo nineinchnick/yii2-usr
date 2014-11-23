@@ -7,41 +7,41 @@ use nineinchnick\usr\models;
 
 class ProfileFormTest extends DatabaseTestCase
 {
-    public $fixtures=array(
-        'users'=>'User',
-    );
+    public $fixtures = [
+        'users' => 'User',
+    ];
 
     public static function validDataProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 'scenario' => '',
-                'attributes' => array(
-                    'username'=>'trin',
-                    'email'=>'trinity@matrix.com',
-                    'firstName'=>'Trinity',
-                    'lastName'=>'Latex',
-                ),
-            ),
-        );
+                'attributes' => [
+                    'username' => 'trin',
+                    'email' => 'trinity@matrix.com',
+                    'firstName' => 'Trinity',
+                    'lastName' => 'Latex',
+                ],
+            ],
+        ];
     }
 
     public static function invalidDataProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 'scenario' => 'register',
-                'attributes' => array(
-                    'username'=>'neo',
-                    'email'=>'neo@matrix.com',
-                    'firstName'=>'Neo',
-                    'lastName'=>'Confused',
-                ),
-                'errors ' => array(
-                    'username'=>array('neo has already been used by another user.'),
-                ),
-            ),
-        );
+                'attributes' => [
+                    'username' => 'neo',
+                    'email' => 'neo@matrix.com',
+                    'firstName' => 'Neo',
+                    'lastName' => 'Confused',
+                ],
+                'errors ' => [
+                    'username' => ['neo has already been used by another user.'],
+                ],
+            ],
+        ];
     }
 
     public static function allDataProvider()
@@ -51,11 +51,11 @@ class ProfileFormTest extends DatabaseTestCase
 
     public function testWithBehavior()
     {
-        $form = new models\ProfileForm;
+        $form = new models\ProfileForm();
         $formAttributes = $form->attributes();
         $formRules = $form->rules();
         $formLabels = $form->attributeLabels();
-        $form->attachBehavior('captcha', array('class' => '\nineinchnick\usr\components\CaptchaFormBehavior'));
+        $form->attachBehavior('captcha', ['class' => '\nineinchnick\usr\components\CaptchaFormBehavior']);
         $behaviorAttributes = $form->getBehavior('captcha')->attributes();
         $behaviorRules = $form->getBehavior('captcha')->rules();
         $behaviorLabels = $form->getBehavior('captcha')->attributeLabels();
@@ -74,7 +74,7 @@ class ProfileFormTest extends DatabaseTestCase
     {
         $form = new models\ProfileForm($scenario);
         $form->setAttributes($attributes);
-        $this->assertTrue($form->validate(), 'Failed with following validation errors: '.print_r($form->getErrors(),true));
+        $this->assertTrue($form->validate(), 'Failed with following validation errors: '.print_r($form->getErrors(), true));
         $this->assertEmpty($form->getErrors());
     }
 
@@ -83,7 +83,7 @@ class ProfileFormTest extends DatabaseTestCase
      */
     public function testInvalid($scenario, $attributes, $errors)
     {
-        $form = new models\ProfileForm;
+        $form = new models\ProfileForm();
         $form->setScenario($scenario);
         $form->setAttributes($attributes);
         $this->assertFalse($form->validate());

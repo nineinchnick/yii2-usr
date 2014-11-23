@@ -37,21 +37,21 @@ class HybridauthForm extends BaseUsrForm
     public function rules()
     {
         return [
-            [['provider', 'openid_identifier'], 'filter', 'filter'=>'trim'],
+            [['provider', 'openid_identifier'], 'filter', 'filter' => 'trim'],
             // can't filter this because it's displayed to the user
             //['provider', 'filter', 'filter'=>'strtolower'],
             ['provider', 'required'],
             ['provider', 'validProvider'],
-            ['openid_identifier', 'required', 'on'=>'openid'],
+            ['openid_identifier', 'required', 'on' => 'openid'],
         ];
     }
 
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        foreach ($this->_validProviders as $provider=>$options) {
+        foreach ($this->_validProviders as $provider => $options) {
             if (!isset($scenarios[$provider])) {
-                $scenarios[$provider] = $scenarios[self::DEFAULT_SCENARIO];
+                $scenarios[$provider] = $scenarios[self::SCENARIO_DEFAULT];
             }
         }
 
@@ -71,7 +71,7 @@ class HybridauthForm extends BaseUsrForm
     public function setValidProviders($providers)
     {
         $this->_validProviders = [];
-        foreach ($providers as $provider=>$options) {
+        foreach ($providers as $provider => $options) {
             $this->_validProviders[strtolower($provider)] = !isset($options['enabled']) || $options['enabled'];
         }
 
@@ -101,39 +101,44 @@ class HybridauthForm extends BaseUsrForm
     public function attributeLabels()
     {
         return [
-            'provider'			=> Yii::t('usr','Provider'),
-            'openid_identifier'	=> Yii::t('usr','OpenID Identifier'),
+            'provider'            => Yii::t('usr', 'Provider'),
+            'openid_identifier'    => Yii::t('usr', 'OpenID Identifier'),
         ];
     }
 
     public function requiresFilling()
     {
-        if (strtolower($this->provider) == 'openid' && empty($this->openid_identifier))
+        if (strtolower($this->provider) == 'openid' && empty($this->openid_identifier)) {
             return true;
+        }
 
         return false;
     }
 
     public function loggedInRemotely()
     {
-        return ($adapter=$this->getHybridAuthAdapter()) !== null && $adapter->isUserConnected();
+        return ($adapter = $this->getHybridAuthAdapter()) !== null && $adapter->isUserConnected();
     }
 
     public function login()
     {
         $identityClass = Yii::$app->user->identityClass;
-        $fakeIdentity = new $identityClass;
-        if (!($fakeIdentity instanceof \nineinchnick\usr\components\HybridauthIdentityInterface))
-            throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>get_class($fakeIdentity),'interface'=>'\nineinchnick\usr\components\HybridauthIdentityInterface']));
+        $fakeIdentity = new $identityClass();
+        if (!($fakeIdentity instanceof \nineinchnick\usr\components\HybridauthIdentityInterface)) {
+            throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($fakeIdentity), 'interface' => '\nineinchnick\usr\components\HybridauthIdentityInterface']));
+        }
 
         $params = $this->getAttributes();
         unset($params['provider']);
+        if (empty($params['openid_identifier'])) {
+            unset($params['openid_identifier']);
+        }
         $this->_hybridAuthAdapter = $this->_hybridAuth->authenticate(strtolower($this->provider), $params);
 
         if ($this->_hybridAuthAdapter->isUserConnected()) {
             $profile = $this->_hybridAuthAdapter->getUserProfile();
-            if (($this->_identity=$identityClass::findByProvider(strtolower($this->provider), $profile->identifier)) !== null) {
-                return Yii::$app->user->login($this->_identity,0);
+            if (($this->_identity = $identityClass::findByProvider(strtolower($this->provider), $profile->identifier)) !== null) {
+                return Yii::$app->user->login($this->_identity, 0);
             }
         }
 
@@ -148,7 +153,7 @@ class HybridauthForm extends BaseUsrForm
             return false;
         }
         if (!($identity instanceof \nineinchnick\usr\components\HybridauthIdentityInterface)) {
-            throw new \yii\base\Exception(Yii::t('usr','The {class} class must implement the {interface} interface.',['class'=>get_class($identity),'interface'=>'\nineinchnick\usr\components\HybridauthIdentityInterface']));
+            throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($identity), 'interface' => '\nineinchnick\usr\components\HybridauthIdentityInterface']));
         }
         $profile = $this->_hybridAuthAdapter->getUserProfile();
         if ($identity instanceof PictureIdentityInterface && !empty($profile->photoURL)) {
@@ -156,7 +161,7 @@ class HybridauthForm extends BaseUsrForm
             if ($picture['url'] != $profile->photoURL) {
                 $path = tempnam(sys_get_temp_dir(), 'external_profile_picture_');
                 if (copy($profile->photoURL, $path)) {
-                    $uploadedFile = new yii\web\UploadedFile(['name'=>basename($path), 'tempName'=>$path, 'type'=>yii\helpers\FileHelper::getMimeType($path), 'size'=>filesize($path), 'error'=>UPLOAD_ERR_OK]);
+                    $uploadedFile = new yii\web\UploadedFile(['name' => basename($path), 'tempName' => $path, 'type' => yii\helpers\FileHelper::getMimeType($path), 'size' => filesize($path), 'error' => UPLOAD_ERR_OK]);
                     $identity->removePicture();
                     $identity->savePicture($uploadedFile);
                 }

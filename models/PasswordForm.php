@@ -23,9 +23,9 @@ class PasswordForm extends BasePasswordForm
     public function rules()
     {
         $rules = array_merge([
-            ['password', 'filter', 'filter'=>'trim', 'except'=>'register'],
-            ['password', 'required', 'except'=>'register'],
-            ['password', 'authenticate', 'except'=>'register'],
+            ['password', 'filter', 'filter' => 'trim', 'except' => 'register'],
+            ['password', 'required', 'except' => 'register'],
+            ['password', 'authenticate', 'except' => 'register'],
         ], parent::rules());
 
         return $rules;
@@ -37,7 +37,7 @@ class PasswordForm extends BasePasswordForm
     public function attributeLabels()
     {
         return array_merge(parent::attributeLabels(), [
-            'password' => Yii::t('usr','Current password'),
+            'password' => Yii::t('usr', 'Current password'),
         ]);
     }
 
@@ -46,9 +46,10 @@ class PasswordForm extends BasePasswordForm
      */
     public function getIdentity()
     {
-        if ($this->_identity===null) {
-            if ($this->scenario === 'register')
+        if ($this->_identity === null) {
+            if ($this->scenario === 'register') {
                 return $this->_identity;
+            }
             $this->_identity = Yii::$app->user->getIdentity();
         }
 
@@ -64,16 +65,16 @@ class PasswordForm extends BasePasswordForm
      * Authenticates the password.
      * This is the 'authenticate' validator as declared in rules().
      */
-    public function authenticate($attribute,$params)
+    public function authenticate($attribute, $params)
     {
         if ($this->hasErrors()) {
             return;
         }
-        if (($identity=$this->getIdentity()) === null) {
+        if (($identity = $this->getIdentity()) === null) {
             throw new \yii\base\Exception('Current user has not been found in the database.');
         }
         if (!$identity->verifyPassword($this->$attribute)) {
-            $this->addError($attribute,Yii::t('usr','Invalid password.'));
+            $this->addError($attribute, Yii::t('usr', 'Invalid password.'));
 
             return false;
         }
@@ -85,15 +86,16 @@ class PasswordForm extends BasePasswordForm
      * Resets user password using the new one given in the model.
      * @return boolean whether password reset was successful
      */
-    public function resetPassword($identity=null)
+    public function resetPassword($identity = null)
     {
         if ($this->hasErrors()) {
             return;
         }
-        if ($identity === null)
+        if ($identity === null) {
             $identity = $this->getIdentity();
+        }
         if (!$identity->resetPassword($this->newPassword)) {
-            $this->addError('newPassword',Yii::t('usr','Failed to reset the password.'));
+            $this->addError('newPassword', Yii::t('usr', 'Failed to reset the password.'));
 
             return false;
         }

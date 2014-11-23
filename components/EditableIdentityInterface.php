@@ -11,7 +11,7 @@ interface EditableIdentityInterface
      * @param  boolean $requireVerifiedEmail
      * @return boolean
      */
-    public function saveIdentity($requireVerifiedEmail=false);
+    public function saveIdentity($requireVerifiedEmail = false);
     /**
      * Returns attributes like username, email, first and last name.
      * @return array

@@ -16,7 +16,7 @@ use Yii;
  */
 class Alerts extends \yii\base\Widget
 {
-    private $_map = ['error'=>'danger'];
+    private $_map = ['error' => 'danger'];
     /**
      * Renders the widget.
      */

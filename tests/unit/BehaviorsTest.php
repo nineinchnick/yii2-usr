@@ -28,13 +28,13 @@ class BehaviorsTest extends TestCase
         $this->owner->expects($this->any())->method('getErrors')->will($this->returnValue([]));
         $this->owner->expects($this->any())->method('addError');
         $this->owner->expects($this->any())->method('rules')->will($this->returnValue([['username', 'required']]));
-        $this->owner->expects($this->any())->method('attributeLabels')->will($this->returnValue(['username'=>'label']));
+        $this->owner->expects($this->any())->method('attributeLabels')->will($this->returnValue(['username' => 'label']));
         $this->owner->expects($this->any())->method('attributes')->will($this->returnValue(['username']));
     }
 
     public function testOTP()
     {
-        $googleAuthenticator = new \Google\Authenticator\GoogleAuthenticator;
+        $googleAuthenticator = new \Google\Authenticator\GoogleAuthenticator();
         $otp = \Yii::createObject([
             'class' => 'nineinchnick\usr\components\OneTimePasswordFormBehavior',
             'oneTimePasswordConfig' => [
@@ -50,16 +50,16 @@ class BehaviorsTest extends TestCase
 
         $this->assertEquals(['oneTimePassword'], $otp->attributes());
         $this->assertEquals(['oneTimePassword'], $otp->attributes());
-        $this->assertEquals(['oneTimePassword' => \Yii::t('usr','One Time Password')], $otp->attributeLabels());
+        $this->assertEquals(['oneTimePassword' => \Yii::t('usr', 'One Time Password')], $otp->attributeLabels());
         $rules = $otp->rules();
 
-        $ruleOptions = ['on'=>'reset'];
+        $ruleOptions = ['on' => 'reset'];
         $otp->setRuleOptions($ruleOptions);
         $this->assertEquals($ruleOptions, $otp->getRuleOptions());
 
         $modifiedRules = $otp->rules();
         foreach ($modifiedRules as $rule) {
-            foreach ($ruleOptions as $key=>$value) {
+            foreach ($ruleOptions as $key => $value) {
                 $this->assertEquals($value, $rule[$key]);
             }
         }
@@ -67,7 +67,7 @@ class BehaviorsTest extends TestCase
         $code = $otp->getNewCode();
         $this->assertInternalType('string', $code);
         $this->assertTrue(is_numeric($code));
-        $this->assertEquals(6,strlen($code));
+        $this->assertEquals(6, strlen($code));
 
         $controller = $this->getMock('stdClass', ['sendEmail']);
         $controller->expects($this->once())->method('sendEmail')->with($this->equalTo($otp), $this->equalTo('oneTimePassword'));
@@ -94,8 +94,8 @@ class BehaviorsTest extends TestCase
         $this->assertEquals([['username', 'required']], $this->owner->rules());
 
         $this->assertEquals(['verifyCode'], $captcha->attributes());
-        $this->assertEquals(['verifyCode' => \Yii::t('usr','Verification code')], $captcha->attributeLabels());
-        $this->assertEquals([['verifyCode', 'captcha', 'captchaAction'=>'usr/default/captcha']], $captcha->rules());
+        $this->assertEquals(['verifyCode' => \Yii::t('usr', 'Verification code')], $captcha->attributeLabels());
+        $this->assertEquals([['verifyCode', 'captcha', 'captchaAction' => 'usr/default/captcha']], $captcha->rules());
     }
 
     public function testExpiredPassword()

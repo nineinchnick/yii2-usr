@@ -23,7 +23,7 @@ interface PictureIdentityInterface
      * @param  integer $height maximum height, if null, gets the biggest picture
      * @return array   with keys: url, width, height
      */
-    public function getPictureUrl($width=null, $height=null);
+    public function getPictureUrl($width = null, $height = null);
 
     /**
      * Returns a picture with some metadata like dimensions and mimetype.
@@ -31,12 +31,12 @@ interface PictureIdentityInterface
      * @param  boolean $currentIdentity if true, only pictures for the current identity will be returned
      * @return array   with keys: mimetype, width, height, picture
      */
-    public function getPicture($id, $currentIdentity=true);
+    public function getPicture($id, $currentIdentity = true);
 
     /**
      * Removes one or all profile pictures.
      * @param  string  $id if null, removes all profile pictures
      * @return integer number of pictures removed
      */
-    public function removePicture($id=null);
+    public function removePicture($id = null);
 }

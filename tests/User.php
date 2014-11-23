@@ -24,15 +24,15 @@ class User extends \nineinchnick\usr\models\ExampleUser
     public function resetPassword($password)
     {
         $hashedPassword = Security::generatePasswordHash($password);
-        $usedPassword = new UserUsedPassword;
+        $usedPassword = new UserUsedPassword();
         $usedPassword->setAttributes([
-            'user_id'=>$this->id,
-            'password'=>$hashedPassword,
-            'set_on'=>date('Y-m-d H:i:s'),
+            'user_id' => $this->id,
+            'password' => $hashedPassword,
+            'set_on' => date('Y-m-d H:i:s'),
         ], false);
         $this->setAttributes([
-            'password'=>$hashedPassword,
-            'password_set_on'=>date('Y-m-d H:i:s'),
+            'password' => $hashedPassword,
+            'password_set_on' => date('Y-m-d H:i:s'),
         ], false);
 
         return $usedPassword->save() && $this->save();
@@ -42,19 +42,19 @@ class User extends \nineinchnick\usr\models\ExampleUser
     {
         return self::find()
             ->withUserRemoteIdentities()
-            ->andWhere(UserRemoteIdentity::tableName().'.[[provider]]=:provider',[':provider'=>$provider])
-            ->andWhere(UserRemoteIdentity::tableName().'.[[identifier]]=:identifier',[':identifier'=>$identifier])
+            ->andWhere(UserRemoteIdentity::tableName().'.[[provider]]=:provider', [':provider' => $provider])
+            ->andWhere(UserRemoteIdentity::tableName().'.[[identifier]]=:identifier', [':identifier' => $identifier])
             ->one();
     }
 
     public function addRemoteIdentity($provider, $identifier)
     {
-        $model = new UserRemoteIdentity;
-        $model->setAttributes(array(
+        $model = new UserRemoteIdentity();
+        $model->setAttributes([
             'user_id' => $this->id,
             'provider' => $provider,
             'identifier' => $identifier,
-        ), false);
+        ], false);
 
         return $model->save();
     }

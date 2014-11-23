@@ -29,7 +29,7 @@ abstract class BasePasswordForm extends BaseUsrForm
         if ($this->_passwordStrengthRules === null) {
             $this->_passwordStrengthRules = [
                 ['newPassword', 'string', 'min' => 8, 'message' => Yii::t('usr', 'New password must contain at least 8 characters.')],
-                ['newPassword', 'match', 'pattern' => '/^.*(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).*$/', 'message'	=> Yii::t('usr', 'New password must contain at least one lower and upper case character and a digit.')],
+                ['newPassword', 'match', 'pattern' => '/^.*(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).*$/', 'message'    => Yii::t('usr', 'New password must contain at least one lower and upper case character and a digit.')],
             ];
         }
 
@@ -61,13 +61,13 @@ abstract class BasePasswordForm extends BaseUsrForm
     {
         $rules = array_merge(
             [
-                [['newPassword', 'newVerify'], 'filter', 'filter'=>'trim'],
+                [['newPassword', 'newVerify'], 'filter', 'filter' => 'trim'],
                 [['newPassword', 'newVerify'], 'required'],
                 ['newPassword', 'unusedNewPassword'],
             ],
             $this->passwordStrengthRules,
             [
-                ['newVerify', 'compare', 'compareAttribute'=>'newPassword', 'message' => Yii::t('usr', 'Please type the same new password twice to verify it.')],
+                ['newVerify', 'compare', 'compareAttribute' => 'newPassword', 'message' => Yii::t('usr', 'Please type the same new password twice to verify it.')],
             ]
         );
 
@@ -82,7 +82,7 @@ abstract class BasePasswordForm extends BaseUsrForm
      */
     public function rulesAddScenario(array $rules, $scenario)
     {
-        foreach ($rules as $key=>$rule) {
+        foreach ($rules as $key => $rule) {
             $rules[$key]['on'] = $scenario;
         }
 
@@ -96,8 +96,8 @@ abstract class BasePasswordForm extends BaseUsrForm
     public function attributeLabels()
     {
         return array_merge(parent::attributeLabels(), [
-            'newPassword'	=> Yii::t('usr','New password'),
-            'newVerify'		=> Yii::t('usr','Verify'),
+            'newPassword'    => Yii::t('usr', 'New password'),
+            'newVerify'        => Yii::t('usr', 'Verify'),
         ]);
     }
 
@@ -129,7 +129,7 @@ abstract class BasePasswordForm extends BaseUsrForm
         // check if new password hasn't been used before
         if ($identity instanceof \nineinchnick\usr\components\PasswordHistoryIdentityInterface) {
             if (($lastUsed = $identity->getPasswordDate($this->newPassword)) !== null) {
-                $this->addError('newPassword',Yii::t('usr','New password has been used before, last set on {date}.', ['date'=>$lastUsed]));
+                $this->addError('newPassword', Yii::t('usr', 'New password has been used before, last set on {date}.', ['date' => $lastUsed]));
 
                 return false;
             }
@@ -140,7 +140,7 @@ abstract class BasePasswordForm extends BaseUsrForm
         if ($identity !== null) {
             $newIdentity = clone $identity;
             if ($newIdentity->authenticate($this->newPassword)) {
-                $this->addError('newPassword',Yii::t('usr','New password must be different than the old one.'));
+                $this->addError('newPassword', Yii::t('usr', 'New password must be different than the old one.'));
 
                 return false;
             }

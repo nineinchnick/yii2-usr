@@ -19,10 +19,10 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <div class="<?= $this->context->module->formCssClass; ?>">
 <?php $form = ActiveForm::begin([
-    'id'=>'login-form',
-    'enableClientValidation'=>true,
-    'validateOnSubmit'=>true,
-    'action'=>['login', 'scenario'=>'verifyOTP'],
+    'id' => 'login-form',
+    'enableClientValidation' => true,
+    'validateOnSubmit' => true,
+    'action' => ['login', 'scenario' => 'verifyOTP'],
 ]); ?>
 
     <p class="note"><?= Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.'); ?></p>
@@ -37,14 +37,14 @@ $this->params['breadcrumbs'][] = $this->title;
 <?php endif; ?>
     </p>
 
-    <?= Html::activeHiddenInput($model,'username') ?>
-    <?= Html::activeHiddenInput($model,'password') ?>
-    <?= Html::activeHiddenInput($model,'rememberMe') ?>
+    <?= Html::activeHiddenInput($model, 'username') ?>
+    <?= Html::activeHiddenInput($model, 'password') ?>
+    <?= Html::activeHiddenInput($model, 'rememberMe') ?>
 
     <div class="row">
         <div class="col-lg-5">
 
-            <?= $form->field($model, 'oneTimePassword', ['inputOptions'=>['autofocus'=>true, 'class'=>'form-control']]) ?>
+            <?= $form->field($model, 'oneTimePassword', ['inputOptions' => ['autofocus' => true, 'class' => 'form-control']]) ?>
 
             <div class="form-group">
                 <?= Html::submitButton(Yii::t('usr', 'Submit'), ['class' => 'btn btn-primary']) ?>

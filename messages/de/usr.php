@@ -16,7 +16,7 @@
  *
  * NOTE, this file must be saved in UTF-8 encoding.
  */
-return array (
+return [
   'A one time password has been sent to your email. Enter it below.' => 'Ein einmaliges Passwort wurde an Ihre Emailadresse geschickt. Bitte unten bestätigen',
   'Create a new account' => 'Neuen Acoount anlegen',
   'Current password' => 'Aktuelles Passwort',
@@ -50,8 +50,8 @@ return array (
   'Activation key is invalid.' => 'Aktivierungsschlüssel ist inkorrekt.',
   'Activation key is missing.' => 'Bitte geben Sie Ihren Aktivierungsschlüssel an.',
   'Activation key is too old.' => 'Ihr Aktivierungsschlüssel ist abgelaufen.',
-  'An email containing further instructions has been sent to email associated with specified user account.' => 'Eine E-Mail mit Aktivierungs intruktionen wurde an Ihre Adresse versendet.',
-  'An email containing further instructions has been sent to provided email address.' => 'Eine E-Mail wurde gerade eben an Sie verschickt.',
+  'An email containing further instructions has been sent to the email address associated with the specified user account.' => 'Eine E-Mail mit Aktivierungs intruktionen wurde an Ihre Adresse versendet.',
+  'An email containing further instructions has been sent to the provided email address.' => 'Eine E-Mail wurde gerade eben an Sie verschickt.',
   'Change password' => 'Passwort ändern',
   'Changes have been saved successfully.' => 'Ihre Änderungen wurden gespeichert.',
   'Current password has been used too long and needs to be changed.' => 'Ihr aktuelles Passwort ist zu lange in gebrauch bitte ändern Sie es.',
@@ -102,4 +102,4 @@ return array (
   'registration' => 'Regestrieren',
   'update' => 'aktualisieren',
   '{attribute} has already been used by another user.' => '{attribute} wird bereits verwendet.',
-);
+];
