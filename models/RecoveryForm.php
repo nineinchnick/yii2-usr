@@ -74,7 +74,7 @@ class RecoveryForm extends BasePasswordForm
                 $attributes['email'] = $this->email;
             }
             if (!empty($attributes)) {
-                $this->_identity = $identityClass::find($attributes);
+                $this->_identity = $identityClass::find()->where($attributes)->one();
             }
         }
 
