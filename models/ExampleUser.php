@@ -3,7 +3,6 @@
 namespace nineinchnick\usr\models;
 
 use Yii;
-use yii\helpers\Security;
 use nineinchnick\usr\components;
 use app\models\UserUsedPassword;
 use app\models\UserRemoteIdentity;
@@ -62,8 +61,8 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     {
         // password is unsafe on purpose, assign it manually after hashing only if not empty
         return [
-            [['username', 'email', 'firstname', 'lastname', 'is_active', 'is_disabled'], 'filter', 'filter' => 'trim'],
-            [['activation_key', 'created_on', 'updated_on', 'last_visit_on', 'password_set_on', 'email_verified'], 'filter', 'filter' => 'trim', 'on' => 'search'],
+            [['username', 'email', 'firstname', 'lastname', 'is_active', 'is_disabled'], 'trim'],
+            [['activation_key', 'created_on', 'updated_on', 'last_visit_on', 'password_set_on', 'email_verified'], 'trim', 'on' => 'search'],
             [['username', 'email', 'firstname', 'lastname', 'is_active', 'is_disabled'], 'default'],
             [['activation_key', 'created_on', 'updated_on', 'last_visit_on', 'password_set_on', 'email_verified'], 'default', 'on' => 'search'],
             [['username', 'email', 'is_active', 'is_disabled', 'email_verified'], 'required', 'except' => 'search'],
@@ -152,7 +151,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     public function verifyPassword($password)
     {
         try {
-            return Security::validatePassword($password, $this->password);
+            return Yii::$app->security->validatePassword($password, $this->password);
         } catch (yii\base\InvalidParamException $e) {
             return false;
         }
@@ -196,7 +195,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function getAuthKey()
     {
-        return Security::hashData($this->id, $this->password);
+        return Yii::$app->security->hashData($this->id, $this->password);
     }
 
     /**
@@ -205,7 +204,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function validateAuthKey($authKey)
     {
-        return Security::validateData($authKey, $this->getAuthKey());
+        return Yii::$app->security->validateData($authKey, $this->getAuthKey());
     }
 
     /**
@@ -256,7 +255,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function resetPassword($password)
     {
-        $hashedPassword = Security::generatePasswordHash($password);
+        $hashedPassword = Yii::$app->security->generatePasswordHash($password);
         $usedPassword = new UserUsedPassword();
         $usedPassword->setAttributes([
             'user_id' => $this->id,
@@ -390,7 +389,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function getActivationKey()
     {
-        $this->activation_key = Security::generateRandomKey();
+        $this->activation_key = Yii::$app->security->generateRandomKey();
 
         return $this->save(false) ? $this->activation_key : false;
     }
@@ -734,28 +733,29 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function getDataProvider(SearchForm $searchForm)
+    public function getDataProvider(\nineinchnick\usr\models\UserSearch $searchForm)
     {
-        //! @todo port, possibly remove becuase this is an AR
-        $criteria = new CDbCriteria();
+        $query = User::find();
 
-        $criteria->compare('id', $searchForm->id);
-        $criteria->compare('username', $searchForm->username, true);
-        $criteria->compare('email', $searchForm->email, true);
-        $criteria->compare('firstname', $searchForm->firstName, true);
-        $criteria->compare('lastname', $searchForm->lastName, true);
-        $criteria->compare('created_on', $searchForm->createdOn);
-        $criteria->compare('updated_on', $searchForm->updatedOn);
-        $criteria->compare('last_visit_on', $searchForm->lastVisitOn);
-        $criteria->compare('email_verified', $searchForm->emailVerified);
-        $criteria->compare('is_active', $searchForm->isActive);
-        $criteria->compare('is_disabled', $searchForm->isDisabled);
-        $dataProvider = new CActiveDataProvider('User', ['criteria' => $criteria, 'keyAttribute' => 'id']);
-        $identities = [];
-        foreach ($dataProvider->getData() as $row) {
-            $identities[] = self::createFromUser($row);
-        }
-        $dataProvider->setData($identities);
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+        ]);
+
+        $query->andFilterWhere([
+            'id'             => $searchForm->id,
+            'created_on'     => $searchForm->createdOn,
+            'updated_on'     => $searchForm->updatedOn,
+            'last_visit_on'  => $searchForm->lastVisitOn,
+            'email_verified' => $searchForm->emailVerified,
+            'is_active'      => $searchForm->isActive,
+            'is_disabled'    => $searchForm->isDisabled,
+        ]);
+
+        //! @todo add lowercase filter
+        $query->andFilterWhere(['like', 'username', $searchForm->username])
+            ->andFilterWhere(['like', 'firstname', $searchForm->firstName])
+            ->andFilterWhere(['like', 'lastname', $searchForm->lastName])
+            ->andFilterWhere(['like', 'email', $searchForm->email]);
 
         return $dataProvider;
     }

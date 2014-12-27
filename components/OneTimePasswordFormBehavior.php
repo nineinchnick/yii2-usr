@@ -209,9 +209,10 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
             $time = time();
         }
         $data = ['username' => $username, 'time' => $time, 'timeout' => $timeout];
+        $security = new \yii\base\Security;
         $cookie = new \yii\web\Cookie([
             'name' => Module::OTP_COOKIE,
-            'value' => $time.':'.\yii\helpers\Security::hashData(serialize($data), $secret),
+            'value' => $time.':'.$security->hashData(serialize($data), $secret),
             'expire' => time() + ($timeout <= 0 ? 10*365*24*3600 : $timeout),
             'httpOnly' => true,
         ]);
@@ -234,7 +235,8 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
         }
         list($creationTime, $hash) = $parts;
         $data = ['username' => $username, 'time' => (int) $creationTime, 'timeout' => $timeout];
-        $validHash = \yii\helpers\Security::hashData(serialize($data), $secret);
+        $security = new \yii\base\Security;
+        $validHash = $security->hashData(serialize($data), $secret);
 
         return ($timeout <= 0 || $creationTime + $timeout >= $time) && $hash === $validHash;
     }

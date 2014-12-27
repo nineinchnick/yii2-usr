@@ -48,7 +48,7 @@ class Module extends \yii\base\Module
      * Rules should NOT include attribute name, it will be added when they are used.
      * This should probably include a 'file' validator, like in the following example:
      * [
-     *     ['file', 'skipOnEmpty' => true, 'types'=>'jpg, gif, png', 'maxSize'=>2*1024*1024, 'maxFiles' => 1],
+     *     ['file', 'skipOnEmpty' => true, 'extensions'=>'jpg, gif, png', 'maxSize'=>2*1024*1024, 'maxFiles' => 1],
      * ],
      * @see yii\validators\FileValidator
      */

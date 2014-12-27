@@ -1,11 +1,10 @@
 <?php
 
 /**
-@port, check if this is needed at all
- * SearchForm class.
- * SearchForm is the data structure for keeping search form data used when fetching a data provider to display a list of identities.
+ * UserSearch class.
+ * UserSearch is the data structure for keeping search form data used when fetching a data provider to display a list of identities.
  */
-class SearchForm extends CFormModel
+class UserSearch extends Model
 {
     public $id;
     public $username;
@@ -41,7 +40,7 @@ class SearchForm extends CFormModel
     public function rules()
     {
         return [
-            ['id, username, email, firstName, lastName, createdOn, updatedOn, lastVisitOn, emailVerified, isActive, isDisabled, anyText', 'filter', 'filter' => 'trim'],
+            ['id, username, email, firstName, lastName, createdOn, updatedOn, lastVisitOn, emailVerified, isActive, isDisabled, anyText', 'trim'],
             ['id, username, email, firstName, lastName, createdOn, updatedOn, lastVisitOn, emailVerified, isActive, isDisabled, anyText', 'default'],
             ['id', 'numerical', 'integerOnly' => true, 'max' => 0x7FFFFFFF, 'min' => -0x8000000], // 32-bit integers
             ['createdOn, updatedOn, lastVisitOn', 'date', 'format' => ['yyyy-MM-dd', 'yyyy-MM-dd hh:mm', '?yyyy-MM-dd', '?yyyy-MM-dd hh:mm', '??yyyy-MM-dd', '??yyyy-MM-dd hh:mm']],

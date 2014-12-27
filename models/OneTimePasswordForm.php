@@ -32,7 +32,7 @@ class OneTimePasswordForm extends \yii\base\Model
     public function rules()
     {
         return [
-            ['oneTimePassword', 'filter', 'filter' => 'trim'],
+            ['oneTimePassword', 'trim'],
             ['oneTimePassword', 'default'],
             ['oneTimePassword', 'required'],
             ['oneTimePassword', 'validOneTimePassword'],

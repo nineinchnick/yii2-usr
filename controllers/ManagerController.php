@@ -140,7 +140,7 @@ class ManagerController extends UsrController
             }
         }
 
-        $this->render('update', ['id' => $id, 'profileForm' => $profileForm, 'passwordForm' => $passwordForm]);
+        return $this->render('update', ['id' => $id, 'profileForm' => $profileForm, 'passwordForm' => $passwordForm]);
     }
 
     /**
@@ -195,7 +195,7 @@ class ManagerController extends UsrController
             $model->unsetAttributes(array_keys($errors));
         }
 
-        $this->render('index', ['model' => $model]);
+        return $this->render('index', ['model' => $model]);
     }
 
     /**

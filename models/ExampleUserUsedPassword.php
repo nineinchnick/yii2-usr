@@ -3,7 +3,6 @@
 namespace nineinchnick\usr\models;
 
 use Yii;
-use \yii\helpers\Security;
 
 /**
  * This is the model class for table "{{user_used_passwords}}".
@@ -58,6 +57,6 @@ abstract class ExampleUserUsedPassword extends \yii\db\ActiveRecord
      */
     public function verifyPassword($password)
     {
-        return $this->password !== null && Security::validatePassword($password, $this->password);
+        return $this->password !== null && Yii::$app->security->validatePassword($password, $this->password);
     }
 }

@@ -23,7 +23,7 @@ class PasswordForm extends BasePasswordForm
     public function rules()
     {
         $rules = array_merge([
-            ['password', 'filter', 'filter' => 'trim', 'except' => 'register'],
+            ['password', 'trim', 'except' => 'register'],
             ['password', 'required', 'except' => 'register'],
             ['password', 'authenticate', 'except' => 'register'],
         ], parent::rules());

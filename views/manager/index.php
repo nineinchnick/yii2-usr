@@ -51,7 +51,7 @@ Yii::app()->clientScript->registerScript('actions', $script);
 
 <?php echo CHtml::link(Yii::t('UsrModule.manager', 'Advanced Search'), '#', ['class' => 'search-button']); ?>
 <div class="search-form" style="display:none">
-<?php $this->renderPartial('_search', ['model' => $model]); ?>
+<?= $this->render('_search', ['model' => $model]); ?>
 </div><!-- search-form -->
 
 <?php $this->widget('zii.widgets.grid.CGridView', [

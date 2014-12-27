@@ -91,7 +91,7 @@ if ($id !== null) {
 
     <?php echo $form->errorSummary($profileForm); ?>
 
-<?php $this->renderPartial('/default/_form', ['form' => $form, 'model' => $profileForm, 'passwordForm' => $passwordForm]); ?>
+<?= $this->render('/default/_form', ['form' => $form, 'model' => $profileForm, 'passwordForm' => $passwordForm]); ?>
 
 <?php if (Yii::app()->user->checkAccess('usr.update.auth') && !empty($allRoles)): ?>
     <div class="control-group">

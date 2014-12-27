@@ -61,7 +61,7 @@ abstract class BasePasswordForm extends BaseUsrForm
     {
         $rules = array_merge(
             [
-                [['newPassword', 'newVerify'], 'filter', 'filter' => 'trim'],
+                [['newPassword', 'newVerify'], 'trim'],
                 [['newPassword', 'newVerify'], 'required'],
                 ['newPassword', 'unusedNewPassword'],
             ],

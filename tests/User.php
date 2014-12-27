@@ -2,8 +2,6 @@
 
 namespace nineinchnick\usr\tests;
 
-use yii\helpers\Security;
-
 class User extends \nineinchnick\usr\models\ExampleUser
 {
     public function getUserRemoteIdentities()
@@ -23,7 +21,7 @@ class User extends \nineinchnick\usr\models\ExampleUser
 
     public function resetPassword($password)
     {
-        $hashedPassword = Security::generatePasswordHash($password);
+        $hashedPassword = Yii::$app->security->generatePasswordHash($password);
         $usedPassword = new UserUsedPassword();
         $usedPassword->setAttributes([
             'user_id' => $this->id,

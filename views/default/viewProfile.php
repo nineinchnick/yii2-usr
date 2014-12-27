@@ -44,6 +44,6 @@ echo DetailView::widget(['model' => $model, 'attributes' => $attributes]);
 
 if ($this->module->hybridauthEnabled()) {
     echo '<p>';
-    $this->render('_login_remote', ['model' => $model]);
+    echo $this->render('_login_remote', ['model' => $model]);
     echo '</p>';
 }

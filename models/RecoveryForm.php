@@ -28,12 +28,12 @@ class RecoveryForm extends BasePasswordForm
     public function rules()
     {
         $rules = array_merge($this->getBehaviorRules(), [
-            [['username', 'email'], 'filter', 'filter' => 'trim'],
+            [['username', 'email'], 'trim'],
             [['username', 'email'], 'default'],
             [['username', 'email'], 'existingIdentity'],
             ['email', 'email'],
 
-            ['activationKey', 'filter', 'filter' => 'trim', 'on' => ['reset', 'verify']],
+            ['activationKey', 'trim', 'on' => ['reset', 'verify']],
             ['activationKey', 'default', 'on' => ['reset', 'verify']],
             ['activationKey', 'required', 'on' => ['reset', 'verify']],
             ['activationKey', 'validActivationKey', 'on' => ['reset', 'verify']],

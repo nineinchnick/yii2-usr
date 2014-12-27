@@ -28,7 +28,7 @@ class LoginForm extends BasePasswordForm
     public function rules()
     {
         $rules = array_merge([
-            [['username', 'password'], 'filter', 'filter' => 'trim'],
+            [['username', 'password'], 'trim'],
             [['username', 'password'], 'required'],
             ['rememberMe', 'boolean'],
             ['password', 'authenticate'],

@@ -59,7 +59,7 @@ class ProfileForm extends BaseUsrForm
     public function rules()
     {
         return array_merge($this->getBehaviorRules(), [
-            [['username', 'email', 'firstName', 'lastName', 'removePicture'], 'filter', 'filter' => 'trim'],
+            [['username', 'email', 'firstName', 'lastName', 'removePicture'], 'trim'],
             [['username', 'email', 'firstName', 'lastName', 'removePicture'], 'default'],
 
             [['username', 'email'], 'required'],

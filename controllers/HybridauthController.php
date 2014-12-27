@@ -125,14 +125,12 @@ class HybridauthController extends UsrController
                 if ($this->module->registrationEnabled) {
                     $localProfile = $this->registerLocalProfile($localProfile, $remoteLogin, $localIdentity);
                 }
-                $this->render('associate', [
+                return $this->render('associate', [
                     'remoteLogin' => $remoteLogin,
                     'localLogin' => $localLogin,
                     'localProfile' => $localProfile,
                     'localIdentity' => $localIdentity,
                 ]);
-
-                return;
             }
         }
 

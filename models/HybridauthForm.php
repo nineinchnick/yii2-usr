@@ -37,7 +37,7 @@ class HybridauthForm extends BaseUsrForm
     public function rules()
     {
         return [
-            [['provider', 'openid_identifier'], 'filter', 'filter' => 'trim'],
+            [['provider', 'openid_identifier'], 'trim'],
             // can't filter this because it's displayed to the user
             //['provider', 'filter', 'filter'=>'strtolower'],
             ['provider', 'required'],
