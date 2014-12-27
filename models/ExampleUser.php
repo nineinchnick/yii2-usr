@@ -175,9 +175,10 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      * Finds an identity by the given secrete token.
      *
      * @param  string            $token the secrete token
+     * @param  mixed             $type the type of the token. The value of this parameter depends on the implementation.
      * @return IdentityInterface the identity object that matches the given token.
      */
-    public static function findIdentityByAccessToken($token)
+    public static function findIdentityByAccessToken($token, $type = null)
     {
         throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
     }
