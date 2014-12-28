@@ -61,7 +61,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     {
         // password is unsafe on purpose, assign it manually after hashing only if not empty
         return [
-            [['username', 'email', 'firstname', 'lastname', 'is_active', 'is_disabled'], 'trim'],
+            [['username', 'email', 'firstname', 'lastname'], 'trim'],
             [['activation_key', 'created_on', 'updated_on', 'last_visit_on', 'password_set_on', 'email_verified'], 'trim', 'on' => 'search'],
             [['username', 'email', 'firstname', 'lastname', 'is_active', 'is_disabled'], 'default'],
             [['activation_key', 'created_on', 'updated_on', 'last_visit_on', 'password_set_on', 'email_verified'], 'default', 'on' => 'search'],

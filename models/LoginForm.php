@@ -124,10 +124,17 @@ class LoginForm extends BasePasswordForm
             return;
         }
         $identity = $this->getIdentity();
+        $trx = $identity->db->transaction !== null ? null : $identity->db->beginTransaction();
         if (!$identity || !$identity->resetPassword($this->newPassword)) {
             $this->addError('newPassword', Yii::t('usr', 'Failed to reset the password.'));
+            if ($trx !== null) {
+                $trx->rollback();
+            }
 
             return false;
+        }
+        if ($trx !== null) {
+            $trx->commit();
         }
 
         return true;
