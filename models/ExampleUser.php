@@ -733,7 +733,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function getDataProvider(\nineinchnick\usr\models\UserSearch $searchForm)
+    public function getDataProvider(\nineinchnick\usr\models\SearchForm $searchForm)
     {
         $query = User::find();
 

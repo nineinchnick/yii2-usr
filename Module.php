@@ -127,7 +127,7 @@ class Module extends \yii\base\Module
     {
         parent::init();
         \Yii::setAlias('@usr', dirname(__FILE__));
-        \Yii::$app->i18n->translations['usr'] = [
+        \Yii::$app->i18n->translations['usr'] = \Yii::$app->i18n->translations['manager'] = \Yii::$app->i18n->translations['auth'] = [
             'class' => 'yii\i18n\PhpMessageSource',
             'sourceLanguage' => 'en-US',
             'basePath' => '@usr/messages',
@@ -260,7 +260,7 @@ class Module extends \yii\base\Module
     public function createController($route)
     {
         // check valid routes
-        $validRoutes = [$this->defaultRoute, "hybridauth"];
+        $validRoutes = [$this->defaultRoute, 'hybridauth', 'manager'];
         $isValidRoute = false;
         foreach ($validRoutes as $validRoute) {
             if (strpos($route, $validRoute) === 0) {

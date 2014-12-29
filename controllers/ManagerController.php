@@ -1,9 +1,12 @@
 <?php
 
-Yii::import('usr.controllers.UsrController');
+namespace nineinchnick\usr\controllers;
+
+use Yii;
 
 /**
- * @todo port
+ * The controller handling user accounts managment.
+ * @author Jan Was <jwas@nets.com.pl>
  */
 class ManagerController extends UsrController
 {
@@ -17,43 +20,50 @@ class ManagerController extends UsrController
      */
     public $menu = [];
 
-    /**
-     * @return array action filters
-     */
-    public function filters()
+    public function behaviors()
     {
         return [
-            'accessControl',
-            'postOnly + delete',
-        ];
-    }
-
-    /**
-     * Specifies the access control rules.
-     * This method is used by the 'accessControl' filter.
-     * @return array access control rules
-     */
-    public function accessRules()
-    {
-        return [
-            ['allow', 'actions' => ['index'], 'roles' => ['usr.read']],
-            ['allow', 'actions' => ['update'], 'users' => ['@']],
-            ['allow', 'actions' => ['delete'], 'roles' => ['usr.delete']],
-            ['allow', 'actions' => ['verify', 'activate', 'disable'], 'roles' => ['usr.update.status']],
-            ['deny', 'users' => ['*']],
+            'access' => [
+                'class' => \yii\filters\AccessControl::className(),
+                'only' => ['index', 'update', 'delete', 'verify', 'activate', 'disable'],
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['usr.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['update'],
+                        'roles' => ['@'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['delete'],
+                        'roles' => ['usr.delete'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['verify', 'activate', 'disable'],
+                        'roles' => ['usr.update.status'],
+                    ],
+                ],
+            ],
         ];
     }
 
     /**
      * @inheritdoc
      */
-    protected function afterAction($action)
+    public function afterAction($action, $result)
     {
+        $result = parent::afterAction($action, $result);
         if (in_array($action->id, ['delete', 'verify', 'activate', 'disable'])) {
             if (!isset($_GET['ajax'])) {
-                $this->redirect(isset($_REQUEST['returnUrl']) ? $_REQUEST['returnUrl'] : ['index']);
+                return $this->redirect(isset($_REQUEST['returnUrl']) ? $_REQUEST['returnUrl'] : ['index']);
             }
         }
+        return $result;
     }
 
     /**
@@ -104,7 +114,7 @@ class ManagerController extends UsrController
                 $oldEmail = $profileForm->getIdentity()->getEmail();
                 if (($canUpdateAttributes && !$profileForm->save($this->module->requireVerifiedEmail)) || ($updatePassword && !$passwordForm->resetPassword($profileForm->getIdentity()))) {
                     $trx->rollback();
-                    Yii::app()->user->setFlash('error', Yii::t('UsrModule.usr', 'Failed to register a new user.').' '.Yii::t('UsrModule.usr', 'Try again or contact the site administrator.'));
+                    Yii::app()->user->setFlash('error', Yii::t('usr', 'Failed to register a new user.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
                 } else {
                     if ($canUpdateAuth) {
                         $identity = $profileForm->getIdentity();
@@ -127,13 +137,13 @@ class ManagerController extends UsrController
                     $trx->commit();
                     if ($this->module->requireVerifiedEmail && $oldEmail != $profileForm->getIdentity()->email) {
                         if ($this->sendEmail($profileForm, 'verify')) {
-                            Yii::app()->user->setFlash('success', Yii::t('UsrModule.usr', 'An email containing further instructions has been sent to the provided email address.'));
+                            Yii::app()->user->setFlash('success', Yii::t('usr', 'An email containing further instructions has been sent to the provided email address.'));
                         } else {
-                            Yii::app()->user->setFlash('error', Yii::t('UsrModule.usr', 'Failed to send an email.').' '.Yii::t('UsrModule.usr', 'Try again or contact the site administrator.'));
+                            Yii::app()->user->setFlash('error', Yii::t('usr', 'Failed to send an email.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
                         }
                     }
                     if (!Yii::app()->user->hasFlash('success')) {
-                        Yii::app()->user->setFlash('success', Yii::t('UsrModule.manager', 'User account has been successfully created or updated.'));
+                        Yii::app()->user->setFlash('success', Yii::t('manager', 'User account has been successfully created or updated.'));
                     }
                     $this->redirect(['index']);
                 }

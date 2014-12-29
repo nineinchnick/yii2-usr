@@ -47,7 +47,7 @@ class HybridauthController extends UsrController
         // if we got here that means Hybridauth did not perform a redirect,
         // either there was an error or the user is already authenticated
         $url = $this->createUrl('login', ['provider' => $provider]);
-        $message = Yii::t('UsrModule.usr', 'Redirecting, please wait...');
+        $message = Yii::t('usr', 'Redirecting, please wait...');
         echo "<html><body onload=\"window.opener.location.href='$url';window.close();\">$message</body></html>";
         Yii::app()->end();
     }

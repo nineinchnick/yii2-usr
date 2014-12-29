@@ -9,13 +9,13 @@ $authManager = Yii::app()->authManager;
 $assignedRoles = $id === null ? [] : $authManager->getAuthItems(CAuthItem::TYPE_ROLE, $id);
 $allRoles = $authManager->getAuthItems(CAuthItem::TYPE_ROLE);
 
-$this->pageTitle = $id === null ? Yii::t('UsrModule.manager', 'Create user') : Yii::t('UsrModule.manager', 'Update user {id}', ['{id}' => $id]);
+$this->pageTitle = $id === null ? Yii::t('manager', 'Create user') : Yii::t('manager', 'Update user {id}', ['{id}' => $id]);
 
 $this->menu = [
-    ['label' => Yii::t('UsrModule.manager', 'List users'), 'url' => ['index']],
+    ['label' => Yii::t('manager', 'List users'), 'url' => ['index']],
 ];
 if ($id !== null) {
-    $this->menu[] = ['label' => Yii::t('UsrModule.manager', 'Create user'), 'url' => ['update']];
+    $this->menu[] = ['label' => Yii::t('manager', 'Create user'), 'url' => ['update']];
 }
 
 ?>
@@ -33,44 +33,44 @@ if ($id !== null) {
         [
             'name' => 'createdOn',
             'type' => 'datetime',
-            'label' => Yii::t('UsrModule.manager', 'Created On'),
+            'label' => Yii::t('manager', 'Created On'),
             'value' => $identity->getTimestamps("createdOn"),
         ],
         [
             'name' => 'updatedOn',
             'type' => 'datetime',
-            'label' => Yii::t('UsrModule.manager', 'Updated On'),
+            'label' => Yii::t('manager', 'Updated On'),
             'value' => $identity->getTimestamps("updatedOn"),
         ],
         [
             'name' => 'lastVisitOn',
             'type' => 'datetime',
-            'label' => Yii::t('UsrModule.manager', 'Last Visit On'),
+            'label' => Yii::t('manager', 'Last Visit On'),
             'value' => $identity->getTimestamps("lastVisitOn"),
         ],
         [
             'name' => 'passwordSetOn',
             'type' => 'datetime',
-            'label' => Yii::t('UsrModule.manager', 'Password Set On'),
+            'label' => Yii::t('manager', 'Password Set On'),
             'value' => $identity->getTimestamps("passwordSetOn"),
         ],
         [
             'name' => 'emailVerified',
             'type' => 'raw',
-            'label' => Yii::t('UsrModule.manager', 'Email Verified'),
-            'value' => CHtml::link($identity->isVerified() ? Yii::t("UsrModule.manager", "Yes") : Yii::t("UsrModule.manager", "No"), ["verify", "id" => $identity->id], ["class" => "actionButton", "title" => Yii::t("UsrModule.manager", "Toggle")]),
+            'label' => Yii::t('manager', 'Email Verified'),
+            'value' => CHtml::link($identity->isVerified() ? Yii::t("manager", "Yes") : Yii::t("manager", "No"), ["verify", "id" => $identity->id], ["class" => "actionButton", "title" => Yii::t("manager", "Toggle")]),
         ],
         [
             'name' => 'isActive',
             'type' => 'raw',
-            'label' => Yii::t('UsrModule.manager', 'Is Active'),
-            'value' => CHtml::link($identity->isActive() ? Yii::t("UsrModule.manager", "Yes") : Yii::t("UsrModule.manager", "No"), ["activate", "id" => $identity->id], ["class" => "actionButton", "title" => Yii::t("UsrModule.manager", "Toggle")]),
+            'label' => Yii::t('manager', 'Is Active'),
+            'value' => CHtml::link($identity->isActive() ? Yii::t("manager", "Yes") : Yii::t("manager", "No"), ["activate", "id" => $identity->id], ["class" => "actionButton", "title" => Yii::t("manager", "Toggle")]),
         ],
         [
             'name' => 'isDisabled',
             'type' => 'raw',
-            'label' => Yii::t('UsrModule.manager', 'Is Disabled'),
-            'value' => CHtml::link($identity->isDisabled() ? Yii::t("UsrModule.manager", "Yes") : Yii::t("UsrModule.manager", "No"), ["disable", "id" => $identity->id], ["class" => "actionButton", "title" => Yii::t("UsrModule.manager", "Toggle")]),
+            'label' => Yii::t('manager', 'Is Disabled'),
+            'value' => CHtml::link($identity->isDisabled() ? Yii::t("manager", "Yes") : Yii::t("manager", "No"), ["disable", "id" => $identity->id], ["class" => "actionButton", "title" => Yii::t("manager", "Toggle")]),
         ],
     ],
 ]); ?>
@@ -87,7 +87,7 @@ if ($id !== null) {
     'focus' => [$profileForm, 'username'],
 ]); ?>
 
-    <p class="note"><?php echo Yii::t('UsrModule.manager', 'Fields with {asterisk} are required.', ['{asterisk}' => '<span class="required">*</span>']); ?></p>
+    <p class="note"><?php echo Yii::t('manager', 'Fields with {asterisk} are required.', ['{asterisk}' => '<span class="required">*</span>']); ?></p>
 
     <?php echo $form->errorSummary($profileForm); ?>
 
@@ -95,13 +95,13 @@ if ($id !== null) {
 
 <?php if (Yii::app()->user->checkAccess('usr.update.auth') && !empty($allRoles)): ?>
     <div class="control-group">
-        <?php echo CHtml::label(Yii::t('UsrModule.manager', 'Authorization roles'), 'roles'); ?>
+        <?php echo CHtml::label(Yii::t('manager', 'Authorization roles'), 'roles'); ?>
         <?php echo CHtml::checkBoxList('roles', array_keys($assignedRoles), CHtml::listData($allRoles, 'name', 'description'), ['template' => '{beginLabel}{input}{labelTitle}{endLabel}']); ?>
     </div>
 <?php endif; ?>
 
     <div class="buttons">
-        <?php echo CHtml::submitButton($id === null ? Yii::t('UsrModule.manager', 'Create') : Yii::t('UsrModule.manager', 'Save'), ['class' => $this->module->submitButtonCssClass]); ?>
+        <?php echo CHtml::submitButton($id === null ? Yii::t('manager', 'Create') : Yii::t('manager', 'Save'), ['class' => $this->module->submitButtonCssClass]); ?>
     </div>
 
 <?php $this->endWidget(); ?>

@@ -56,15 +56,15 @@ class UsrController extends Controller
     public function getTemplateAuthItemDescriptions()
     {
         return [
-            'usr.manage'            => Yii::t('UsrModule.auth', 'Manage users'),
-            'usr.create'            => Yii::t('UsrModule.auth', 'Create users'),
-            'usr.read'              => Yii::t('UsrModule.auth', 'Read any user'),
-            'usr.update'            => Yii::t('UsrModule.auth', 'Update any user'),
-            'usr.update.status'     => Yii::t('UsrModule.auth', 'Update any user\'s status'),
-            'usr.update.auth'       => Yii::t('UsrModule.auth', 'Update any user\'s auth item assignments'),
-            'usr.update.attributes' => Yii::t('UsrModule.auth', 'Update any user\'s attributes'),
-            'usr.update.password'   => Yii::t('UsrModule.auth', 'Update any user\'s password'),
-            'usr.delete'            => Yii::t('UsrModule.auth', 'Delete any user'),
+            'usr.manage'            => Yii::t('auth', 'Manage users'),
+            'usr.create'            => Yii::t('auth', 'Create users'),
+            'usr.read'              => Yii::t('auth', 'Read any user'),
+            'usr.update'            => Yii::t('auth', 'Update any user'),
+            'usr.update.status'     => Yii::t('auth', 'Update any user\'s status'),
+            'usr.update.auth'       => Yii::t('auth', 'Update any user\'s auth item assignments'),
+            'usr.update.attributes' => Yii::t('auth', 'Update any user\'s attributes'),
+            'usr.update.password'   => Yii::t('auth', 'Update any user\'s password'),
+            'usr.delete'            => Yii::t('auth', 'Delete any user'),
         ];
     }
 
@@ -134,7 +134,7 @@ class UsrController extends Controller
             $trx = Yii::app()->db->beginTransaction();
             if (!$model->save() || !$passwordForm->resetPassword($model->getIdentity())) {
                 $trx->rollback();
-                echo Yii::t('UsrModule.usr', 'Failed to register a new user.')."\n";
+                echo Yii::t('usr', 'Failed to register a new user.')."\n";
 
                 return false;
             } else {

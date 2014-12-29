@@ -11,16 +11,16 @@ nineinchnick\usr\components\PopupAsset::register($this);
                 <?php if (Yii::$app->user->isGuest): ?>
                 <a class="zocial <?php echo strtolower($provider); ?>" href="<?php echo $this->createUrl('hybridauth/popup', ['provider' => $provider]); ?>"
                     onclick="return PopupCenter($(this).attr('href'), 'Hybridauth', 400, 550);">
-                    <?php echo Yii::t('UsrModule.usr', 'Log in using {provider}', ['{provider}' => $provider]); ?>
+                    <?php echo Yii::t('usr', 'Log in using {provider}', ['{provider}' => $provider]); ?>
                 </a>
                 <?php elseif (isset($model) && $model->getIdentity()->hasRemoteIdentity(strtolower($provider))): ?>
                 <a class="zocial <?php echo strtolower($provider); ?>" href="<?php echo $this->createUrl('hybridauth/logout', ['provider' => $provider]); ?>">
-                    <?php echo Yii::t('UsrModule.usr', 'Disconnect with {provider}', ['{provider}' => $provider]); ?>
+                    <?php echo Yii::t('usr', 'Disconnect with {provider}', ['{provider}' => $provider]); ?>
                 </a>
                 <?php else: ?>
                 <a class="zocial <?php echo strtolower($provider); ?>" href="<?php echo $this->createUrl('hybridauth/popup', ['provider' => $provider]); ?>"
                     onclick="return PopupCenter($(this).attr('href'), 'Hybridauth', 400, 550);">
-                    <?php echo Yii::t('UsrModule.usr', 'Associate this profile with {provider}', ['{provider}' => $provider]); ?>
+                    <?php echo Yii::t('usr', 'Associate this profile with {provider}', ['{provider}' => $provider]); ?>
                 </a>
                 <?php endif; ?>
             </li>

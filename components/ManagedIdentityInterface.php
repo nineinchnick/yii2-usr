@@ -9,10 +9,10 @@ interface ManagedIdentityInterface
     const STATUS_IS_DISABLED = 'is_disabled';
     /**
      * Returns a data provider filled with User identity instances.
-     * @param  UserSearch    $searchForm
+     * @param  SearchForm    $searchForm
      * @return DataProvider
      */
-    public function getDataProvider(\nineinchnick\usr\models\UserSearch $searchForm);
+    public function getDataProvider(\nineinchnick\usr\models\SearchForm $searchForm);
     /**
      * Toggles email verification, active or disabled status.
      * @param  string  $status on of following consts: self::STATUS_EMAIL_VERIFIED, self::STATUS_IS_ACTIVE, self::STATUS_IS_DISABLED

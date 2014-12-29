@@ -6,7 +6,7 @@ interface PictureIdentityInterface
 {
     /**
      * Saves an uploaded picture. This method can be left unimplemented (throw an exception) to disable image upload,
-     * just remember to remove any rules from the UsrModule::$pictureUploadRules module property.
+     * just remember to remove any rules from the nineinchnick\usr\Module::$pictureUploadRules module property.
      * Although the $picture argument is an instance of CUploadedFile it could be created manually, so the implementation
      * shouldn't call saveAs() method. Copy the file manually from the path obtained by getTempName().
      * @param  CUploadedFile $picture
