@@ -7,7 +7,7 @@ use Yii;
 /**
  * @author Jan Was <jwas@nets.com.pl>
  */
-class Module extends \yii\base\Module
+class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
 {
     const OTP_SECRET_PREFIX = 'nineinchnick.usr.Module.oneTimePassword.';
     const OTP_COOKIE = 'otp';
@@ -119,6 +119,16 @@ class Module extends \yii\base\Module
      * @var Hybrid_Auth set if $hybridauthProviders are not empty
      */
     protected $_hybridauth;
+
+    /**
+     * @inheritdoc
+     */
+    public function bootstrap($app)
+    {
+        if ($app instanceof yii\console\Application) {
+            $app->controllerMap[$this->id] = 'nineinchnick\usr\commands\UsrController';
+        }
+    }
 
     /**
      * @inheritdoc
@@ -259,6 +269,9 @@ class Module extends \yii\base\Module
      */
     public function createController($route)
     {
+        if (\Yii::$app instanceof yii\console\Application) {
+            return parent::createController($route);
+        }
         // check valid routes
         $validRoutes = [$this->defaultRoute, 'hybridauth', 'manager'];
         $isValidRoute = false;

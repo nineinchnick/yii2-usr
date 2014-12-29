@@ -3,13 +3,28 @@
 namespace nineinchnick\usr\commands;
 
 use Yii;
-use yii\console\Controller;
 
-class UsrController extends Controller
+/**
+ * User managment.
+ */
+class UsrController extends \yii\console\Controller
 {
+    /**
+     * @inheritdoc
+     */
+    public function getUniqueID()
+    {
+        return $this->id;
+    }
+
+    public function actionIndex()
+    {
+        $this->run('/help', ['usr']);
+    }
+
     public function actionPassword($count = 1, $length = null, $extra_digit = null, $extra_char = null)
     {
-        $usrModule = Yii::app()->getModule('usr');
+        $usrModule = Yii::$app->getModule('usr');
         if ($length === null) {
             $length = $usrModule->dicewareLength;
         }
@@ -20,8 +35,7 @@ class UsrController extends Controller
             $extra_char = $usrModule->dicewareExtraChar;
         }
 
-        require dirname(__FILE__).'/../extensions/diceware/Diceware.php';
-        $diceware = new \nineinchnick\diceware\Diceware(Yii::app()->language);
+        $diceware = new \nineinchnick\diceware\Diceware(Yii::$app->language);
         for ($i = 0; $i < $count; $i++) {
             echo $diceware->get_phrase($length, $extra_digit, $extra_char)."\n";
         }
@@ -41,7 +55,7 @@ class UsrController extends Controller
     public function getTemplateAuthItems()
     {
         return [
-            ['name' => 'usr.manage',           'child' => null, 'type' => CAuthItem::TYPE_TASK],
+            ['name' => 'usr.manage',           'child' => null],
             ['name' => 'usr.create',           'child' => 'usr.manage'],
             ['name' => 'usr.read',             'child' => 'usr.manage'],
             ['name' => 'usr.update',           'child' => 'usr.manage'],
@@ -70,35 +84,35 @@ class UsrController extends Controller
 
     public function actionCreateAuthItems()
     {
-        $auth = Yii::app()->authManager;
+        $auth = Yii::$app->authManager;
 
         $newAuthItems = [];
         $descriptions = $this->getTemplateAuthItemDescriptions();
         foreach ($this->getTemplateAuthItems() as $template) {
             $newAuthItems[$template['name']] = $template;
         }
-        $existingAuthItems = $auth->getAuthItems();
+        $existingAuthItems = $auth->getPermissions();
         foreach ($existingAuthItems as $name => $existingAuthItem) {
             if (isset($newAuthItems[$name])) {
                 unset($newAuthItems[$name]);
             }
         }
         foreach ($newAuthItems as $template) {
-            $type = isset($template['type']) ? $template['type'] : CAuthItem::TYPE_OPERATION;
-            $bizRule = isset($template['bizRule']) ? $template['bizRule'] : null;
-            $auth->createAuthItem($template['name'], $type, $descriptions[$template['name']], $bizRule);
+            $permission = $auth->createPermission($template['name']);
+            $permission->description = $descriptions[$template['name']];
+            $auth->add($permission);
             if (isset($template['child']) && $template['child'] !== null) {
-                $auth->addItemChild($template['child'], $template['name']);
+                $auth->addChild($auth->getPermission($template['child']), $permission);
             }
         }
     }
 
     public function actionRemoveAuthItems()
     {
-        $auth = Yii::app()->authManager;
+        $auth = Yii::$app->authManager;
 
         foreach ($this->getTemplateAuthItems() as $template) {
-            $auth->removeAuthItem($template['name']);
+            $auth->remove($template['name']);
         }
     }
 
@@ -110,7 +124,7 @@ class UsrController extends Controller
      */
     public function actionRegister($profile, $authItems = null, $generatePassword = false, $unlock = false)
     {
-        $module = Yii::app()->getModule('usr');
+        $module = Yii::$app->getModule('usr');
         /** @var ProfileForm */
         $model = $module->createFormModel('ProfileForm', 'register');
         /** @var PasswordForm */
@@ -124,14 +138,13 @@ class UsrController extends Controller
             $passwordForm->setAttributes(['newPassword' => $profile['password'], 'newVerify' => $profile['password']]);
         }
         if ($generatePassword) {
-            require dirname(__FILE__).'/../extensions/diceware/Diceware.php';
-            $diceware = new \nineinchnick\diceware\Diceware(Yii::app()->language);
+            $diceware = new \nineinchnick\diceware\Diceware(Yii::$app->language);
             $password = $diceware->get_phrase($module->dicewareLength, $module->dicewareExtraDigit, $module->dicewareExtraChar);
             $passwordForm->setAttributes(['newPassword' => $password, 'newVerify' => $password]);
         }
 
         if ($model->validate() && $passwordForm->validate()) {
-            $trx = Yii::app()->db->beginTransaction();
+            $trx = Yii::$app->db->beginTransaction();
             if (!$model->save() || !$passwordForm->resetPassword($model->getIdentity())) {
                 $trx->rollback();
                 echo Yii::t('usr', 'Failed to register a new user.')."\n";
@@ -143,7 +156,7 @@ class UsrController extends Controller
                 $identity = $model->getIdentity();
                 if ($authItems !== null) {
                     $authItems = array_map('trim', explode(',', trim($authItems, " \t\n\r\b\x0B,")));
-                    $authManager = Yii::app()->authManager;
+                    $authManager = Yii::$app->authManager;
                     foreach ($authItems as $authItemName) {
                         $authManager->assign($authItemName, $identity->getId());
                     }
