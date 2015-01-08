@@ -1,109 +1,121 @@
 <?php
-/* @var $this ManagerController */
-/* @var $profileForm ProfileForm */
-/* @var $passwordForm PasswordForm */
-/* @var $identity CUserIdentity */
-/* @var $authManager CAuthManager */
+
+use nineinchnick\usr\components;
+use yii\helpers\Html;
+use yii\widgets\ActiveForm;
+
+/* @var yii\web\View $this */
+/* @var nineinchnick\usr\models\ProfileForm $profileForm */
+/* @var nineinchnick\usr\models\PasswordForm $passwordForm */
+/* @var User $identity */
+/* @var yii\rbac\ManagerInterface $authManager */
+
 $identity = $profileForm->getIdentity();
-$authManager = Yii::app()->authManager;
-$assignedRoles = $id === null ? [] : $authManager->getAuthItems(CAuthItem::TYPE_ROLE, $id);
-$allRoles = $authManager->getAuthItems(CAuthItem::TYPE_ROLE);
+$authManager = Yii::$app->getAuthManager();
+$assignedRoles = $id === null ? [] : $authManager->getRolesByUser($id);
+$allRoles = $authManager->getRoles();
 
-$this->pageTitle = $id === null ? Yii::t('manager', 'Create user') : Yii::t('manager', 'Update user {id}', ['{id}' => $id]);
+$this->title = $id === null ? Yii::t('manager', 'Create user') : Yii::t('manager', 'Update user {id}', ['{id}' => $id]);
 
-$this->menu = [
+$this->params['menu'] = [
     ['label' => Yii::t('manager', 'List users'), 'url' => ['index']],
 ];
 if ($id !== null) {
-    $this->menu[] = ['label' => Yii::t('manager', 'Create user'), 'url' => ['update']];
+    $this->params['menu'][] = ['label' => Yii::t('manager', 'Create user'), 'url' => ['update']];
 }
+
+$detailViewClass = $this->context->module->detailViewClass;
 
 ?>
 
-<h1><?php echo $this->pageTitle; ?></h1>
+<h1><?= Html::encode($this->title) ?></h1>
 
-<?php $this->widget('usr.components.UsrAlerts', ['cssClassPrefix' => $this->module->alertCssClassPrefix]); ?>
+<?= components\Alerts::widget() ?>
 
-<div class="<?php echo $this->module->formCssClass; ?>">
+<div class="<?php echo $this->context->module->formCssClass; ?>">
 
 <?php if ($id !== null): ?>
-<?php $this->widget($this->module->detailViewClass, [
-    'data' => $identity,
+<?= $detailViewClass::widget([
+    'model' => $identity,
     'attributes' => [
         [
-            'name' => 'createdOn',
-            'type' => 'datetime',
+            'attribute' => 'createdOn',
+            'format' => 'datetime',
             'label' => Yii::t('manager', 'Created On'),
             'value' => $identity->getTimestamps("createdOn"),
         ],
         [
-            'name' => 'updatedOn',
-            'type' => 'datetime',
+            'attribute' => 'updatedOn',
+            'format' => 'datetime',
             'label' => Yii::t('manager', 'Updated On'),
             'value' => $identity->getTimestamps("updatedOn"),
         ],
         [
-            'name' => 'lastVisitOn',
-            'type' => 'datetime',
+            'attribute' => 'lastVisitOn',
+            'format' => 'datetime',
             'label' => Yii::t('manager', 'Last Visit On'),
             'value' => $identity->getTimestamps("lastVisitOn"),
         ],
         [
-            'name' => 'passwordSetOn',
-            'type' => 'datetime',
+            'attribute' => 'passwordSetOn',
+            'format' => 'datetime',
             'label' => Yii::t('manager', 'Password Set On'),
             'value' => $identity->getTimestamps("passwordSetOn"),
         ],
         [
-            'name' => 'emailVerified',
-            'type' => 'raw',
+            'attribute' => 'emailVerified',
+            'format' => 'raw',
             'label' => Yii::t('manager', 'Email Verified'),
-            'value' => CHtml::link($identity->isVerified() ? Yii::t("manager", "Yes") : Yii::t("manager", "No"), ["verify", "id" => $identity->id], ["class" => "actionButton", "title" => Yii::t("manager", "Toggle")]),
+            'value' => Html::a($identity->isVerified() ? Yii::t("manager", "Yes") : Yii::t("manager", "No"), ["verify", "id" => $identity->id], ["class" => "actionButton", "title" => Yii::t("manager", "Toggle")]),
         ],
         [
-            'name' => 'isActive',
-            'type' => 'raw',
+            'attribute' => 'isActive',
+            'format' => 'raw',
             'label' => Yii::t('manager', 'Is Active'),
-            'value' => CHtml::link($identity->isActive() ? Yii::t("manager", "Yes") : Yii::t("manager", "No"), ["activate", "id" => $identity->id], ["class" => "actionButton", "title" => Yii::t("manager", "Toggle")]),
+            'value' => Html::a($identity->isActive() ? Yii::t("manager", "Yes") : Yii::t("manager", "No"), ["activate", "id" => $identity->id], ["class" => "actionButton", "title" => Yii::t("manager", "Toggle")]),
         ],
         [
-            'name' => 'isDisabled',
-            'type' => 'raw',
+            'attribute' => 'isDisabled',
+            'format' => 'raw',
             'label' => Yii::t('manager', 'Is Disabled'),
-            'value' => CHtml::link($identity->isDisabled() ? Yii::t("manager", "Yes") : Yii::t("manager", "No"), ["disable", "id" => $identity->id], ["class" => "actionButton", "title" => Yii::t("manager", "Toggle")]),
+            'value' => Html::a($identity->isDisabled() ? Yii::t("manager", "Yes") : Yii::t("manager", "No"), ["disable", "id" => $identity->id], ["class" => "actionButton", "title" => Yii::t("manager", "Toggle")]),
         ],
     ],
 ]); ?>
 <?php endif; ?>
 
-<?php $form = $this->beginWidget('CActiveForm', [
+<?php $form = ActiveForm::begin([
     'id' => 'profile-form',
     'enableAjaxValidation' => true,
     'enableClientValidation' => false,
-    'clientOptions' => [
-        'validateOnSubmit' => true,
-    ],
-    'htmlOptions' => ['enctype' => 'multipart/form-data'],
-    'focus' => [$profileForm, 'username'],
+    'validateOnSubmit' => true,
+    'options' => ['enctype' => 'multipart/form-data'],
+    //'focus' => [$profileForm, 'username'],
 ]); ?>
 
     <p class="note"><?php echo Yii::t('manager', 'Fields with {asterisk} are required.', ['{asterisk}' => '<span class="required">*</span>']); ?></p>
 
     <?php echo $form->errorSummary($profileForm); ?>
 
-<?= $this->render('/default/_form', ['form' => $form, 'model' => $profileForm, 'passwordForm' => $passwordForm]); ?>
+<?= $this->render('/default/_form', [
+    'form' => $form,
+    'model' => $profileForm,
+    'passwordForm' => $passwordForm,
+]); ?>
 
-<?php if (Yii::app()->user->checkAccess('usr.update.auth') && !empty($allRoles)): ?>
+<?php if (Yii::$app->user->can('usr.update.auth') && !empty($allRoles)): ?>
     <div class="control-group">
-        <?php echo CHtml::label(Yii::t('manager', 'Authorization roles'), 'roles'); ?>
-        <?php echo CHtml::checkBoxList('roles', array_keys($assignedRoles), CHtml::listData($allRoles, 'name', 'description'), ['template' => '{beginLabel}{input}{labelTitle}{endLabel}']); ?>
+        <?php echo Html::label(Yii::t('manager', 'Authorization roles'), 'roles'); ?>
+        <?php echo Html::checkBoxList('roles', array_keys($assignedRoles), Html::listData($allRoles, 'name', 'description'), ['template' => '{beginLabel}{input}{labelTitle}{endLabel}']); ?>
     </div>
 <?php endif; ?>
 
-    <div class="buttons">
-        <?php echo CHtml::submitButton($id === null ? Yii::t('manager', 'Create') : Yii::t('manager', 'Save'), ['class' => $this->module->submitButtonCssClass]); ?>
+    <div class="form-group">
+        <div class="col-lg-offset-1 col-lg-11">
+            <?= Html::submitButton($id === null ? Yii::t('manager', 'Create') : Yii::t('manager', 'Save'), ['class' => $this->context->module->submitButtonCssClass]) ?>
+        </div>
     </div>
 
-<?php $this->endWidget(); ?>
+<?php ActiveForm::end(); ?>
 
 </div><!-- form -->

@@ -117,6 +117,11 @@ class ProfileForm extends BaseUsrForm
         return $this->_identity;
     }
 
+    public function setIdentity($identity)
+    {
+        $this->_identity = $identity;
+    }
+
     public function uniqueIdentity($attribute, $params)
     {
         if ($this->hasErrors()) {

@@ -66,6 +66,26 @@ class ManagerController extends UsrController
         return $result;
     }
 
+    protected function updateAuthItems($id, $profileForm)
+    {
+        $identity = $profileForm->getIdentity();
+        $authManager = Yii::$app->getAuthManager();
+        $assignedRoles = $id === null ? [] : $authManager->getRolesByUser($id);
+
+        if (isset($_POST['roles']) && is_array($_POST['roles'])) {
+            foreach ($_POST['roles'] as $roleName) {
+                if (!isset($assignedRoles[$roleName])) {
+                    $authManager->assign($roleName, $identity->getId());
+                } else {
+                    unset($assignedRoles[$roleName]);
+                }
+            }
+        }
+        foreach ($assignedRoles as $roleName => $role) {
+            $authManager->revoke($roleName, $identity->getId());
+        }
+    }
+
     /**
      * Updates a particular model.
      * If update is successful, the browser will be redirected to the 'index' page.
@@ -73,8 +93,8 @@ class ManagerController extends UsrController
      */
     public function actionUpdate($id = null)
     {
-        if (!Yii::app()->user->checkAccess($id === null ? 'usr.create' : 'usr.update')) {
-            throw new CHttpException(403, Yii::t('yii', 'You are not authorized to perform this action.'));
+        if (!Yii::$app->user->can($id === null ? 'usr.create' : 'usr.update')) {
+            throw new \yii\web\ForbiddenHttpException(Yii::t('yii', 'You are not authorized to perform this action.'));
         }
 
         /** @var ProfileForm */
@@ -84,73 +104,67 @@ class ManagerController extends UsrController
             $profileForm->setIdentity($identity = $this->loadModel($id));
             $profileForm->setAttributes($identity->getAttributes());
         }
+        $loadedProfile = $profileForm->load($_POST);
         /** @var PasswordForm */
         $passwordForm = $this->module->createFormModel('PasswordForm', 'register');
+        $loadedPassword = isset($_POST[$passwordForm->formName()]) && trim($_POST[$passwordForm->formName()]['newPassword']) !== '' && $passwordForm->load($_POST);
 
-        if (isset($_POST['ajax']) && $_POST['ajax'] === 'profile-form') {
-            echo CActiveForm::validate($profileForm);
-            Yii::app()->end();
+        if (Yii::$app->request->isAjax) {
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            $models = [];
+            if ($loadedProfile) {
+                $models[] = $profileForm;
+            }
+            if ($loadedPassword) {
+                //$models[] = $passwordForm;
+            }
+
+            return \yii\widgets\ActiveForm::validateMultiple($models);
         }
         /**
          * @todo Check for detailed auth items
          */
-        $canUpdateAttributes = Yii::app()->user->checkAccess('usr.update.attributes');
-        $canUpdatePassword = Yii::app()->user->checkAccess('usr.update.password');
-        $canUpdateAuth = Yii::app()->user->checkAccess('usr.update.auth');
+        $canUpdateAttributes = Yii::$app->user->can('usr.update.attributes');
+        $canUpdatePassword = Yii::$app->user->can('usr.update.password');
+        $canUpdateAuth = Yii::$app->user->can('usr.update.auth');
 
-        if (isset($_POST['ProfileForm'])) {
-            $profileForm->setAttributes($_POST['ProfileForm']);
+        $flashes = ['success' => [], 'error' => []];
+        if ($loadedProfile) {
             if ($profileForm->getIdentity() instanceof IPictureIdentity && !empty($profileForm->pictureUploadRules)) {
                 $profileForm->picture = CUploadedFile::getInstance($profileForm, 'picture');
             }
-            if ($canUpdatePassword && isset($_POST['PasswordForm']) && isset($_POST['PasswordForm']['newPassword']) && ($p = trim($_POST['PasswordForm']['newPassword'])) !== '') {
-                $passwordForm->setAttributes($_POST['PasswordForm']);
-                $updatePassword = true;
-            } else {
-                $updatePassword = false;
-            }
+            $updatePassword = $canUpdatePassword && $loadedPassword;
             if ($profileForm->validate() && (!$updatePassword || $passwordForm->validate())) {
-                $trx = Yii::app()->db->beginTransaction();
+                $trx = Yii::$app->db->beginTransaction();
                 $oldEmail = $profileForm->getIdentity()->getEmail();
                 if (($canUpdateAttributes && !$profileForm->save($this->module->requireVerifiedEmail)) || ($updatePassword && !$passwordForm->resetPassword($profileForm->getIdentity()))) {
                     $trx->rollback();
-                    Yii::app()->user->setFlash('error', Yii::t('usr', 'Failed to register a new user.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
+                    Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to register a new user.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
                 } else {
                     if ($canUpdateAuth) {
-                        $identity = $profileForm->getIdentity();
-                        $authManager = Yii::app()->authManager;
-                        $assignedRoles = $id === null ? [] : $authManager->getAuthItems(CAuthItem::TYPE_ROLE, $id);
-
-                        if (isset($_POST['roles']) && is_array($_POST['roles'])) {
-                            foreach ($_POST['roles'] as $roleName) {
-                                if (!isset($assignedRoles[$roleName])) {
-                                    $authManager->assign($roleName, $identity->getId());
-                                } else {
-                                    unset($assignedRoles[$roleName]);
-                                }
-                            }
-                        }
-                        foreach ($assignedRoles as $roleName => $role) {
-                            $authManager->revoke($roleName, $identity->getId());
-                        }
+                        $this->updateAuthItems($id, $profileForm);
                     }
                     $trx->commit();
                     if ($this->module->requireVerifiedEmail && $oldEmail != $profileForm->getIdentity()->email) {
                         if ($this->sendEmail($profileForm, 'verify')) {
-                            Yii::app()->user->setFlash('success', Yii::t('usr', 'An email containing further instructions has been sent to the provided email address.'));
+                            Yii::$app->session->setFlash('success', Yii::t('usr', 'An email containing further instructions has been sent to the provided email address.'));
                         } else {
-                            Yii::app()->user->setFlash('error', Yii::t('usr', 'Failed to send an email.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
+                            Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to send an email.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
                         }
                     }
-                    if (!Yii::app()->user->hasFlash('success')) {
-                        Yii::app()->user->setFlash('success', Yii::t('manager', 'User account has been successfully created or updated.'));
+                    if (!Yii::$app->session->hasFlash('success')) {
+                        Yii::$app->session->setFlash('success', Yii::t('manager', 'User account has been successfully created or updated.'));
                     }
-                    $this->redirect(['index']);
+                    return $this->redirect(['index']);
                 }
             }
         }
 
-        return $this->render('update', ['id' => $id, 'profileForm' => $profileForm, 'passwordForm' => $passwordForm]);
+        return $this->render('update', [
+            'id' => $id,
+            'profileForm' => $profileForm,
+            'passwordForm' => $passwordForm,
+        ]);
     }
 
     /**
@@ -161,7 +175,7 @@ class ManagerController extends UsrController
     public function actionDelete($id)
     {
         if (!$this->loadModel($id)->delete()) {
-            throw new CHttpException(409, 'User account could not be deleted.');
+            throw new \yii\web\ConflictHttpException('User account could not be deleted.');
         }
     }
 
@@ -202,7 +216,7 @@ class ManagerController extends UsrController
             $model->attributes = $_REQUEST['SearchForm'];
             $model->validate();
             $errors = $model->getErrors();
-            $model->unsetAttributes(array_keys($errors));
+            $model->setAttributes(array_fill_keys(array_keys($errors), null));
         }
 
         return $this->render('index', ['model' => $model]);
@@ -219,7 +233,7 @@ class ManagerController extends UsrController
     {
         $searchForm = $this->module->createFormModel('SearchForm');
         if (($model = $searchForm->getIdentity($id)) === null) {
-            throw new CHttpException(404, 'The requested page does not exist.');
+            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
         }
 
         return $model;

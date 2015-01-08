@@ -38,7 +38,11 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="row">
         <div class="col-lg-5">
 
-<?= $this->render('_form', ['form' => $form, 'model' => $model, 'passwordForm' => $passwordForm]); ?>
+<?= $this->render('_form', [
+    'form' => $form,
+    'model' => $model,
+    'passwordForm' => $passwordForm,
+]); ?>
 
 <?php if ($model->getBehavior('captcha') !== null): ?>
 <?= $this->render('_captcha', ['form' => $form, 'model' => $model]) ?>
