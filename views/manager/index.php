@@ -47,38 +47,38 @@ $this->registerJs($script);
 <?= $this->render('_search', ['model' => $model]); ?>
 </div><!-- search-form -->
 
-<?php $this->widget('zii.widgets.grid.CGridView', [
+<?= \yii\grid\GridView::widget([
     'id' => 'identity-grid',
     'dataProvider' => $model->getIdentity()->getDataProvider($model),
-    'filter' => $model,
+    'filterModel' => $model,
     'columns' => [
-        'id:number:'.Yii::t('manager', 'ID'),
+        'id:integer:'.Yii::t('manager', 'ID'),
         'username:text:'.Yii::t('manager', 'Username'),
         'email:text:'.Yii::t('manager', 'Email'),
-        'firstName:text:'.Yii::t('manager', 'Firstname'),
-        'lastName:text:'.Yii::t('manager', 'Lastname'),
-        /*array(
-            'name' => 'createdOn',
-            'type' => 'datetime',
-            'header' => Yii::t('manager','Created On'),
+        'firstname:text:'.Yii::t('manager', 'Firstname'),
+        'lastname:text:'.Yii::t('manager', 'Lastname'),
+        /*[
+            'attribute' => 'createdOn',
+            'format' => 'datetime',
+            'label' => Yii::t('manager','Created On'),
             'value' => '$data->getTimestamps("createdOn")',
-        ),*/
+        ],*/
         [
-            'name' => 'updatedOn',
-            'type' => 'datetime',
-            'header' => Yii::t('manager', 'Updated On'),
+            'attribute' => 'updatedOn',
+            'format' => 'datetime',
+            'label' => Yii::t('manager', 'Updated On'),
             'value' => function($data){return $data->getTimestamps("updatedOn");},
         ],
         [
-            'name' => 'lastVisitOn',
-            'type' => 'datetime',
-            'header' => Yii::t('manager', 'Last Visit On'),
+            'attribute' => 'lastVisitOn',
+            'format' => 'datetime',
+            'label' => Yii::t('manager', 'Last Visit On'),
             'value' => function($data){return $data->getTimestamps("lastVisitOn");},
         ],
         [
-            'name' => 'emailVerified',
-            'type' => 'raw',
-            'header' => Yii::t('manager', 'Email Verified'),
+            'attribute' => 'emailVerified',
+            'format' => 'raw',
+            'label' => Yii::t('manager', 'Email Verified'),
             'filter' => $booleanFilter,
             'value' => function($data){
                 return Html::a(
@@ -89,9 +89,9 @@ $this->registerJs($script);
             },
         ],
         [
-            'name' => 'isActive',
-            'type' => 'raw',
-            'header' => Yii::t('manager', 'Is Active'),
+            'attribute' => 'isActive',
+            'format' => 'raw',
+            'label' => Yii::t('manager', 'Is Active'),
             'filter' => $booleanFilter,
             'value' => function($data){
                 return Html::a(
@@ -102,9 +102,9 @@ $this->registerJs($script);
             },
         ],
         [
-            'name' => 'isDisabled',
-            'type' => 'raw',
-            'header' => Yii::t('manager', 'Is Disabled'),
+            'attribute' => 'isDisabled',
+            'format' => 'raw',
+            'label' => Yii::t('manager', 'Is Disabled'),
             'filter' => $booleanFilter,
             'value' => function($data){
                 return Html::a(
@@ -118,7 +118,7 @@ $this->registerJs($script);
             'class' => 'yii\grid\ActionColumn',
             'template' => '{update} {delete}', // {activate} {deactivate} {enable} {disable} {verify} {unverify}',
             'urlCreator' => function($action, $model, $key, $index) {
-                return Url::toRoute([$action, 'id' => $data->primaryKey]);
+                return \yii\helpers\Url::toRoute([$action, 'id' => $model->primaryKey]);
             },
             'buttons' => [
             ],

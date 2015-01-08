@@ -532,8 +532,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function removeRemoteIdentity($provider)
     {
-        //! @todo port
-        UserRemoteIdentity::model()->deleteAllByAttributes(['provider' => $provider, 'user_id' => $this->_id]);
+        UserRemoteIdentity::deleteAll(['provider' => $provider, 'user_id' => $this->_id]);
 
         return true;
     }
@@ -543,8 +542,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function hasRemoteIdentity($provider)
     {
-        //! @todo port
-        return 0 != UserRemoteIdentity::model()->countByAttributes(['provider' => $provider, 'user_id' => $this->_id]);
+        return 0 != UserRemoteIdentity::find()->where(['provider' => $provider, 'user_id' => $this->_id])->count();
     }
 
     /**
@@ -555,13 +553,17 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     public static function getRemoteAttributes($remoteProfile)
     {
         //! @todo port
-        $email = (isset($remoteProfile->emailVerifier) && $remoteProfile->emailVerifier !== null) ? $remoteProfile->emailVerifier : $remoteProfile->email;
+        if (isset($remoteProfile->emailVerifier) && $remoteProfile->emailVerifier !== null) {
+            $email = $remoteProfile->emailVerifier;
+        } else {
+            $email = $remoteProfile->email;
+        }
 
         return [
             'username' => $email,
             'email' => $email,
-            'firstName' => $remoteProfile->firstName,
-            'lastName' => $remoteProfile->lastName,
+            'firstname' => $remoteProfile->firstName,
+            'lastname' => $remoteProfile->lastName,
         ];
     }
 
@@ -735,9 +737,9 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function getDataProvider(\nineinchnick\usr\models\SearchForm $searchForm)
     {
-        $query = User::find();
+        $query = self::find();
 
-        $dataProvider = new ActiveDataProvider([
+        $dataProvider = new \yii\data\ActiveDataProvider([
             'query' => $query,
         ]);
 
@@ -765,30 +767,13 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function toggleStatus($status)
     {
-        //! @todo port
-        if (($record = $this->getActiveRecord()) === null) {
-            return false;
-        }
         switch ($status) {
-        case self::STATUS_EMAIL_VERIFIED: $attributes['email_verified'] = !$record->email_verified; break;
-        case self::STATUS_IS_ACTIVE: $attributes['is_active'] = !$record->is_active; break;
-        case self::STATUS_IS_DISABLED: $attributes['is_disabled'] = !$record->is_disabled; break;
+        case self::STATUS_EMAIL_VERIFIED: $this->email_verified = !$this->email_verified; break;
+        case self::STATUS_IS_ACTIVE: $this->is_active = !$this->is_active; break;
+        case self::STATUS_IS_DISABLED: $this->is_disabled = !$this->is_disabled; break;
         }
 
-        return $record->saveAttributes($attributes);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function delete()
-    {
-        //! @todo port, possibly remove becuase this is an AR
-        if (($record = $this->getActiveRecord()) === null) {
-            return false;
-        }
-
-        return $record->delete();
+        return $this->save(false);
     }
 
     /**
@@ -796,15 +781,11 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function getTimestamps($key = null)
     {
-        //! @todo port
-        if (($record = $this->getActiveRecord()) === null) {
-            return false;
-        }
         $timestamps = [
-            'createdOn' => $record->created_on,
-            'updatedOn' => $record->updated_on,
-            'lastVisitOn' => $record->last_visit_on,
-            'passwordSetOn' => $record->password_set_on,
+            'createdOn' => $this->created_on,
+            'updatedOn' => $this->updated_on,
+            'lastVisitOn' => $this->last_visit_on,
+            'passwordSetOn' => $this->password_set_on,
         ];
         // can't use isset, since it returns false for null values
         return $key === null || !array_key_exists($key, $timestamps) ? $timestamps : $timestamps[$key];
