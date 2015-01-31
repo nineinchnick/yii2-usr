@@ -51,7 +51,7 @@ abstract class FormModelBehavior extends \yii\base\Behavior
     {
         $className = get_class($this);
         if (!isset(self::$_names[$className])) {
-            $class = new ReflectionClass(get_class($this));
+            $class = new \ReflectionClass(get_class($this));
             $names = [];
             foreach ($class->getProperties() as $property) {
                 $name = $property->getName();

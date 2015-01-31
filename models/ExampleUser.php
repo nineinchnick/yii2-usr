@@ -212,14 +212,19 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function authenticate($password)
     {
-        if ($this->is_active && !$this->is_disabled && $this->verifyPassword($password)) {
-            $this->last_visit_on = date('Y-m-d H:i:s');
-            $this->save(false);
-
-            return true;
-        } else {
-            return false;
+        if (!$this->is_active) {
+            return array(self::ERROR_INACTIVE, Yii::t('usr', 'User account has not been activated yet.'));
         }
+        if ($this->is_disabled) {
+            return array(self::ERROR_DISABLED, Yii::t('usr', 'User account has been disabled.'));
+        }
+        if (!$this->verifyPassword($password)) {
+            return array(self::ERROR_INVALID, Yii::t('usr', 'Invalid username or password.'));
+        }
+
+        $this->last_visit_on = date('Y-m-d H:i:s');
+        $this->save(false);
+        return true;
     }
 
     // }}}
