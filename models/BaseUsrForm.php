@@ -29,7 +29,7 @@ abstract class BaseUsrForm extends \yii\base\Model
         $scenarios = parent::scenarios();
         foreach ($this->_behaviors as $name) {
             if (($behavior = $this->getBehavior($name)) instanceof \nineinchnick\usr\components\FormModelBehavior) {
-                $scenarios = array_merge($scenarios, array_fill_keys($behavior->scenarios(), $scenarios[self::DEFAULT_SCENARIO]);
+                $scenarios = array_merge($scenarios, array_fill_keys($behavior->scenarios(), $scenarios[self::SCENARIO_DEFAULT]));
             }
         }
 

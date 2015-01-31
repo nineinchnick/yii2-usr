@@ -75,7 +75,7 @@ class ProfileForm extends BaseUsrForm
     {
         $scenarios = parent::scenarios();
         if (!isset($scenarios['register'])) {
-            $scenarios['register'] = $scenarios[self::DEFAULT_SCENARIO];
+            $scenarios['register'] = $scenarios[self::SCENARIO_DEFAULT];
         }
 
         return $scenarios;

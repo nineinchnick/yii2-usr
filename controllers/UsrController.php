@@ -50,7 +50,7 @@ abstract class UsrController extends \yii\web\Controller
      */
     public function getScenarioView($scenario, $default)
     {
-        if (empty($scenario)) {
+        if (empty($scenario) || $scenario === \yii\base\Model::SCENARIO_DEFAULT) {
             $scenario = $default;
         }
         if (!isset($this->module->scenarioViews[$scenario])) {

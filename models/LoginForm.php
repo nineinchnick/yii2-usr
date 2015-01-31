@@ -33,10 +33,10 @@ class LoginForm extends BasePasswordForm
     {
         $scenarios = parent::scenarios();
         if (!isset($scenarios['reset'])) {
-            $scenarios['reset'] = $scenarios[self::DEFAULT_SCENARIO];
+            $scenarios['reset'] = $scenarios[self::SCENARIO_DEFAULT];
         }
         if (!isset($scenarios['verifyOTP'])) {
-            $scenarios['verifyOTP'] = $scenarios[self::DEFAULT_SCENARIO];
+            $scenarios['verifyOTP'] = $scenarios[self::SCENARIO_DEFAULT];
         }
 
         return $scenarios;

@@ -33,10 +33,10 @@ class DefaultController extends UsrController
                 'extraChar' => $this->module->dicewareExtraChar,
             ];
         }
-        if (isset($this->module->loginFormBehaviors['oneTimePasswordBehavior']) && $this->module->loginFormBehaviors['oneTimePasswordBehavior']['mode'] != OneTimePasswordFormBehavior::OTP_NONE) {
+        if (isset($this->module->loginFormBehaviors['oneTimePasswordBehavior']) && $this->module->loginFormBehaviors['oneTimePasswordBehavior']['oneTimePasswordConfig']['mode'] != \nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_NONE) {
             $configuration = $this->module->loginFormBehaviors['oneTimePasswordBehavior'];
             if (!isset($configuration['authenticator'])) {
-                $configuration['authenticator'] = OneTimePasswordFormBehavior::getDefaultAuthenticator();
+                $configuration['authenticator'] = \nineinchnick\usr\components\OneTimePasswordFormBehavior::getDefaultAuthenticator();
             }
             // OneTimePasswordAction allows toggling two step auth in user profile
             $actions['toggleOneTimePassword'] = [
