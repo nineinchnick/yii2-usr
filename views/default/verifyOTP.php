@@ -11,6 +11,8 @@ use yii\widgets\ActiveForm;
  */
 $this->title = Yii::t('usr', 'Two step authentication');
 $this->params['breadcrumbs'][] = $this->title;
+
+$otp = $model->getBehavior('oneTimePasswordBehavior');
 ?>
 
 <h1><?= Html::encode($this->title) ?></h1>
@@ -30,9 +32,9 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= $form->errorSummary($model); ?>
 
     <p>
-<?php if ($this->context->module->oneTimePasswordMode === \nineinchnick\usr\Module::OTP_TIME): ?>
+<?php if ($otp === \nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_TIME): ?>
         <?php echo Yii::t('usr', 'Use the Google Authenticator application to generate a one time password and enter it below.'); ?><br/>
-<?php elseif ($this->context->module->oneTimePasswordMode === \nineinchnick\usr\Module::OTP_COUNTER): ?>
+<?php elseif ($otp === \nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_COUNTER): ?>
         <?php echo Yii::t('usr', 'A one time password has been sent to your email. Enter it below.'); ?><br/>
 <?php endif; ?>
     </p>

@@ -10,11 +10,31 @@ use Yii;
  */
 abstract class BaseUsrForm extends \yii\base\Model
 {
+    /**
+     * @var \yii\web\User Instance of User application component
+     */
+    public $webUser;
+
     private static $_names = [];
     /**
      * @inheritdoc
      */
     private $_behaviors = [];
+
+    /**
+     * @inheritdoc
+     */
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+        foreach ($this->_behaviors as $name) {
+            if (($behavior = $this->getBehavior($name)) instanceof \nineinchnick\usr\components\FormModelBehavior) {
+                $scenarios = array_merge($scenarios, array_fill_keys($behavior->scenarios(), $scenarios[self::DEFAULT_SCENARIO]);
+            }
+        }
+
+        return $scenarios;
+    }
 
     /**
      * @inheritdoc
@@ -91,16 +111,17 @@ abstract class BaseUsrForm extends \yii\base\Model
     }
 
     /**
-     * Returns rules defined in attached behaviors that extend FormModelBehavior.
+     * Filters base rules through each attached behavior that extend FormModelBehavior,
+     * which may add their own rules or remove existing ones.
+     * @param array base form model rules
      * @return array validation rules
      * @see Model::rules()
      */
-    public function getBehaviorRules()
+    public function filterRules($rules)
     {
-        $rules = [];
         foreach ($this->_behaviors as $name => $foo) {
             if (($behavior = $this->getBehavior($name)) instanceof \nineinchnick\usr\components\FormModelBehavior) {
-                $rules = array_merge($rules, $behavior->rules());
+                $rules = $behavior->filterRules($rules);
             }
         }
 

@@ -22,13 +22,13 @@ abstract class FormModelBehavior extends \yii\base\Behavior
     private $_ruleOptions = [];
 
     /**
-     * Validation rules for attributes of this behavior, that should be merged with rules in the owner model.
+     * Adds validation rules for attributes of this behavior or removes rules from the owner model.
      * @return array validation rules
      * @see \yii\base\Model::rules()
      */
-    public function rules()
+    public function filterRules($rules = [])
     {
-        return [];
+        return $rules;
     }
 
     /**
@@ -64,6 +64,15 @@ abstract class FormModelBehavior extends \yii\base\Behavior
         } else {
             return self::$_names[$className];
         }
+    }
+
+    /**
+     * Lists valid model scenarios.
+     * @return array
+     */
+    public function scenarios()
+    {
+        return [];
     }
 
     /**

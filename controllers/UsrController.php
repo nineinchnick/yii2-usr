@@ -40,4 +40,43 @@ abstract class UsrController extends \yii\web\Controller
 
         return $message->send();
     }
+
+    /**
+     * Retreive view name and params based on scenario name and module configuration.
+     *
+     * @param  string $scenario
+     * @param  string $default  default view name if scenario is null
+     * @return array  two values, view name (string) and view params (array)
+     */
+    public function getScenarioView($scenario, $default)
+    {
+        if (empty($scenario)) {
+            $scenario = $default;
+        }
+        if (!isset($this->module->scenarioViews[$scenario])) {
+            return [$scenario, []];
+        }
+        // config, scenario, default
+        $config = $this->module->scenarioViews[$scenario];
+        if (isset($config['view'])) {
+            $view = $config['view'];
+            unset($config['view']);
+        } else {
+            $view = $scenario;
+        }
+
+        return [$view, $config];
+    }
+
+    /**
+     * Redirects user either to returnUrl or main page.
+     */
+    public function afterLogin()
+    {
+        $returnUrl = Yii::$app->user->returnUrl;
+        $returnUrlParts = explode('/', is_array($returnUrl) ? reset($returnUrl) : $returnUrl);
+        $url = end($returnUrlParts) == 'index.php' ? '/' : Yii::$app->user->returnUrl;
+
+        return $this->redirect($url);
+    }
 }

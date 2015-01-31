@@ -27,7 +27,7 @@ class RecoveryForm extends BasePasswordForm
      */
     public function rules()
     {
-        $rules = array_merge($this->getBehaviorRules(), [
+        $rules = $this->filterRules(array_merge([
             [['username', 'email'], 'trim'],
             [['username', 'email'], 'default'],
             [['username', 'email'], 'existingIdentity'],
@@ -37,7 +37,7 @@ class RecoveryForm extends BasePasswordForm
             ['activationKey', 'default', 'on' => ['reset', 'verify']],
             ['activationKey', 'required', 'on' => ['reset', 'verify']],
             ['activationKey', 'validActivationKey', 'on' => ['reset', 'verify']],
-        ], $this->rulesAddScenario(parent::rules(), 'reset'));
+        ], $this->rulesAddScenario(parent::rules(), 'reset')));
 
         return $rules;
     }
@@ -61,7 +61,7 @@ class RecoveryForm extends BasePasswordForm
     {
         if ($this->_identity === null) {
             // generate a fake object just to check if it implements a correct interface
-            $identityClass = Yii::$app->user->identityClass;
+            $identityClass = $this->webUser->identityClass;
             $fakeIdentity = new $identityClass(null, null);
             if (!($fakeIdentity instanceof \nineinchnick\usr\components\ActivatedIdentityInterface)) {
                 throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => $identityClass, 'interface' => '\nineinchnick\usr\components\ActivatedIdentityInterface']));
@@ -149,8 +149,13 @@ class RecoveryForm extends BasePasswordForm
     public function resetPassword()
     {
         $identity = $this->getIdentity();
+        if (($message = $identity->resetPassword($this->newPassword)) !== true) {
+            $this->addError('newPassword', is_string($message) ? $message : Yii::t('usr', 'Failed to reset the password.'));
 
-        return $identity->resetPassword($this->newPassword);
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -162,7 +167,7 @@ class RecoveryForm extends BasePasswordForm
         $identity = $this->getIdentity();
 
         if ($identity->authenticate($this->newPassword)) {
-            return Yii::$app->user->login($identity, 0);
+            return $this->webUser->login($identity, 0);
         }
 
         return false;

@@ -19,7 +19,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <?php
 $attributes = ['username', 'email', 'firstName', 'lastName'];
-if ($this->context->module->oneTimePasswordMode === nineinchnick\usr\Module::OTP_TIME || $this->context->module->oneTimePasswordMode === nineinchnick\usr\Module::OTP_COUNTER) {
+if (($otp = $model->getBehavior('oneTimePasswordBehavior')) !== null && $otp->mode === nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_TIME || $otp->mode === nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_COUNTER) {
     $attributes[] = [
         'name' => 'twoStepAuth',
         'format' => 'raw',

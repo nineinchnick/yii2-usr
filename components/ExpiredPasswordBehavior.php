@@ -14,7 +14,8 @@ use DateTime;
  * ExpiredPasswordBehavior adds captcha validation to a form model component.
  * The model should extend from {@link CFormModel} or its child classes.
  *
- * @property CFormModel $owner The owner model that this behavior is attached to.
+ * @property Model $owner The owner model that this behavior is attached to.
+ * @property integer $passwordTimeout Number of days after which user is requred to reset his password after logging in.
  *
  * @author Jan Was <jwas@nets.com.pl>
  */
@@ -22,11 +23,17 @@ class ExpiredPasswordBehavior extends FormModelBehavior
 {
     private $_passwordTimeout;
 
+    /**
+     * @return integer Number of days after which user is requred to reset his password after logging in.
+     */
     public function getPasswordTimeout()
     {
         return $this->_passwordTimeout;
     }
 
+    /**
+     * @param $value integer Number of days after which user is requred to reset his password after logging in.
+     */
     public function setPasswordTimeout($value)
     {
         $this->_passwordTimeout = $value;
@@ -35,13 +42,13 @@ class ExpiredPasswordBehavior extends FormModelBehavior
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function filterRules($rules = [])
     {
-        $rules = [
+        $behaviorRules = [
             ['password', 'passwordHasNotExpired', 'except' => ['reset', 'hybridauth', 'verifyOTP']],
         ];
 
-        return $this->applyRuleOptions($rules);
+        return array_merge($rules, $this->applyRuleOptions($behaviorRules));
     }
 
     public function passwordHasNotExpired()

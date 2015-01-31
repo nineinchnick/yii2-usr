@@ -11,6 +11,15 @@ use Yii;
  */
 class LoginForm extends BasePasswordForm
 {
+    /**
+     * @event Event an event that is triggered before a user is logged in.
+     */
+    const EVENT_BEFORE_LOGIN = 'beforeLogin';
+    /**
+     * @event Event an event that is triggered after a user is logged in.
+     */
+    const EVENT_AFTER_LOGIN = 'afterLogin';
+
     public $username;
     public $password;
     public $rememberMe;
@@ -20,6 +29,19 @@ class LoginForm extends BasePasswordForm
      */
     private $_identity;
 
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+        if (!isset($scenarios['reset'])) {
+            $scenarios['reset'] = $scenarios[self::DEFAULT_SCENARIO];
+        }
+        if (!isset($scenarios['verifyOTP'])) {
+            $scenarios['verifyOTP'] = $scenarios[self::DEFAULT_SCENARIO];
+        }
+
+        return $scenarios;
+    }
+
     /**
      * Declares the validation rules.
      * The rules state that username and password are required,
@@ -27,12 +49,12 @@ class LoginForm extends BasePasswordForm
      */
     public function rules()
     {
-        $rules = array_merge([
+        $rules = $this->filterRules(array_merge([
             [['username', 'password'], 'trim'],
             [['username', 'password'], 'required'],
             ['rememberMe', 'boolean'],
             ['password', 'authenticate'],
-        ], $this->rulesAddScenario(parent::rules(), 'reset'), $this->getBehaviorRules());
+        ], $this->rulesAddScenario(parent::rules(), 'reset')));
 
         return $rules;
     }
@@ -55,7 +77,7 @@ class LoginForm extends BasePasswordForm
     public function getIdentity()
     {
         if ($this->_identity === null) {
-            $identityClass = Yii::$app->user->identityClass;
+            $identityClass = $this->webUser->identityClass;
             if (($this->_identity = $identityClass::findByUsername($this->username)) === null) {
                 $this->_identity = false;
             }
@@ -151,6 +173,39 @@ class LoginForm extends BasePasswordForm
      */
     public function login($duration = 0)
     {
-        return Yii::$app->user->login($this->getIdentity(), $this->rememberMe ? $duration : 0);
+        if ($this->beforeLogin()) {
+            $result = $this->webUser->login($this->getIdentity(), $this->rememberMe ? $duration : 0);
+            if ($result) {
+                $this->afterLogin();
+            }
+            return $result;
+        }
+        return false;
+    }
+
+    /**
+     * This method is called before logging in a user.
+     * The default implementation will trigger the [[EVENT_BEFORE_LOGIN]] event.
+     * If you override this method, make sure you call the parent implementation
+     * so that the event is triggered.
+     * @return boolean whether the user should continue to be logged in
+     */
+    protected function beforeLogin()
+    {
+        $event = new \yii\base\ModelEvent();
+        $this->trigger(self::EVENT_BEFORE_LOGIN, $event);
+
+        return $event->isValid;
+    }
+
+    /**
+     * This method is called after the user is successfully logged in.
+     * The default implementation will trigger the [[EVENT_AFTER_LOGIN]] event.
+     * If you override this method, make sure you call the parent implementation
+     * so that the event is triggered.
+     */
+    protected function afterLogin()
+    {
+        $this->trigger(self::EVENT_AFTER_LOGIN, new \yii\base\ModelEvent());
     }
 }

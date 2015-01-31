@@ -58,7 +58,7 @@ class ProfileForm extends BaseUsrForm
      */
     public function rules()
     {
-        return array_merge($this->getBehaviorRules(), [
+        return $this->filterRules(array_merge([
             [['username', 'email', 'firstName', 'lastName', 'removePicture'], 'trim'],
             [['username', 'email', 'firstName', 'lastName', 'removePicture'], 'default'],
 
@@ -68,7 +68,7 @@ class ProfileForm extends BaseUsrForm
 
             ['removePicture', 'boolean'],
             ['password', 'validCurrentPassword', 'except' => 'register', 'skipOnEmpty' => false],
-        ], $this->pictureUploadRules);
+        ], $this->pictureUploadRules));
     }
 
     public function scenarios()
@@ -104,10 +104,10 @@ class ProfileForm extends BaseUsrForm
     {
         if ($this->_identity === null) {
             if ($this->scenario == 'register') {
-                $identityClass = Yii::$app->user->identityClass;
+                $identityClass = $this->webUser->identityClass;
                 $this->_identity = new $identityClass();
             } else {
-                $this->_identity = Yii::$app->user->getIdentity();
+                $this->_identity = $this->webUser->getIdentity();
             }
             if ($this->_identity !== null && !($this->_identity instanceof \nineinchnick\usr\components\EditableIdentityInterface)) {
                 throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($this->_identity), 'interface' => '\nineinchnick\usr\components\EditableIdentityInterface']));
@@ -127,7 +127,7 @@ class ProfileForm extends BaseUsrForm
         if ($this->hasErrors()) {
             return;
         }
-        $identityClass = Yii::$app->user->identityClass;
+        $identityClass = $this->webUser->identityClass;
         $existingIdentity = $identityClass::find()->where([$attribute => $this->$attribute])->one();
         if ($existingIdentity !== null && ($this->scenario == 'register' || (($identity = $this->getIdentity()) !== null && $existingIdentity->getId() != $identity->getId()))) {
             $this->addError($attribute, Yii::t('usr', '{attribute} has already been used by another user.', ['attribute' => $this->$attribute]));
@@ -169,7 +169,7 @@ class ProfileForm extends BaseUsrForm
     {
         $identity = $this->getIdentity();
 
-        return Yii::$app->user->login($identity, 0);
+        return $this->webUser->login($identity, 0);
     }
 
     /**

@@ -13,12 +13,31 @@ use nineinchnick\usr\Module;
 /**
  * OneTimePasswordFormBehavior adds one time password validation to a login form model component.
  *
+ * Valid options are:
+ * * authenticator - If null, set to a new instance of GoogleAuthenticator class.
+ * * mode          - If set to OneTimePasswordFormBehavior::OTP_TIME or OneTimePasswordFormBehavior::OTP_COUNTER, two step authentication is enabled using one time passwords.
+ *                   Time mode uses codes generated using current time and requires the user to use an external application, like Google Authenticator on Android.
+ *                   Counter mode uses codes generated using a sequence and sends them to user's email.
+ * * required      - Should the user be allowed to log in even if a secret hasn't been generated yet (is null).
+ *                   This only makes sense when mode is 'counter', secrets are generated when registering users and a code is sent via email.
+ * * timeout       - Number of seconds for how long is the last verified code valid.
+ *
  * @property CFormModel $owner The owner model that this behavior is attached to.
+ * @property array $oneTimePasswordConfig Configuration options, @see OneTimePasswordFormBehavior.
  *
  * @author Jan Was <jwas@nets.com.pl>
  */
 class OneTimePasswordFormBehavior extends FormModelBehavior
 {
+    const OTP_SECRET_PREFIX = 'nineinchnick.usr.Module.oneTimePassword.';
+    const OTP_COOKIE = 'otp';
+    const OTP_NONE = 'none';
+    const OTP_TIME = 'time';
+    const OTP_COUNTER = 'counter';
+
+    /**
+     * @var string One time password as a token entered by the user.
+     */
     public $oneTimePassword;
 
     private $_oneTimePasswordConfig = [
@@ -46,16 +65,16 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function filterRules($rules = [])
     {
-        $rules = [
+        $behaviorRules = [
             ['oneTimePassword', 'filter', 'filter' => 'trim', 'on' => 'verifyOTP'],
             ['oneTimePassword', 'default', 'on' => 'verifyOTP'],
             ['oneTimePassword', 'required', 'on' => 'verifyOTP'],
             ['oneTimePassword', 'validOneTimePassword', 'skipOnEmpty' => false, 'except' => 'hybridauth'],
         ];
 
-        return $this->applyRuleOptions($rules);
+        return array_merge($rules, $this->applyRuleOptions($behaviorRules));
     }
 
     /**
@@ -83,6 +102,16 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
         return $this->_oneTimePasswordConfig;
     }
 
+    public function getMode()
+    {
+        return $this->_oneTimePasswordConfig['mode'];
+    }
+
+    public static function getDefaultAuthenticator()
+    {
+        return new \Google\Authenticator\GoogleAuthenticator();
+    }
+
     public function setOneTimePasswordConfig(array $config)
     {
         foreach ($config as $key => $value) {
@@ -107,6 +136,16 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
             'previousCounter' => $previousCounter,
         ]);
 
+        foreach ($this->_oneTimePasswordConfig as $configName => $configValue) {
+            if ($configValue === null) {
+                if ($configName == 'authenticator' && $this->$configName === null) {
+                    $this->_oneTimePasswordConfig[$configName] = self::getDefaultAuthenticator();
+                } elseif (isset($this->$configName)) {
+                    $this->_oneTimePasswordConfig[$configName] = $this->$configName;
+                }
+            }
+        }
+
         return $this;
     }
 
@@ -125,7 +164,7 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
         // extracts: $authenticator, $mode, $required, $timeout, $secret, $previousCode, $previousCounter
         extract($this->_oneTimePasswordConfig);
 
-        return $authenticator->getCode($secret, $mode == Module::OTP_TIME ? null : $previousCounter);
+        return $authenticator->getCode($secret, $mode == OneTimePasswordFormBehavior::OTP_TIME ? null : $previousCounter);
     }
 
     public function validOneTimePassword($attribute, $params)
@@ -137,7 +176,7 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
         // extracts: $authenticator, $mode, $required, $timeout, $secret, $previousCode, $previousCounter
         extract($this->_oneTimePasswordConfig);
 
-        if (($mode !== Module::OTP_TIME && $mode !== Module::OTP_COUNTER) || (!$required && $secret === null)) {
+        if (($mode !== OneTimePasswordFormBehavior::OTP_TIME && $mode !== OneTimePasswordFormBehavior::OTP_COUNTER) || (!$required && $secret === null)) {
             return true;
         }
         if ($required && $secret === null) {
@@ -146,24 +185,24 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
             $this->owner->getIdentity()->setOneTimePasswordSecret($secret);
         }
 
-        if ($this->isValidOTPCookie(Yii::$app->request->cookies->get(Module::OTP_COOKIE), $this->owner->username, $secret, $timeout)) {
+        if ($this->isValidOTPCookie(Yii::$app->request->cookies->get(OneTimePasswordFormBehavior::OTP_COOKIE), $this->owner->username, $secret, $timeout)) {
             return true;
         }
         if (empty($this->owner->$attribute)) {
             $this->owner->addError($attribute, Yii::t('usr', 'Enter a valid one time password.'));
             $this->owner->scenario = 'verifyOTP';
-            if ($mode === Module::OTP_COUNTER) {
+            if ($mode === OneTimePasswordFormBehavior::OTP_COUNTER) {
                 $this->_controller->sendEmail($this, 'oneTimePassword');
             }
             if (YII_DEBUG) {
-                $this->oneTimePassword = $authenticator->getCode($secret, $mode === Module::OTP_TIME ? null : $previousCounter);
+                $this->oneTimePassword = $authenticator->getCode($secret, $mode === OneTimePasswordFormBehavior::OTP_TIME ? null : $previousCounter);
             }
 
             return false;
         }
-        if ($mode === Module::OTP_TIME) {
+        if ($mode === OneTimePasswordFormBehavior::OTP_TIME) {
             $valid = $authenticator->checkCode($secret, $this->owner->$attribute);
-        } elseif ($mode === Module::OTP_COUNTER) {
+        } elseif ($mode === OneTimePasswordFormBehavior::OTP_COUNTER) {
             $valid = $authenticator->getCode($secret, $previousCounter) == $this->owner->$attribute;
         } else {
             $valid = false;
@@ -175,9 +214,9 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
             return false;
         }
         if ($this->owner->$attribute == $previousCode) {
-            if ($mode === Module::OTP_TIME) {
+            if ($mode === OneTimePasswordFormBehavior::OTP_TIME) {
                 $message = Yii::t('usr', 'Please wait until next code will be generated.');
-            } elseif ($mode === Module::OTP_COUNTER) {
+            } elseif ($mode === OneTimePasswordFormBehavior::OTP_COUNTER) {
                 $message = Yii::t('usr', 'Please log in again to request a new code.');
             }
             $this->owner->addError($attribute, Yii::t('usr', 'Entered code has already been used.').' '.$message);
@@ -185,7 +224,7 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
 
             return false;
         }
-        $this->owner->getIdentity()->setOneTimePassword($this->owner->$attribute, $mode === Module::OTP_TIME ? floor(time() / 30) : $previousCounter + 1);
+        $this->owner->getIdentity()->setOneTimePassword($this->owner->$attribute, $mode === OneTimePasswordFormBehavior::OTP_TIME ? floor(time() / 30) : $previousCounter + 1);
 
         return true;
     }
@@ -211,7 +250,7 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
         $data = ['username' => $username, 'time' => $time, 'timeout' => $timeout];
         $security = new \yii\base\Security;
         $cookie = new \yii\web\Cookie([
-            'name' => Module::OTP_COOKIE,
+            'name' => OneTimePasswordFormBehavior::OTP_COOKIE,
             'value' => $time.':'.$security->hashData(serialize($data), $secret),
             'expire' => time() + ($timeout <= 0 ? 10*365*24*3600 : $timeout),
             'httpOnly' => true,

@@ -50,7 +50,7 @@ class PasswordForm extends BasePasswordForm
             if ($this->scenario === 'register') {
                 return $this->_identity;
             }
-            $this->_identity = Yii::$app->user->getIdentity();
+            $this->_identity = $this->webUser->getIdentity();
         }
 
         return $this->_identity;
@@ -94,8 +94,9 @@ class PasswordForm extends BasePasswordForm
         if ($identity === null) {
             $identity = $this->getIdentity();
         }
-        if (!$identity->resetPassword($this->newPassword)) {
-            $this->addError('newPassword', Yii::t('usr', 'Failed to reset the password.'));
+        $identity->password = $this->password;
+        if (($message = $identity->resetPassword($this->newPassword)) !== true) {
+            $this->addError('newPassword', is_string($message) ? $message : Yii::t('usr', 'Failed to reset the password.'));
 
             return false;
         }

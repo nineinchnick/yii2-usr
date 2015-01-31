@@ -33,10 +33,15 @@ class DefaultController extends UsrController
                 'extraChar' => $this->module->dicewareExtraChar,
             ];
         }
-        if ($this->module->oneTimePasswordMode != \nineinchnick\usr\Module::OTP_NONE) {
+        if (isset($this->module->loginFormBehaviors['oneTimePasswordBehavior']) && $this->module->loginFormBehaviors['oneTimePasswordBehavior']['mode'] != OneTimePasswordFormBehavior::OTP_NONE) {
+            $configuration = $this->module->loginFormBehaviors['oneTimePasswordBehavior'];
+            if (!isset($configuration['authenticator'])) {
+                $configuration['authenticator'] = OneTimePasswordFormBehavior::getDefaultAuthenticator();
+            }
             // OneTimePasswordAction allows toggling two step auth in user profile
             $actions['toggleOneTimePassword'] = [
                 'class' => '\nineinchnick\usr\components\OneTimePasswordAction',
+                'configuration' => $configuration,
             ];
         }
 
@@ -103,17 +108,6 @@ class DefaultController extends UsrController
     }
 
     /**
-     * Redirects user either to returnUrl or main page.
-     */
-    protected function afterLogin()
-    {
-        $returnUrlParts = explode('/', Yii::$app->user->returnUrl);
-        $url = end($returnUrlParts) == 'index.php' ? '/' : Yii::$app->user->returnUrl;
-
-        return $this->redirect($url);
-    }
-
-    /**
      * Performs user login, expired password reset or one time password verification.
      * @param  string $scenario
      * @return string
@@ -122,7 +116,8 @@ class DefaultController extends UsrController
     {
         /** @var LoginForm */
         $model = $this->module->createFormModel('LoginForm');
-        if ($scenario !== null && in_array($scenario, ['reset', 'verifyOTP'])) {
+        $scenarios = $model->scenarios();
+        if ($scenario !== null && in_array($scenario, array_keys($scenarios))) {
             $model->scenario = $scenario;
         }
 
@@ -140,13 +135,8 @@ class DefaultController extends UsrController
                 }
             }
         }
-        switch ($model->scenario) {
-        default: $view = 'login'; break;
-        case 'reset': $view = 'reset'; break;
-        case 'verifyOTP': $view = 'verifyOTP'; break;
-        }
-
-        return $this->render($view, ['model' => $model]);
+        list($view, $params) = $this->getScenarioView($model->scenario, 'login');
+        return $this->render($view, array_merge(['model' => $model], $params));
     }
 
     /**

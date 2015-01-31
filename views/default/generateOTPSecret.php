@@ -9,6 +9,7 @@ use yii\widgets\ActiveForm;
  * @var models\OneTimePasswordForm $model
  * @var string $url
  * @var ActiveForm $form
+ * @var string $mode
  */
 $this->title = Yii::t('usr', 'One Time Password Secret');
 $this->params['breadcrumbs'][] = $this->title;
@@ -31,11 +32,11 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="col-lg-5">
 
     <p>
-<?php if ($this->context->module->oneTimePasswordMode === \nineinchnick\usr\Module::OTP_TIME): ?>
+<?php if ($mode === \nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_TIME): ?>
         <?php echo Yii::t('usr', 'Scan this QR code using the Google Authenticator application in your mobile phone.'); ?><br/>
         <?php echo Html::img($url, ['alt' => Yii::t('usr', 'One Time Password Secret')]); ?><br/>
         <?php echo Yii::t('usr', 'Use the Google Authenticator application to generate a one time password and enter it below.'); ?><br/>
-<?php elseif ($this->context->module->oneTimePasswordMode === \nineinchnick\usr\Module::OTP_COUNTER): ?>
+<?php elseif ($mode === \nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_COUNTER): ?>
         <?php echo Yii::t('usr', 'A one time password has been sent to your email. Enter it below.'); ?><br/>
 <?php endif; ?>
     </p>

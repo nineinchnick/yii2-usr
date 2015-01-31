@@ -137,9 +137,8 @@ abstract class BasePasswordForm extends BaseUsrForm
             return true;
         }
         // check if new password is not the same as current one
-        if ($identity !== null) {
-            $newIdentity = clone $identity;
-            if ($newIdentity->authenticate($this->newPassword)) {
+        if (property_exists($this, 'password')) {
+            if ($this->password === $this->newPassword) {
                 $this->addError('newPassword', Yii::t('usr', 'New password must be different than the old one.'));
 
                 return false;

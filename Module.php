@@ -9,12 +9,6 @@ use Yii;
  */
 class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
 {
-    const OTP_SECRET_PREFIX = 'nineinchnick.usr.Module.oneTimePassword.';
-    const OTP_COOKIE = 'otp';
-    const OTP_NONE = 'none';
-    const OTP_TIME = 'time';
-    const OTP_COUNTER = 'counter';
-
     /**
      * @var boolean Is new user registration enabled.
      */
@@ -31,11 +25,6 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
      * @var integer For how long the user will be logged in without any activity, in seconds. Defaults to 3600*24*30 seconds (30 days).
      */
     public $rememberMeDuration = 2592000;
-    /**
-     * @var integer Timeout in days after which user is requred to reset his password after logging in.
-     * If not null, the user identity class must implement PasswordHistoryIdentityInterface.
-     */
-    public $passwordTimeout;
     /**
      * @var array Set of rules to measure the password strength when choosing new password in the registration or recovery forms.
      * Rules should NOT include attribute name, it will be added when they are used.
@@ -92,21 +81,6 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
      * If the attribute list is empty a full pre-filled registration and login forms are displayed.
      */
     public $associateByAttributes = ['email'];
-    /**
-     * @var string If set to nineinchnick\usr\Module::OTP_TIME or nineinchnick\usr\Module::OTP_COUNTER, two step authentication is enabled using one time passwords.
-     * Time mode uses codes generated using current time and requires the user to use an external application, like Google Authenticator on Android.
-     * Counter mode uses codes generated using a sequence and sends them to user's email.
-     */
-    public $oneTimePasswordMode = self::OTP_NONE;
-    /**
-     * @var integer Number of seconds for how long is the last verified code valid.
-     */
-    public $oneTimePasswordTimeout = -1;
-    /**
-     * @var boolean Should the user be allowed to log in even if a secret hasn't been generated yet (is null).
-     * This only makes sense when mode is 'counter', secrets are generated when registering users and a code is sent via email.
-     */
-    public $oneTimePasswordRequired = false;
 
     /**
      * @var array If not null, CAPTCHA will be enabled on the registration and recovery form and this will be passed as arguments to the CCaptcha widget.
@@ -120,9 +94,19 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
     public $profileFormBehaviors;
 
     /**
-     * @var GoogleAuthenticator set if $oneTimePasswordMode is not nineinchnick\usr\Module::OTP_NONE
+     * @var array Extra behaviors to attach to the login form. If the views are overriden in a theme
+     * this can be used to placed extra logic. @see FormModelBehavior
      */
-    protected $_googleAuthenticator;
+    public $loginFormBehaviors;
+
+    /**
+     * @var array View params used in different LoginForm model scenarios.
+     * View name can be changed by setting the 'view' key.
+     */
+    public $scenarioViews = [
+        'reset' => ['view' => 'reset'],
+        'verifyOTP' => ['view' => 'verifyOTP'],
+    ];
     /**
      * @var Hybrid_Auth set if $hybridauthProviders are not empty
      */
@@ -185,19 +169,6 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
     }
 
     /**
-     * Gets the GoogleAuthenticator object
-     * @return GoogleAuthenticator
-     */
-    public function getGoogleAuthenticator()
-    {
-        if ($this->_googleAuthenticator === null) {
-            $this->_googleAuthenticator = new \Google\Authenticator\GoogleAuthenticator();
-        }
-
-        return $this->_googleAuthenticator;
-    }
-
-    /**
      * A factory to create pre-configured form models. Only model class names from the nineinchnick\usr\models namespace are allowed.
      * Sets scenario, password strength rules for models extending BasePasswordForm and attaches behaviors.
      *
@@ -213,6 +184,7 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
         if ($scenario !== null) {
             $form->setScenario($scenario);
         }
+        $form->webUser = Yii::$app->user;
         if ($form instanceof BasePasswordForm) {
             $form->passwordStrengthRules = $this->passwordStrengthRules;
         }
@@ -235,23 +207,10 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
                 }
                 break;
             case 'LoginForm':
-                if ($this->oneTimePasswordMode != self::OTP_NONE) {
-                    $form->attachBehavior('oneTimePasswordBehavior', [
-                        'class' => 'nineinchnick\usr\components\OneTimePasswordFormBehavior',
-                        'oneTimePasswordConfig' => [
-                            'authenticator' => $this->googleAuthenticator,
-                            'mode' => $this->oneTimePasswordMode,
-                            'required' => $this->oneTimePasswordRequired,
-                            'timeout' => $this->oneTimePasswordTimeout,
-                        ],
-                        'controller' => Yii::$app->controller,
-                    ]);
-                }
-                if ($this->passwordTimeout !== null) {
-                    $form->attachBehavior('expiredPasswordBehavior', [
-                        'class' => 'nineinchnick\usr\components\ExpiredPasswordBehavior',
-                        'passwordTimeout' => $this->passwordTimeout,
-                    ]);
+                if ($this->loginFormBehaviors !== null && is_array($this->loginFormBehaviors)) {
+                    foreach ($this->loginFormBehaviors as $name => $config) {
+                        $form->attachBehavior($name, $config);
+                    }
                 }
                 break;
             case 'HybridauthForm':

@@ -122,7 +122,7 @@ class HybridauthForm extends BaseUsrForm
 
     public function login()
     {
-        $identityClass = Yii::$app->user->identityClass;
+        $identityClass = $this->webUser->identityClass;
         $fakeIdentity = new $identityClass();
         if (!($fakeIdentity instanceof \nineinchnick\usr\components\HybridauthIdentityInterface)) {
             throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($fakeIdentity), 'interface' => '\nineinchnick\usr\components\HybridauthIdentityInterface']));
@@ -138,7 +138,7 @@ class HybridauthForm extends BaseUsrForm
         if ($this->_hybridAuthAdapter->isUserConnected()) {
             $profile = $this->_hybridAuthAdapter->getUserProfile();
             if (($this->_identity = $identityClass::findByProvider(strtolower($this->provider), $profile->identifier)) !== null) {
-                return Yii::$app->user->login($this->_identity, 0);
+                return $this->webUser->login($this->_identity, 0);
             }
         }
 
@@ -147,7 +147,7 @@ class HybridauthForm extends BaseUsrForm
 
     public function associate($user_id)
     {
-        $identityClass = Yii::$app->user->identityClass;
+        $identityClass = $this->webUser->user->identityClass;
         $identity = $identityClass::findIdentity($user_id);
         if ($identity === null) {
             return false;
