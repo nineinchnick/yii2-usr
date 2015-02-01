@@ -149,11 +149,9 @@ Options:
     ),
     'oneTimePasswordBehavior' => array(
         'class' => 'OneTimePasswordFormBehavior',
-        'oneTimePasswordConfig' => array(
-            'mode' => OneTimePasswordFormBehavior::OTP_TIME,
-            'required' => true,
-            'timeout' => 123,
-        ),
+        'mode' => OneTimePasswordFormBehavior::OTP_TIME,
+        'required' => true,
+        'timeout' => 123,
     ),
     // ... other behaviors
 ),

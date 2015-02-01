@@ -33,16 +33,18 @@ class DefaultController extends UsrController
                 'extraChar' => $this->module->dicewareExtraChar,
             ];
         }
-        if (isset($this->module->loginFormBehaviors['oneTimePasswordBehavior']) && $this->module->loginFormBehaviors['oneTimePasswordBehavior']['oneTimePasswordConfig']['mode'] != \nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_NONE) {
+        if (isset($this->module->loginFormBehaviors['oneTimePasswordBehavior'])) {
             $configuration = $this->module->loginFormBehaviors['oneTimePasswordBehavior'];
-            if (!isset($configuration['authenticator'])) {
-                $configuration['authenticator'] = \nineinchnick\usr\components\OneTimePasswordFormBehavior::getDefaultAuthenticator();
+            if ($configuration['mode'] != \nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_NONE) {
+                if (!isset($configuration['authenticator'])) {
+                    $configuration['authenticator'] = \nineinchnick\usr\components\OneTimePasswordFormBehavior::getDefaultAuthenticator();
+                }
+                // OneTimePasswordAction allows toggling two step auth in user profile
+                $actions['toggleOneTimePassword'] = [
+                    'class' => '\nineinchnick\usr\components\OneTimePasswordAction',
+                    'configuration' => $configuration,
+                ];
             }
-            // OneTimePasswordAction allows toggling two step auth in user profile
-            $actions['toggleOneTimePassword'] = [
-                'class' => '\nineinchnick\usr\components\OneTimePasswordAction',
-                'configuration' => $configuration,
-            ];
         }
 
         return $actions;

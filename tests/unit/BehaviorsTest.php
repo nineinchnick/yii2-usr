@@ -37,12 +37,10 @@ class BehaviorsTest extends TestCase
         $googleAuthenticator = new \Google\Authenticator\GoogleAuthenticator();
         $otp = \Yii::createObject([
             'class' => 'nineinchnick\usr\components\OneTimePasswordFormBehavior',
-            'oneTimePasswordConfig' => [
-                'authenticator' => $googleAuthenticator,
-                'mode' => Module::OTP_COUNTER,
-                'required' => false,
-                'timeout' => 300,
-            ],
+            'authenticator' => $googleAuthenticator,
+            'mode' => \nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_COUNTER,
+            'required' => false,
+            'timeout' => 300,
         ]);
         $otp->attach($this->owner);
 

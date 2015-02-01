@@ -2,7 +2,7 @@
 /**
  * OneTimePasswordFormBehavior class file.
  *
- * @author Jan Was <jwas@nets.com.pl>
+ * @author Jan Was <janek.jan@gmail.com>
  */
 
 namespace nineinchnick\usr\components;
@@ -13,19 +13,16 @@ use nineinchnick\usr\Module;
 /**
  * OneTimePasswordFormBehavior adds one time password validation to a login form model component.
  *
- * Valid options are:
- * * authenticator - If null, set to a new instance of GoogleAuthenticator class.
- * * mode          - If set to OneTimePasswordFormBehavior::OTP_TIME or OneTimePasswordFormBehavior::OTP_COUNTER, two step authentication is enabled using one time passwords.
- *                   Time mode uses codes generated using current time and requires the user to use an external application, like Google Authenticator on Android.
- *                   Counter mode uses codes generated using a sequence and sends them to user's email.
- * * required      - Should the user be allowed to log in even if a secret hasn't been generated yet (is null).
- *                   This only makes sense when mode is 'counter', secrets are generated when registering users and a code is sent via email.
- * * timeout       - Number of seconds for how long is the last verified code valid.
+ * @property \Google\Authenticator\GoogleAuthenticator authenticator If null, set to a new instance of GoogleAuthenticator class.
+ * @property string mode If set to OneTimePasswordFormBehavior::OTP_TIME or OneTimePasswordFormBehavior::OTP_COUNTER, two step authentication is enabled using one time passwords.
+ *                       Time mode uses codes generated using current time and requires the user to use an external application, like Google Authenticator on Android.
+ *                       Counter mode uses codes generated using a sequence and sends them to user's email.
+ * @property boolean required Should the user be allowed to log in even if a secret hasn't been generated yet (is null).
+ *                            This only makes sense when mode is 'counter', secrets are generated when registering users and a code is sent via email.
+ * @property integer timeout Number of seconds for how long is the last verified code valid.
+ * @property \yii\base\Model $owner The owner model that this behavior is attached to.
  *
- * @property CFormModel $owner The owner model that this behavior is attached to.
- * @property array $oneTimePasswordConfig Configuration options, @see OneTimePasswordFormBehavior.
- *
- * @author Jan Was <jwas@nets.com.pl>
+ * @author Jan Was <janek.jan@gmail.com>
  */
 class OneTimePasswordFormBehavior extends FormModelBehavior
 {
@@ -40,11 +37,27 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
      */
     public $oneTimePassword;
 
+    /**
+     * @var \Google\Authenticator\GoogleAuthenticator If null, set to a new instance of GoogleAuthenticator class.
+     */
+    public $authenticator;
+    /**
+     * @var string If set to OneTimePasswordFormBehavior::OTP_TIME or OneTimePasswordFormBehavior::OTP_COUNTER, two step authentication is enabled using one time passwords.
+     *             Time mode uses codes generated using current time and requires the user to use an external application, like Google Authenticator on Android.
+     *             Counter mode uses codes generated using a sequence and sends them to user's email.
+     */
+    public $mode;
+    /**
+     * @var boolean Should the user be allowed to log in even if a secret hasn't been generated yet (is null).
+     *              This only makes sense when mode is 'counter', secrets are generated when registering users and a code is sent via email.
+     */
+    public $required;
+    /**
+     * @var integer Number of seconds for how long is the last verified code valid.
+     */
+    public $timeout;
+
     private $_oneTimePasswordConfig = [
-        'authenticator' => null,
-        'mode' => null,
-        'required' => null,
-        'timeout' => null,
         'secret' => null,
         'previousCode' => null,
         'previousCounter' => null,
@@ -102,11 +115,6 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
         return $this->_oneTimePasswordConfig;
     }
 
-    public function getMode()
-    {
-        return $this->_oneTimePasswordConfig['mode'];
-    }
-
     public static function getDefaultAuthenticator()
     {
         return new \Google\Authenticator\GoogleAuthenticator();
@@ -135,16 +143,6 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
             'previousCode' => $previousCode,
             'previousCounter' => $previousCounter,
         ]);
-
-        foreach ($this->_oneTimePasswordConfig as $configName => $configValue) {
-            if ($configValue === null) {
-                if ($configName == 'authenticator' && $this->$configName === null) {
-                    $this->_oneTimePasswordConfig[$configName] = self::getDefaultAuthenticator();
-                } elseif (isset($this->$configName)) {
-                    $this->_oneTimePasswordConfig[$configName] = $this->$configName;
-                }
-            }
-        }
 
         return $this;
     }
