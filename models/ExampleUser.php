@@ -734,7 +734,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
 
     // }}}
 
-    // {{{ IManagedIdentity
+    // {{{ ManagedIdentityInterface
 
     /**
      * @inheritdoc

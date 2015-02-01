@@ -184,7 +184,9 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
         if ($scenario !== null) {
             $form->setScenario($scenario);
         }
-        $form->webUser = Yii::$app->user;
+        if ($form instanceof \nineinchnick\usr\models\BaseUsrForm) {
+            $form->webUser = Yii::$app->user;
+        }
         if ($form instanceof \nineinchnick\usr\models\BasePasswordForm) {
             $form->passwordStrengthRules = $this->passwordStrengthRules;
         }

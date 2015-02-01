@@ -185,7 +185,7 @@ class ManagerController extends UsrController
      */
     public function actionVerify($id)
     {
-        $this->loadModel($id)->toggleStatus(IManagedIdentity::STATUS_EMAIL_VERIFIED);
+        $this->loadModel($id)->toggleStatus(\nineinchnick\usr\components\ManagedIdentityInterface::STATUS_EMAIL_VERIFIED);
     }
 
     /**
@@ -194,7 +194,7 @@ class ManagerController extends UsrController
      */
     public function actionActivate($id)
     {
-        $this->loadModel($id)->toggleStatus(IManagedIdentity::STATUS_IS_ACTIVE);
+        $this->loadModel($id)->toggleStatus(\nineinchnick\usr\components\ManagedIdentityInterface::STATUS_IS_ACTIVE);
     }
 
     /**
@@ -203,7 +203,7 @@ class ManagerController extends UsrController
      */
     public function actionDisable($id)
     {
-        $this->loadModel($id)->toggleStatus(IManagedIdentity::STATUS_IS_DISABLED);
+        $this->loadModel($id)->toggleStatus(\nineinchnick\usr\components\IManagedIdentityInterface::STATUS_IS_DISABLED);
     }
 
     /**
