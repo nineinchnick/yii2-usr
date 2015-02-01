@@ -8,33 +8,34 @@ use Yii;
  * The controller handling logging in using social sites.
  * @author Jan Was <jwas@nets.com.pl>
  */
-class HybridauthController extends UsrController
+class AuthController extends UsrController
 {
+    public function actions()
+    {
+        return [
+            'popup' => [
+                'class' => 'yii\authclient\AuthAction',
+                'successCallback' => [$this, 'successCallback'],
+            ],
+        ];
+    }
+
     public function actionIndex()
     {
         return $this->redirect(['login']);
     }
 
-    public function actionPopup($provider = null)
+    public function successCallback($client)
     {
-        //! @todo port
-        /** @var HybridauthForm */
-        $remoteLogin = $this->module->createFormModel('HybridauthForm');
+        /** @var AuthForm */
+        $remoteLogin = $this->module->createFormModel('AuthForm');
 
-        if ($provider !== null) {
-            $remoteLogin->provider = $provider;
-            $remoteLogin->scenario = strtolower($remoteLogin->provider);
+        $remoteLogin->provider = $client->name;
+        $remoteLogin->scenario = strtolower($remoteLogin->provider);
 
-            if ($remoteLogin->validate()) {
-                $remoteLogin->login();
-            }
+        if ($remoteLogin->validate()) {
+            $remoteLogin->login();
         }
-        // if we got here that means Hybridauth did not perform a redirect,
-        // either there was an error or the user is already authenticated
-        $url = $this->createUrl('login', ['provider' => $provider]);
-        $message = Yii::t('usr', 'Redirecting, please wait...');
-        echo "<html><body onload=\"window.opener.location.href='$url';window.close();\">$message</body></html>";
-        Yii::app()->end();
     }
 
     /**
@@ -46,12 +47,12 @@ class HybridauthController extends UsrController
     public function actionLogin($provider = null)
     {
         if ($provider !== null) {
-            $_POST['HybridauthForm']['provider'] = $provider;
+            $_POST['AuthForm']['provider'] = $provider;
         }
-        /** @var HybridauthForm */
-        $remoteLogin = $this->module->createFormModel('HybridauthForm');
+        /** @var AuthForm */
+        $remoteLogin = $this->module->createFormModel('AuthForm');
         /** @var LoginForm */
-        $localLogin = $this->module->createFormModel('LoginForm', 'hybridauth');
+        $localLogin = $this->module->createFormModel('LoginForm', 'authclient');
         /** @var ProfileForm */
         $localProfile = $this->module->createFormModel('ProfileForm', 'register');
         //! @todo port
@@ -68,15 +69,15 @@ class HybridauthController extends UsrController
             Yii::$app->end();
         }
 
-        if (isset($_POST['HybridauthForm'])) {
-            $remoteLogin->setAttributes($_POST['HybridauthForm']);
+        if (isset($_POST['AuthForm'])) {
+            $remoteLogin->setAttributes($_POST['AuthForm']);
             $remoteLogin->scenario = strtolower($remoteLogin->provider);
 
             if ($remoteLogin->validate()) {
                 if ($remoteLogin->login()) {
                     // user is already associated with remote identity and has been logged in
                     $this->afterLogin();
-                } elseif (($adapter = $remoteLogin->getHybridAuthAdapter()) === null || !$adapter->isUserConnected()) {
+                } elseif (($adapter = $remoteLogin->getAuthClientAdapter()) === null || !$adapter->isUserConnected()) {
                     Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to log in using {provider}.', ['provider' => $remoteLogin->provider]));
 
                     return $this->redirect('login');
@@ -92,7 +93,7 @@ class HybridauthController extends UsrController
                 }
                 if (!empty($this->module->associateByAttributes)) {
                     $userIdentityClass = $localProfile->userIdentityClass;
-                    $remoteProfile = $remoteLogin->getHybridAuthAdapter()->getUserProfile();
+                    $remoteProfile = $remoteLogin->getAuthClientAdapter()->getUserProfile();
                     $remoteProfileAttributes = $userIdentityClass::getRemoteAttributes($remoteProfile);
                     $searchAttributes = [];
                     foreach ($this->module->associateByAttributes as $name) {
@@ -134,18 +135,18 @@ class HybridauthController extends UsrController
     {
         /** @var ProfileForm */
         $model = $this->module->createFormModel('ProfileForm');
-        // HybridauthForm creates an association using lowercase provider
+        // AuthForm creates an association using lowercase provider
         $model->getIdentity()->removeRemoteIdentity(strtolower($provider));
         $this->redirect($returnUrl !== null ? $returnUrl : Yii::app()->homeUrl);
     }
 
     /**
      * @param  LoginForm             $localLogin
-     * @param  HybridauthForm        $remoteLogin
+     * @param  AuthForm        $remoteLogin
      * @param  boolean|IUserIdentity $localIdentity if not false, try to authenticate this identity instead
      * @return LoginForm             validated $localLogin
      */
-    protected function performLocalLogin(\nineinchnick\usr\models\LoginForm $localLogin, \nineinchnick\usr\models\HybridauthForm $remoteLogin, $localIdentity = false)
+    protected function performLocalLogin(\nineinchnick\usr\models\LoginForm $localLogin, \nineinchnick\usr\models\AuthForm $remoteLogin, $localIdentity = false)
     {
         if (!isset($_POST['LoginForm'])) {
             return $localLogin;
@@ -172,11 +173,11 @@ class HybridauthController extends UsrController
         return $localLogin;
     }
 
-    protected function registerLocalProfile(\nineinchnick\usr\models\ProfileForm $localProfile, \nineinchnick\usr\models\HybridauthForm $remoteLogin, $localIdentity = false)
+    protected function registerLocalProfile(\nineinchnick\usr\models\ProfileForm $localProfile, \nineinchnick\usr\models\AuthForm $remoteLogin, $localIdentity = false)
     {
         if (!isset($_POST['ProfileForm']) && $localIdentity === false) {
             $userIdentityClass = $localProfile->userIdentityClass;
-            $remoteProfile = $remoteLogin->getHybridAuthAdapter()->getUserProfile();
+            $remoteProfile = $remoteLogin->getAuthClientAdapter()->getUserProfile();
             $localProfile->setAttributes($userIdentityClass::getRemoteAttributes($remoteProfile));
             $localProfile->validate();
 
@@ -185,7 +186,7 @@ class HybridauthController extends UsrController
 
         if ($localIdentity !== false) {
             $userIdentityClass = $localProfile->userIdentityClass;
-            $remoteProfile = $remoteLogin->getHybridAuthAdapter()->getUserProfile();
+            $remoteProfile = $remoteLogin->getAuthClientAdapter()->getUserProfile();
             $localProfile->setAttributes($userIdentityClass::getRemoteAttributes($remoteProfile));
         }
         if (isset($_POST['ProfileForm']) && is_array($_POST['ProfileForm'])) {
@@ -236,10 +237,5 @@ class HybridauthController extends UsrController
         }
 
         return $localProfile;
-    }
-
-    public function actionCallback()
-    {
-        \Hybrid_Endpoint::process();
     }
 }

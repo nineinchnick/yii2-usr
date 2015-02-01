@@ -42,7 +42,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     components\EditableIdentityInterface,
     components\OneTimePasswordIdentityInterface,
     components\PasswordHistoryIdentityInterface,
-    components\HybridauthIdentityInterface,
+    components\AuthClientIdentityInterface,
     components\PictureIdentityInterface,
     components\ManagedIdentityInterface
 {
@@ -494,7 +494,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
 
     // }}}
 
-    // {{{ HybridauthIdentityInterface
+    // {{{ AuthClientIdentityInterface
 
     /**
      * Loads a specific user identity connected to specified provider by an identifier.

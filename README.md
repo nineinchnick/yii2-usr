@@ -16,7 +16,7 @@ Advanced features:
 * Passphrase generator to help users choose secure passwords.
 * Easier to integrate into current projects by not requiring to modify existing user database table and model. Example models and migrations are provided.
 * Support for Google Authenticator for two step authentication using one time passwords.
-* Support for Hybridauth for logging using social site identities.
+* Support for OAuth for logging using social site identities.
 
 See [the demo](http://demo2.niix.pl).
 
@@ -26,7 +26,7 @@ See [the demo](http://demo2.niix.pl).
 2. Install package via [composer](http://getcomposer.org/download/)
   * Run `php composer.phar require nineinchnick/yii2-usr "dev-master"` OR add to composer.json require section `"nineinchnick/yii2-usr": "dev-master"`
   * If one time passwords will be used, also install "sonata-project/google-authenticator"
-  * If Hybridauth will be used, also install "hybridauth/hybridauth"
+  * If OAuth will be used, also install "yiisoft/yii2-authclient"
 3. Update config file *config/web.php* as shown below. Note the _from_ key in messageConfig property of the mail component. Check out the Module for more available options.
 4. Use provided example User model or implement required interfaces in existing User model. These are described in next chapter.
 
@@ -87,7 +87,7 @@ This interface allows password reset with optional tracking of used passwords. T
 
 See the ExpiredPasswordBehavior description below.
 
-## Hybridauth
+## OAuth
 
 This interface allows finding local identity associated with a remote one (from an external social site) and creating such associations.
 

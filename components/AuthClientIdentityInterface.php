@@ -2,7 +2,7 @@
 
 namespace nineinchnick\usr\components;
 
-interface HybridauthIdentityInterface
+interface AuthClientIdentityInterface
 {
     /**
      * Loads a specific user identity connected to specified provider by an identifier.

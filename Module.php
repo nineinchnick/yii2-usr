@@ -71,11 +71,6 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
      */
     public $dicewareExtraChar = false;
     /**
-     * @var array Available Hybridauth providers, indexed by name, defined as ['enabled'=>true|false, 'keys'=>['id'=>string, 'key'=>string, 'secret'=>string], 'scope'=>string]
-     * @see http://hybridauth.sourceforge.net/userguide.html
-     */
-    public $hybridauthProviders = [];
-    /**
      * @var array list of identity attribute names that should be passed to UserIdentity::find() to find a local identity matching a remote one.
      * If one is found, user must authorize to associate it. If none has been found, a new local identity is automatically registered.
      * If the attribute list is empty a full pre-filled registration and login forms are displayed.
@@ -107,10 +102,6 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
         'reset' => ['view' => 'reset'],
         'verifyOTP' => ['view' => 'verifyOTP'],
     ];
-    /**
-     * @var Hybrid_Auth set if $hybridauthProviders are not empty
-     */
-    protected $_hybridauth;
 
     /**
      * @inheritdoc
@@ -137,35 +128,6 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
         if (\Yii::$app->mail !== null) {
             \Yii::$app->mail->viewPath = '@usr/views/emails';
         }
-        if ($this->hybridauthEnabled()) {
-            $hybridauthConfig = [
-                'base_url' => \yii\helpers\Url::toRoute(['/'.$this->id.'/hybridauth/callback'], true),
-                'providers' => $this->hybridauthProviders,
-                //'debug_mode' => YII_DEBUG,
-                //'debug_file' => Yii::app()->runtimePath . '/hybridauth.log',
-            ];
-            $this->_hybridauth = new \Hybrid_Auth($hybridauthConfig);
-        }
-    }
-
-    /**
-     * Checks if any Hybridauth provider has been configured.
-     * @return boolean
-     */
-    public function hybridauthEnabled()
-    {
-        $providers = array_filter($this->hybridauthProviders, function ($p) {return !isset($p['enabled']) || $p['enabled'];});
-
-        return !empty($providers);
-    }
-
-    /**
-     * Gets the Hybridauth object
-     * @return Hybrid_Auth
-     */
-    public function getHybridAuth()
-    {
-        return $this->_hybridauth;
     }
 
     /**
@@ -215,9 +177,8 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
                     }
                 }
                 break;
-            case 'HybridauthForm':
-                $form->setValidProviders($this->hybridauthProviders);
-                $form->setHybridAuth($this->getHybridAuth());
+            case 'AuthForm':
+                $form->setValidProviders(array_keys(Yii::$app->get('authClientCollection')->clients));
                 break;
         }
 
@@ -242,7 +203,7 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
             return parent::createController($route);
         }
         // check valid routes
-        $validRoutes = [$this->defaultRoute, 'hybridauth', 'manager'];
+        $validRoutes = [$this->defaultRoute, 'auth', 'manager'];
         $isValidRoute = false;
         foreach ($validRoutes as $validRoute) {
             if (strpos($route, $validRoute) === 0) {

@@ -84,7 +84,7 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
             ['oneTimePassword', 'filter', 'filter' => 'trim', 'on' => 'verifyOTP'],
             ['oneTimePassword', 'default', 'on' => 'verifyOTP'],
             ['oneTimePassword', 'required', 'on' => 'verifyOTP'],
-            ['oneTimePassword', 'validOneTimePassword', 'skipOnEmpty' => false, 'except' => 'hybridauth'],
+            ['oneTimePassword', 'validOneTimePassword', 'skipOnEmpty' => false, 'except' => 'auth'],
         ];
 
         return array_merge($rules, $this->applyRuleOptions($behaviorRules));
@@ -232,7 +232,7 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
 
     public function afterValidate($event)
     {
-        if ($this->owner->scenario === 'hybridauth' || $this->owner->hasErrors()) {
+        if ($this->owner->scenario === 'auth' || $this->owner->hasErrors()) {
             return;
         }
 

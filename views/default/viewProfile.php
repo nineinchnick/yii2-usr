@@ -46,8 +46,6 @@ if ($model->getIdentity() instanceof \nineinchnick\usr\components\PictureIdentit
 
 echo DetailView::widget(['model' => $model, 'attributes' => $attributes]);
 
-if ($this->context->module->hybridauthEnabled()) {
-    echo '<p>';
-    echo $this->render('_login_remote', ['model' => $model]);
-    echo '</p>';
+if (Yii::$app->has('authClientCollection')) {
+    echo \yii\authclient\widgets\AuthChoice::widget(['baseAuthUrl' => ['/usr/auth/popup']]);
 }

@@ -6,7 +6,7 @@ use yii\widgets\ActiveForm;
 
 /**
  * @var yii\web\View $this
- * @var models\HybridauthForm $remoteLogin
+ * @var models\AuthForm $remoteLogin
  * @var models\LoginForm $localLogin
  * @var models\ProfileForm $localProfile
  * @var ActiveForm $form

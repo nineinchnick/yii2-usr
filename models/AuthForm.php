@@ -5,11 +5,11 @@ namespace nineinchnick\usr\models;
 use Yii;
 
 /**
- * HybridauthForm class.
- * HybridauthForm is the data structure for keeping
- * Hybridauth form data. It is used by the 'login' action of 'HybridauthController'.
+ * AuthForm class.
+ * AuthForm is the data structure for keeping
+ * Auth form data. It is used by the 'login' action of 'AuthController'.
  */
-class HybridauthForm extends BaseUsrForm
+class AuthForm extends BaseUsrForm
 {
     /**
      * @var string provider name selected from the list of available providers
@@ -21,11 +21,11 @@ class HybridauthForm extends BaseUsrForm
     public $openid_identifier;
 
     /**
-     * @var array @see \nineinchnick\usr\Module::$hybridauthProviders
+     * @var array @see \nineinchnick\usr\Module::$authProviders
      */
     protected $_validProviders = [];
-    protected $_hybridAuth;
-    protected $_hybridAuthAdapter;
+    protected $_authClient;
+    protected $_authClientAdapter;
     /**
      * @var IdentityInterface cached object returned by @see getIdentity()
      */
@@ -78,16 +78,16 @@ class HybridauthForm extends BaseUsrForm
         return $this;
     }
 
-    public function setHybridAuth($hybridAuth)
+    public function setAuthClient($authClient)
     {
-        $this->_hybridAuth = $hybridAuth;
+        $this->_authClient = $authClient;
 
         return $this;
     }
 
-    public function getHybridAuthAdapter()
+    public function getAuthClientAdapter()
     {
-        return $this->_hybridAuthAdapter;
+        return $this->_authClientAdapter;
     }
 
     public function getIdentity()
@@ -117,15 +117,15 @@ class HybridauthForm extends BaseUsrForm
 
     public function loggedInRemotely()
     {
-        return ($adapter = $this->getHybridAuthAdapter()) !== null && $adapter->isUserConnected();
+        return ($adapter = $this->getAuthClientAdapter()) !== null && $adapter->isUserConnected();
     }
 
     public function login()
     {
         $identityClass = $this->webUser->identityClass;
         $fakeIdentity = new $identityClass();
-        if (!($fakeIdentity instanceof \nineinchnick\usr\components\HybridauthIdentityInterface)) {
-            throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($fakeIdentity), 'interface' => '\nineinchnick\usr\components\HybridauthIdentityInterface']));
+        if (!($fakeIdentity instanceof \nineinchnick\usr\components\AuthClientIdentityInterface)) {
+            throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($fakeIdentity), 'interface' => '\nineinchnick\usr\components\AuthClientIdentityInterface']));
         }
 
         $params = $this->getAttributes();
@@ -133,10 +133,10 @@ class HybridauthForm extends BaseUsrForm
         if (empty($params['openid_identifier'])) {
             unset($params['openid_identifier']);
         }
-        $this->_hybridAuthAdapter = $this->_hybridAuth->authenticate(strtolower($this->provider), $params);
+        $this->_authClientAdapter = $this->_authClient->authenticate(strtolower($this->provider), $params);
 
-        if ($this->_hybridAuthAdapter->isUserConnected()) {
-            $profile = $this->_hybridAuthAdapter->getUserProfile();
+        if ($this->_authClientAdapter->isUserConnected()) {
+            $profile = $this->_authClientAdapter->getUserProfile();
             if (($this->_identity = $identityClass::findByProvider(strtolower($this->provider), $profile->identifier)) !== null) {
                 return $this->webUser->login($this->_identity, 0);
             }
@@ -152,10 +152,10 @@ class HybridauthForm extends BaseUsrForm
         if ($identity === null) {
             return false;
         }
-        if (!($identity instanceof \nineinchnick\usr\components\HybridauthIdentityInterface)) {
-            throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($identity), 'interface' => '\nineinchnick\usr\components\HybridauthIdentityInterface']));
+        if (!($identity instanceof \nineinchnick\usr\components\AuthClientIdentityInterface)) {
+            throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($identity), 'interface' => '\nineinchnick\usr\components\AuthClientIdentityInterface']));
         }
-        $profile = $this->_hybridAuthAdapter->getUserProfile();
+        $profile = $this->_authClientAdapter->getUserProfile();
         if ($identity instanceof \nineinchnick\usr\components\PictureIdentityInterface && !empty($profile->photoURL)) {
             $picture = $identity->getPictureUrl();
             if ($picture['url'] != $profile->photoURL) {
