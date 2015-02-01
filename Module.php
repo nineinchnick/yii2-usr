@@ -117,7 +117,7 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
      */
     public function bootstrap($app)
     {
-        if ($app instanceof yii\console\Application) {
+        if ($app instanceof \yii\console\Application) {
             $app->controllerMap[$this->id] = 'nineinchnick\usr\commands\UsrController';
         }
     }
@@ -139,7 +139,7 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
         }
         if ($this->hybridauthEnabled()) {
             $hybridauthConfig = [
-                'base_url' => Yii::$app->getUrlManager()->createAbsoluteUrl('/'.$this->id.'/hybridauth/callback'),
+                'base_url' => \yii\helpers\Url::toRoute(['/'.$this->id.'/hybridauth/callback'], true),
                 'providers' => $this->hybridauthProviders,
                 //'debug_mode' => YII_DEBUG,
                 //'debug_file' => Yii::app()->runtimePath . '/hybridauth.log',
@@ -185,7 +185,7 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
             $form->setScenario($scenario);
         }
         $form->webUser = Yii::$app->user;
-        if ($form instanceof BasePasswordForm) {
+        if ($form instanceof \nineinchnick\usr\models\BasePasswordForm) {
             $form->passwordStrengthRules = $this->passwordStrengthRules;
         }
         switch ($class) {
@@ -236,7 +236,7 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
      */
     public function createController($route)
     {
-        if (\Yii::$app instanceof yii\console\Application) {
+        if (\Yii::$app instanceof \yii\console\Application) {
             return parent::createController($route);
         }
         // check valid routes

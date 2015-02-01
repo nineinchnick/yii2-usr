@@ -35,7 +35,7 @@ abstract class ExampleUserUsedPassword extends \yii\db\ActiveRecord
 
     public function getUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'user_id']);
+        return $this->hasOne(\app\models\User::className(), ['id' => 'user_id']);
     }
 
     /**

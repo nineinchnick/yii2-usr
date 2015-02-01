@@ -185,7 +185,7 @@ class ProfileForm extends BaseUsrForm
 
         $identity->setIdentityAttributes($this->getAttributes());
         if ($identity->saveIdentity($requireVerifiedEmail)) {
-            if ((!($this->picture instanceof yii\web\UploadedFile) || $identity->savePicture($this->picture)) && (!$this->removePicture || $identity->removePicture())) {
+            if ((!($this->picture instanceof \yii\web\UploadedFile) || $identity->savePicture($this->picture)) && (!$this->removePicture || $identity->removePicture())) {
                 $this->_identity = $identity;
 
                 return true;

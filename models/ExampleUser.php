@@ -141,7 +141,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public static function findByUsername($username)
     {
-        return self::find()->onCondition(['username' => $username])->one();
+        return self::find()->where(['username' => $username])->one();
     }
 
     /**
@@ -152,7 +152,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     {
         try {
             return Yii::$app->security->validatePassword($password, $this->password);
-        } catch (yii\base\InvalidParamException $e) {
+        } catch (\yii\base\InvalidParamException $e) {
             return false;
         }
     }
@@ -167,7 +167,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public static function findIdentity($id)
     {
-        return self::find()->onCondition(['id' => $id])->one();
+        return self::find()->where(['id' => $id])->one();
     }
 
     /**
@@ -537,7 +537,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function removeRemoteIdentity($provider)
     {
-        UserRemoteIdentity::deleteAll(['provider' => $provider, 'user_id' => $this->_id]);
+        UserRemoteIdentity::deleteAll(['provider' => $provider, 'user_id' => $this->id]);
 
         return true;
     }
@@ -547,7 +547,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function hasRemoteIdentity($provider)
     {
-        return 0 != UserRemoteIdentity::find()->where(['provider' => $provider, 'user_id' => $this->_id])->count();
+        return 0 != UserRemoteIdentity::find()->where(['provider' => $provider, 'user_id' => $this->id])->count();
     }
 
     /**
@@ -588,15 +588,14 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
         if (!empty($pictureRecord)) {
             $pictureRecord = $pictureRecord[0];
         } else {
-            $pictureRecord = new UserProfilePicture();
+            $pictureRecord = new \app\models\UserProfilePicture();
             $pictureRecord->user_id = $this->id;
         }
-        $picturePath = $picture->getTempName();
         $pictureRecord->filename = $picture;
-        $pictureRecord->mimetype = yii\helpers\FileHelper::getMimeType($picturePath);
-        $pictureRecord->contents = base64_encode(file_get_contents($picturePath));
+        $pictureRecord->mimetype = \yii\helpers\FileHelper::getMimeType($picture->tempName);
+        $pictureRecord->contents = base64_encode(file_get_contents($picture->tempName));
 
-        if (($size = @getimagesize($picturePath)) !== false) {
+        if (($size = @getimagesize($picture->tempName)) !== false) {
             list($width, $height, $type, $attr) = $size;
             $pictureRecord->width = $width;
             $pictureRecord->height = $height;
@@ -643,7 +642,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
         if (!empty($thumbnail)) {
             $thumbnail = $thumbnail[0];
         } else {
-            $thumbnail = new UserProfilePicture();
+            $thumbnail = new \app\models\UserProfilePicture();
             $thumbnail->original_picture_id = $pictureRecord->id;
             $thumbnail->user_id = $pictureRecord->user_id;
             $thumbnail->filename = $pictureRecord->filename;
@@ -672,8 +671,8 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
         $pictures = $query->all();
         if (!empty($pictures)) {
             return [
-                'url'    => Yii::$app->createAbsoluteUrl('/usr/profilePicture', ['id' => $pictures[0]->id]),
-                'width'    => $pictures[0]->width,
+                'url'    => \yii\helpers\Url::toRoute(['/usr/default/profile-picture', 'id' => $pictures[0]->id], true),
+                'width'  => $pictures[0]->width,
                 'height' => $pictures[0]->height,
             ];
         }
@@ -703,9 +702,9 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     {
         $condition = ['id' => $id];
         if ($currentIdentity) {
-            $condition['user_id'] = $this->_id;
+            $condition['user_id'] = $this->id;
         }
-        if (($picture = UserProfilePicture::find()->onCondition($condition)->one()) === null) {
+        if (($picture = \app\models\UserProfilePicture::find()->where($condition)->one()) === null) {
             return null;
         }
 
@@ -730,7 +729,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
             $attributes['id'] = $id;
         }
 
-        return UserProfilePicture::model()->deleteAllByAttributes($attributes);
+        return \app\models\UserProfilePicture::model()->deleteAllByAttributes($attributes);
     }
 
     // }}}

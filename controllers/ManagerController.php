@@ -130,8 +130,8 @@ class ManagerController extends UsrController
 
         $flashes = ['success' => [], 'error' => []];
         if ($loadedProfile) {
-            if ($profileForm->getIdentity() instanceof IPictureIdentity && !empty($profileForm->pictureUploadRules)) {
-                $profileForm->picture = CUploadedFile::getInstance($profileForm, 'picture');
+            if ($profileForm->getIdentity() instanceof \nineinchnick\usr\components\PictureIdentityInterface && !empty($profileForm->pictureUploadRules)) {
+                $profileForm->picture = \yii\web\UploadedFile::getInstance($profileForm, 'picture');
             }
             $updatePassword = $canUpdatePassword && $loadedPassword;
             if ($profileForm->validate() && (!$updatePassword || $passwordForm->validate())) {

@@ -156,7 +156,7 @@ class HybridauthForm extends BaseUsrForm
             throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($identity), 'interface' => '\nineinchnick\usr\components\HybridauthIdentityInterface']));
         }
         $profile = $this->_hybridAuthAdapter->getUserProfile();
-        if ($identity instanceof PictureIdentityInterface && !empty($profile->photoURL)) {
+        if ($identity instanceof \nineinchnick\usr\components\PictureIdentityInterface && !empty($profile->photoURL)) {
             $picture = $identity->getPictureUrl();
             if ($picture['url'] != $profile->photoURL) {
                 $path = tempnam(sys_get_temp_dir(), 'external_profile_picture_');

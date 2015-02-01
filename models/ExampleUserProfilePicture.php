@@ -42,17 +42,17 @@ abstract class ExampleUserProfilePicture extends \yii\db\ActiveRecord
 
     public function getOriginalPicture()
     {
-        return $this->hasOne(UserProfilePicture::className(), ['id' => 'original_picture_id']);
+        return $this->hasOne(\app\models\UserProfilePicture::className(), ['id' => 'original_picture_id']);
     }
 
     public function getThumbnails()
     {
-        return $this->hasMany(UserProfilePicture::className(), ['original_picture_id' => 'id']);
+        return $this->hasMany(\app\models\UserProfilePicture::className(), ['original_picture_id' => 'id']);
     }
 
     public function getUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'user_id']);
+        return $this->hasOne(\app\models\User::className(), ['id' => 'user_id']);
     }
 
     /**

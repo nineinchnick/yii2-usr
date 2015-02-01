@@ -64,6 +64,7 @@ class DefaultController extends UsrController
         switch ($action->id) {
         case 'index':
         case 'profile':
+        case 'profilePicture':
             if (Yii::$app->user->isGuest) {
                 $this->redirect(['login']);
 
@@ -240,8 +241,8 @@ class DefaultController extends UsrController
 
         if ($model->load($_POST)) {
             $passwordForm->load($_POST);
-            if ($model->getIdentity() instanceof PictureIdentityInterface && !empty($model->pictureUploadRules)) {
-                $model->picture = yii\web\UploadedFile::getInstance($model, 'picture');
+            if ($model->getIdentity() instanceof \nineinchnick\usr\components\PictureIdentityInterface && !empty($model->pictureUploadRules)) {
+                $model->picture = \yii\web\UploadedFile::getInstance($model, 'picture');
             }
             if (Yii::$app->request->isAjax) {
                 Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
@@ -296,8 +297,8 @@ class DefaultController extends UsrController
         /** @var PasswordForm */
         $passwordForm = $this->module->createFormModel('PasswordForm');
         $loadedPassword = isset($_POST[$passwordForm->formName()]) && trim($_POST[$passwordForm->formName()]['newPassword']) !== '' && $passwordForm->load($_POST);
-        if ($loadedModel && $model->getIdentity() instanceof PictureIdentityInterface && !empty($model->pictureUploadRules)) {
-            $model->picture = yii\web\UploadedFile::getInstance($model, 'picture');
+        if ($loadedModel && $model->getIdentity() instanceof \nineinchnick\usr\components\PictureIdentityInterface && !empty($model->pictureUploadRules)) {
+            $model->picture = \yii\web\UploadedFile::getInstance($model, 'picture');
             $passwordForm->password = $model->password;
         }
 
@@ -374,7 +375,7 @@ class DefaultController extends UsrController
     {
         /** @var ProfileForm */
         $model = $this->module->createFormModel('ProfileForm');
-        if (!(($identity = $model->getIdentity()) instanceof PictureIdentityInterface)) {
+        if (!(($identity = $model->getIdentity()) instanceof \nineinchnick\usr\components\PictureIdentityInterface)) {
             throw new ForbiddenException(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($identity), 'interface' => 'PictureIdentityInterface']));
         }
         $picture = $identity->getPicture($id);

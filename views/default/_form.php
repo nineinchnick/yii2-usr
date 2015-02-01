@@ -23,7 +23,7 @@ use yii\widgets\ActiveForm;
 
             <?= $form->field($model, 'firstName') ?>
             <?= $form->field($model, 'lastName') ?>
-<?php if ($model->getIdentity() instanceof nineinchnick\usr\components\PictureIdentityInterface && !empty($model->pictureUploadRules)):
+<?php if ($model->getIdentity() instanceof \nineinchnick\usr\components\PictureIdentityInterface && !empty($model->pictureUploadRules)):
         $picture = $model->getIdentity()->getPictureUrl(80, 80);
         if ($picture !== false) {
             $picture['alt'] = Yii::t('usr', 'Profile picture');
