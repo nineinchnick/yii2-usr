@@ -15,18 +15,19 @@ class OneTimePasswordAction extends Action
     /**
      * @var array Same configuration as set for @see OneTimePasswordFormBehavior.
      */
-    public $configuration = [
-        'authenticator' => null,
-        'mode'          => null,
-        'required'      => null,
-        'timeout'       => null,
-    ];
+    public $configuration;
 
     public function run()
     {
         if (Yii::$app->user->isGuest) {
             $this->controller->redirect(['login']);
         }
+        $this->configuration = array_merge([
+            'authenticator' => null,
+            'mode'          => null,
+            'required'      => null,
+            'timeout'       => null,
+        ], $this->configuration);
         if ($this->configuration['required']) {
             $this->controller->redirect(['profile']);
         }

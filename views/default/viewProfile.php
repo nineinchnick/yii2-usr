@@ -11,6 +11,10 @@ use yii\widgets\DetailView;
  */
 $this->title = Yii::t('usr', 'User profile');
 $this->params['breadcrumbs'][] = $this->title;
+
+if (isset($this->context->module->loginFormBehaviors['oneTimePasswordBehavior'])) {
+    $otp = $this->context->module->loginFormBehaviors['oneTimePasswordBehavior'];
+}
 ?>
 
 <h1><?= Html::encode($this->title) ?><small style="margin-left: 1em;"><?= Html::a(Yii::t('usr', 'update'), ['profile', 'update' => true]); ?></small></h1>
@@ -19,7 +23,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <?php
 $attributes = ['username', 'email', 'firstName', 'lastName'];
-if (($otp = $model->getBehavior('oneTimePasswordBehavior')) !== null && $otp->mode === nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_TIME || $otp->mode === nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_COUNTER) {
+if (isset($otp) && $otp['mode'] === nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_TIME || $otp['mode'] === nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_COUNTER) {
     $attributes[] = [
         'name' => 'twoStepAuth',
         'format' => 'raw',

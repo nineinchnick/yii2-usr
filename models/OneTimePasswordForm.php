@@ -90,7 +90,7 @@ class OneTimePasswordForm extends \yii\base\Model
 
     public function getNewCode()
     {
-        return $this->_authenticator->getCode($this->_secret, $this->_mode == OneTimePasswordFormBehavior::OTP_TIME ? null : $this->getPreviousCounter());
+        return $this->_authenticator->getCode($this->_secret, $this->_mode == \nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_TIME ? null : $this->getPreviousCounter());
     }
 
     public function getUrl($user, $hostname, $secret)
@@ -104,7 +104,7 @@ class OneTimePasswordForm extends \yii\base\Model
     public function getIdentity()
     {
         if ($this->_identity === null) {
-            $this->_identity = $this->webUser->getIdentity();
+            $this->_identity = Yii::$app->user->getIdentity();
             if (!($this->_identity instanceof \nineinchnick\usr\components\OneTimePasswordIdentityInterface)) {
                 throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($this->_identity), 'interface' => '\nineinchnick\usr\components\OneTimePasswordIdentityInterface']));
             }
@@ -121,9 +121,9 @@ class OneTimePasswordForm extends \yii\base\Model
      */
     public function validOneTimePassword($attribute, $params)
     {
-        if ($this->_mode === OneTimePasswordFormBehavior::OTP_TIME) {
+        if ($this->_mode === \nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_TIME) {
             $valid = $this->_authenticator->checkCode($this->_secret, $this->$attribute);
-        } elseif ($this->_mode === OneTimePasswordFormBehavior::OTP_COUNTER) {
+        } elseif ($this->_mode === \nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_COUNTER) {
             $valid = $this->_authenticator->getCode($this->_secret, $this->getPreviousCounter()) == $this->$attribute;
         } else {
             $valid = false;
@@ -134,9 +134,9 @@ class OneTimePasswordForm extends \yii\base\Model
             return false;
         }
         if ($this->$attribute == $this->getPreviousCode()) {
-            if ($this->_mode === OneTimePasswordFormBehavior::OTP_TIME) {
+            if ($this->_mode === \nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_TIME) {
                 $message = Yii::t('usr', 'Please wait until next code will be generated.');
-            } elseif ($this->_mode === OneTimePasswordFormBehavior::OTP_COUNTER) {
+            } elseif ($this->_mode === \nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_COUNTER) {
                 $message = Yii::t('usr', 'Please log in again to request a new code.');
             }
             $this->addError($attribute, Yii::t('usr', 'Entered code has already been used.').' '.$message);
