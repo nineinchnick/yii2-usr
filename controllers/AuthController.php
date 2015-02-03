@@ -42,7 +42,7 @@ class AuthController extends UsrController
         }
         // if we got here that means AuthClient did not perform a redirect,
         // either there was an error or the user is already authenticated
-        $url = \yii\helpers\Url::toRoute(['login', 'provider' => $provider]);
+        $url = \yii\helpers\Url::toRoute(['login', 'provider' => $client->name]);
         $message = Yii::t('UsrModule.usr', 'Redirecting, please wait...');
         $response =  Yii::$app->getResponse();
         $response->content = "<html><body onload=\"window.opener.location.href='$url';window.close();\">$message</body></html>";
