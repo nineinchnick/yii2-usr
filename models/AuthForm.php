@@ -50,7 +50,7 @@ class AuthForm extends BaseUsrForm
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        foreach ($this->_validProviders as $provider => $options) {
+        foreach ($this->_validProviders as $provider => $enabled) {
             if (!isset($scenarios[$provider])) {
                 $scenarios[$provider] = $scenarios[self::SCENARIO_DEFAULT];
             }
@@ -72,8 +72,8 @@ class AuthForm extends BaseUsrForm
     public function setValidProviders($providers)
     {
         $this->_validProviders = [];
-        foreach ($providers as $provider => $options) {
-            $this->_validProviders[strtolower($provider)] = !isset($options['enabled']) || $options['enabled'];
+        foreach ($providers as $provider) {
+            $this->_validProviders[strtolower($provider)] = true;
         }
 
         return $this;
