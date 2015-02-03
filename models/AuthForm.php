@@ -88,6 +88,13 @@ class AuthForm extends BaseUsrForm
 
     public function getAuthClient()
     {
+        if ($this->_authClient === null && $this->provider !== null) {
+            $collection = Yii::$app->get('authClientCollection');
+            if (!$collection->hasClient($this->provider)) {
+                throw new NotFoundHttpException("Unknown auth client '{$this->provider}'");
+            }
+            $this->_authClient = $collection->getClient($this->provider);
+        }
         return $this->_authClient;
     }
 
