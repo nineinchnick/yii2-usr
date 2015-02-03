@@ -104,8 +104,7 @@ class AuthController extends UsrController
                 }
                 if (!empty($this->module->associateByAttributes)) {
                     $userIdentityClass = $localProfile->userIdentityClass;
-                    $remoteProfile = $remoteLogin->getAuthClient()->getUserAttributes();
-                    $remoteProfileAttributes = $userIdentityClass::getRemoteAttributes($remoteProfile);
+                    $remoteProfileAttributes = $remoteLogin->getAuthClient()->getUserAttributes();
                     $searchAttributes = [];
                     foreach ($this->module->associateByAttributes as $name) {
                         if (isset($remoteProfileAttributes[$name])) {
@@ -188,8 +187,7 @@ class AuthController extends UsrController
     {
         if (!isset($_POST['ProfileForm']) && $localIdentity === false) {
             $userIdentityClass = $localProfile->userIdentityClass;
-            $remoteProfile = $remoteLogin->getAuthClient()->getUserAttributes();
-            $localProfile->setAttributes($userIdentityClass::getRemoteAttributes($remoteProfile));
+            $localProfile->setAttributes($remoteLogin->getAuthClient()->getUserAttributes());
             $localProfile->validate();
 
             return $localProfile;
@@ -197,8 +195,7 @@ class AuthController extends UsrController
 
         if ($localIdentity !== false) {
             $userIdentityClass = $localProfile->userIdentityClass;
-            $remoteProfile = $remoteLogin->getAuthClient()->getUserAttributes();
-            $localProfile->setAttributes($userIdentityClass::getRemoteAttributes($remoteProfile));
+            $localProfile->setAttributes($remoteLogin->getAuthClient()->getUserAttributes());
         }
         if (isset($_POST['ProfileForm']) && is_array($_POST['ProfileForm'])) {
             $localProfile->setAttributes($_POST['ProfileForm']);

@@ -31,10 +31,4 @@ interface AuthClientIdentityInterface
      * @return boolean
      */
     public function hasRemoteIdentity($provider);
-    /**
-     * Similar to @see getAttributes() but reads the remote profile instead of current identity.
-     * @param  mixed $remoteProfie
-     * @return array
-     */
-    public static function getRemoteAttributes($remoteProfile);
 }

@@ -86,6 +86,11 @@ class AuthForm extends BaseUsrForm
         return $this;
     }
 
+    public function getAuthClient()
+    {
+        return $this->_authClient;
+    }
+
     public function getIdentity()
     {
         return $this->_identity;
@@ -138,7 +143,7 @@ class AuthForm extends BaseUsrForm
 
         if ($this->loggedInRemotely()) {
             $profile = $this->_authClient->getUserAttributes();
-            if (($this->_identity = $identityClass::findByProvider(strtolower($this->provider), $profile->identifier)) !== null) {
+            if (($this->_identity = $identityClass::findByProvider(strtolower($this->provider), $profile['identifier'])) !== null) {
                 return $this->webUser->login($this->_identity, 0);
             }
         }
@@ -160,18 +165,24 @@ class AuthForm extends BaseUsrForm
             ]));
         }
         $profile = $this->_authClient->getUserAttributes();
-        if ($identity instanceof PictureIdentityInterface && !empty($profile->photoURL)) {
+        if ($identity instanceof PictureIdentityInterface && !empty($profile['photoURL'])) {
             $picture = $identity->getPictureUrl();
-            if ($picture['url'] != $profile->photoURL) {
+            if ($picture['url'] != $profile['photoURL']) {
                 $path = tempnam(sys_get_temp_dir(), 'external_profile_picture_');
-                if (copy($profile->photoURL, $path)) {
-                    $uploadedFile = new yii\web\UploadedFile(['name' => basename($path), 'tempName' => $path, 'type' => yii\helpers\FileHelper::getMimeType($path), 'size' => filesize($path), 'error' => UPLOAD_ERR_OK]);
+                if (copy($profile['photoURL'], $path)) {
+                    $uploadedFile = new \yii\web\UploadedFile([
+                        'name' => basename($path),
+                        'tempName' => $path,
+                        'type' => \yii\helpers\FileHelper::getMimeType($path),
+                        'size' => filesize($path),
+                        'error' => UPLOAD_ERR_OK,
+                    ]);
                     $identity->removePicture();
                     $identity->savePicture($uploadedFile);
                 }
             }
         }
 
-        return $identity->addRemoteIdentity(strtolower($this->provider), $profile->identifier);
+        return $identity->addRemoteIdentity(strtolower($this->provider), $profile['identifier']);
     }
 }

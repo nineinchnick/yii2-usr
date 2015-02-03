@@ -550,28 +550,6 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
         return 0 != UserRemoteIdentity::find()->where(['provider' => $provider, 'user_id' => $this->id])->count();
     }
 
-    /**
-     * Similar to @see getAttributes() but reads the remote profile instead of current identity.
-     * @param  mixed $remoteProfie
-     * @return array
-     */
-    public static function getRemoteAttributes($remoteProfile)
-    {
-        //! @todo port
-        if (isset($remoteProfile->emailVerifier) && $remoteProfile->emailVerifier !== null) {
-            $email = $remoteProfile->emailVerifier;
-        } else {
-            $email = $remoteProfile->email;
-        }
-
-        return [
-            'username' => $email,
-            'email' => $email,
-            'firstname' => $remoteProfile->firstName,
-            'lastname' => $remoteProfile->lastName,
-        ];
-    }
-
     // }}}
 
     // {{{ PictureIdentityInterface
