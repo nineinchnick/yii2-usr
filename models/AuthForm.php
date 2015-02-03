@@ -153,7 +153,7 @@ class AuthForm extends BaseUsrForm
 
         if ($this->loggedInRemotely()) {
             $profile = $this->_authClient->getUserAttributes();
-            if (($this->_identity = $identityClass::findByProvider(strtolower($this->provider), $profile['identifier'])) !== null) {
+            if (($this->_identity = $identityClass::findByProvider(strtolower($this->provider), $profile['id'])) !== null) {
                 return $this->webUser->login($this->_identity, 0);
             }
         }
@@ -163,7 +163,7 @@ class AuthForm extends BaseUsrForm
 
     public function associate($user_id)
     {
-        $identityClass = $this->webUser->user->identityClass;
+        $identityClass = $this->webUser->identityClass;
         $identity = $identityClass::findIdentity($user_id);
         if ($identity === null) {
             return false;
@@ -193,6 +193,6 @@ class AuthForm extends BaseUsrForm
             }
         }
 
-        return $identity->addRemoteIdentity(strtolower($this->provider), $profile['identifier']);
+        return $identity->addRemoteIdentity(strtolower($this->provider), $profile['id']);
     }
 }
