@@ -103,7 +103,6 @@ class AuthController extends UsrController
                     $this->afterLogin();
                 }
                 if (!empty($this->module->associateByAttributes)) {
-                    $userIdentityClass = $localProfile->userIdentityClass;
                     $remoteProfileAttributes = $remoteLogin->getAuthClient()->getUserAttributes();
                     $searchAttributes = [];
                     foreach ($this->module->associateByAttributes as $name) {
@@ -111,7 +110,8 @@ class AuthController extends UsrController
                             $searchAttributes[$name] = $remoteProfileAttributes[$name];
                         }
                     }
-                    $localIdentity = $userIdentityClass::find($searchAttributes);
+                    $userIdentityClass = Yii::$app->user->identityClass;
+                    $localIdentity = $userIdentityClass::find()->where($searchAttributes)->one();
                 } else {
                     $localIdentity = false;
                 }
@@ -186,7 +186,6 @@ class AuthController extends UsrController
     protected function registerLocalProfile(ProfileForm $localProfile, AuthForm $remoteLogin, $localIdentity = false)
     {
         if (!isset($_POST['ProfileForm']) && $localIdentity === false) {
-            $userIdentityClass = $localProfile->userIdentityClass;
             $localProfile->setAttributes($remoteLogin->getAuthClient()->getUserAttributes());
             $localProfile->validate();
 
@@ -194,7 +193,6 @@ class AuthController extends UsrController
         }
 
         if ($localIdentity !== false) {
-            $userIdentityClass = $localProfile->userIdentityClass;
             $localProfile->setAttributes($remoteLogin->getAuthClient()->getUserAttributes());
         }
         if (isset($_POST['ProfileForm']) && is_array($_POST['ProfileForm'])) {

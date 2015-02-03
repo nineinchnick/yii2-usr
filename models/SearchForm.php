@@ -29,18 +29,6 @@ class SearchForm extends \yii\base\Model
      */
     private $_identity;
 
-    private $_userIdentityClass;
-
-    public function getUserIdentityClass()
-    {
-        return $this->_userIdentityClass;
-    }
-
-    public function setUserIdentityClass($value)
-    {
-        $this->_userIdentityClass = $value;
-    }
-
     public function rules()
     {
         return [

@@ -5,6 +5,9 @@ namespace nineinchnick\usr\models;
 use Yii;
 use \nineinchnick\usr\components\AuthClientIdentityInterface;
 use \nineinchnick\usr\components\PictureIdentityInterface;
+use \yii\authclient\OpenId;
+use \yii\authclient\OAuth1;
+use \yii\authclient\OAuth2;
 
 /**
  * AuthForm class.
@@ -132,7 +135,7 @@ class AuthForm extends BaseUsrForm
             return $client->validate();
         }
         if ($client instanceof OAuth1 || $client instanceof OAuth2) {
-            return ($accessToken = $client->getAccessToken()) !== null && is_object($accessToken) && !$accessToken->getIsValid();
+            return ($accessToken = $client->getAccessToken()) !== null && is_object($accessToken) && $accessToken->getIsValid();
         }
         return false;
     }
