@@ -3,6 +3,9 @@
 namespace nineinchnick\usr\controllers;
 
 use Yii;
+use \nineinchnick\usr\models\AuthForm;
+use \nineinchnick\usr\models\LoginForm;
+use \nineinchnick\usr\models\ProfileForm;
 
 /**
  * The controller handling logging in using social sites.
@@ -30,12 +33,20 @@ class AuthController extends UsrController
         /** @var AuthForm */
         $remoteLogin = $this->module->createFormModel('AuthForm');
 
+        $remoteLogin->setAuthClient($client);
         $remoteLogin->provider = $client->name;
         $remoteLogin->scenario = strtolower($remoteLogin->provider);
 
         if ($remoteLogin->validate()) {
             $remoteLogin->login();
         }
+        // if we got here that means AuthClient did not perform a redirect,
+        // either there was an error or the user is already authenticated
+        $url = $this->createUrl('login', ['provider' => $provider]);
+        $message = Yii::t('UsrModule.usr', 'Redirecting, please wait...');
+        $response =  Yii::$app->getResponse();
+        $response->content = "<html><body onload=\"window.opener.location.href='$url';window.close();\">$message</body></html>";
+        return $response;
     }
 
     /**
@@ -77,7 +88,7 @@ class AuthController extends UsrController
                 if ($remoteLogin->login()) {
                     // user is already associated with remote identity and has been logged in
                     $this->afterLogin();
-                } elseif (($adapter = $remoteLogin->getAuthClientAdapter()) === null || !$adapter->isUserConnected()) {
+                } elseif (!$remoteLogin->loggedInRemotely()) {
                     Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to log in using {provider}.', ['provider' => $remoteLogin->provider]));
 
                     return $this->redirect('login');
@@ -93,7 +104,7 @@ class AuthController extends UsrController
                 }
                 if (!empty($this->module->associateByAttributes)) {
                     $userIdentityClass = $localProfile->userIdentityClass;
-                    $remoteProfile = $remoteLogin->getAuthClientAdapter()->getUserProfile();
+                    $remoteProfile = $remoteLogin->getAuthClient()->getUserAttributes();
                     $remoteProfileAttributes = $userIdentityClass::getRemoteAttributes($remoteProfile);
                     $searchAttributes = [];
                     foreach ($this->module->associateByAttributes as $name) {
@@ -141,12 +152,12 @@ class AuthController extends UsrController
     }
 
     /**
-     * @param  LoginForm             $localLogin
-     * @param  AuthForm        $remoteLogin
-     * @param  boolean|IUserIdentity $localIdentity if not false, try to authenticate this identity instead
-     * @return LoginForm             validated $localLogin
+     * @param  LoginForm                     $localLogin
+     * @param  AuthForm                      $remoteLogin
+     * @param  boolean|UserIdentityInterface $localIdentity if not false, try to authenticate this identity instead
+     * @return LoginForm validated $localLogin
      */
-    protected function performLocalLogin(\nineinchnick\usr\models\LoginForm $localLogin, \nineinchnick\usr\models\AuthForm $remoteLogin, $localIdentity = false)
+    protected function performLocalLogin(LoginForm $localLogin, AuthForm $remoteLogin, $localIdentity = false)
     {
         if (!isset($_POST['LoginForm'])) {
             return $localLogin;
@@ -173,11 +184,11 @@ class AuthController extends UsrController
         return $localLogin;
     }
 
-    protected function registerLocalProfile(\nineinchnick\usr\models\ProfileForm $localProfile, \nineinchnick\usr\models\AuthForm $remoteLogin, $localIdentity = false)
+    protected function registerLocalProfile(ProfileForm $localProfile, AuthForm $remoteLogin, $localIdentity = false)
     {
         if (!isset($_POST['ProfileForm']) && $localIdentity === false) {
             $userIdentityClass = $localProfile->userIdentityClass;
-            $remoteProfile = $remoteLogin->getAuthClientAdapter()->getUserProfile();
+            $remoteProfile = $remoteLogin->getAuthClient()->getUserAttributes();
             $localProfile->setAttributes($userIdentityClass::getRemoteAttributes($remoteProfile));
             $localProfile->validate();
 
@@ -186,7 +197,7 @@ class AuthController extends UsrController
 
         if ($localIdentity !== false) {
             $userIdentityClass = $localProfile->userIdentityClass;
-            $remoteProfile = $remoteLogin->getAuthClientAdapter()->getUserProfile();
+            $remoteProfile = $remoteLogin->getAuthClient()->getUserAttributes();
             $localProfile->setAttributes($userIdentityClass::getRemoteAttributes($remoteProfile));
         }
         if (isset($_POST['ProfileForm']) && is_array($_POST['ProfileForm'])) {

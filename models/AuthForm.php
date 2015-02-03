@@ -3,6 +3,8 @@
 namespace nineinchnick\usr\models;
 
 use Yii;
+use \nineinchnick\usr\components\AuthClientIdentityInterface;
+use \nineinchnick\usr\components\PictureIdentityInterface;
 
 /**
  * AuthForm class.
@@ -25,7 +27,6 @@ class AuthForm extends BaseUsrForm
      */
     protected $_validProviders = [];
     protected $_authClient;
-    protected $_authClientAdapter;
     /**
      * @var IdentityInterface cached object returned by @see getIdentity()
      */
@@ -85,11 +86,6 @@ class AuthForm extends BaseUsrForm
         return $this;
     }
 
-    public function getAuthClientAdapter()
-    {
-        return $this->_authClientAdapter;
-    }
-
     public function getIdentity()
     {
         return $this->_identity;
@@ -117,26 +113,31 @@ class AuthForm extends BaseUsrForm
 
     public function loggedInRemotely()
     {
-        return ($adapter = $this->getAuthClientAdapter()) !== null && $adapter->isUserConnected();
+        if (($client = $this->getAuthClient()) === null) {
+            return false;
+        }
+        if ($client instanceof OpenId) {
+            return $client->validate();
+        }
+        if ($client instanceof OAuth1 || $client instanceof OAuth2) {
+            return ($accessToken = $client->getAccessToken()) !== null && is_object($accessToken) && !$accessToken->getIsValid();
+        }
+        return false;
     }
 
     public function login()
     {
         $identityClass = $this->webUser->identityClass;
         $fakeIdentity = new $identityClass();
-        if (!($fakeIdentity instanceof \nineinchnick\usr\components\AuthClientIdentityInterface)) {
-            throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($fakeIdentity), 'interface' => '\nineinchnick\usr\components\AuthClientIdentityInterface']));
+        if (!($fakeIdentity instanceof AuthClientIdentityInterface)) {
+            throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', [
+                'class' => get_class($fakeIdentity),
+                'interface' => '\nineinchnick\usr\components\AuthClientIdentityInterface',
+            ]));
         }
 
-        $params = $this->getAttributes();
-        unset($params['provider']);
-        if (empty($params['openid_identifier'])) {
-            unset($params['openid_identifier']);
-        }
-        $this->_authClientAdapter = $this->_authClient->authenticate(strtolower($this->provider), $params);
-
-        if ($this->_authClientAdapter->isUserConnected()) {
-            $profile = $this->_authClientAdapter->getUserProfile();
+        if ($this->loggedInRemotely()) {
+            $profile = $this->_authClient->getUserAttributes();
             if (($this->_identity = $identityClass::findByProvider(strtolower($this->provider), $profile->identifier)) !== null) {
                 return $this->webUser->login($this->_identity, 0);
             }
@@ -152,11 +153,14 @@ class AuthForm extends BaseUsrForm
         if ($identity === null) {
             return false;
         }
-        if (!($identity instanceof \nineinchnick\usr\components\AuthClientIdentityInterface)) {
-            throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($identity), 'interface' => '\nineinchnick\usr\components\AuthClientIdentityInterface']));
+        if (!($identity instanceof AuthClientIdentityInterface)) {
+            throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', [
+                'class' => get_class($identity),
+                'interface' => '\nineinchnick\usr\components\AuthClientIdentityInterface',
+            ]));
         }
-        $profile = $this->_authClientAdapter->getUserProfile();
-        if ($identity instanceof \nineinchnick\usr\components\PictureIdentityInterface && !empty($profile->photoURL)) {
+        $profile = $this->_authClient->getUserAttributes();
+        if ($identity instanceof PictureIdentityInterface && !empty($profile->photoURL)) {
             $picture = $identity->getPictureUrl();
             if ($picture['url'] != $profile->photoURL) {
                 $path = tempnam(sys_get_temp_dir(), 'external_profile_picture_');
