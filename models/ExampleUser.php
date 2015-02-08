@@ -62,12 +62,12 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
         // password is unsafe on purpose, assign it manually after hashing only if not empty
         return [
             [['username', 'email', 'firstname', 'lastname'], 'trim'],
-            [['activation_key', 'created_on', 'updated_on', 'last_visit_on', 'password_set_on', 'email_verified'], 'trim', 'on' => 'search'],
+            [['auth_key', 'activation_key', 'access_token', 'created_on', 'updated_on', 'last_visit_on', 'password_set_on', 'email_verified'], 'trim', 'on' => 'search'],
             [['username', 'email', 'firstname', 'lastname', 'is_active', 'is_disabled'], 'default'],
-            [['activation_key', 'created_on', 'updated_on', 'last_visit_on', 'password_set_on', 'email_verified'], 'default', 'on' => 'search'],
+            [['auth_key', 'activation_key', 'access_token', 'created_on', 'updated_on', 'last_visit_on', 'password_set_on', 'email_verified'], 'default', 'on' => 'search'],
             [['username', 'email', 'is_active', 'is_disabled', 'email_verified'], 'required', 'except' => 'search'],
             [['created_on', 'updated_on', 'last_visit_on', 'password_set_on'], 'date', 'format' => ['yyyy-MM-dd', 'yyyy-MM-dd HH:mm', 'yyyy-MM-dd HH:mm:ss'], 'on' => 'search'],
-            ['activation_key', 'string', 'max' => 128, 'on' => 'search'],
+            [['auth_key', 'activation_key', 'access_token'], 'string', 'max' => 128, 'on' => 'search'],
             [['is_active', 'is_disabled', 'email_verified'], 'boolean'],
             [['username', 'email'], 'unique', 'except' => 'search'],
         ];
@@ -105,7 +105,9 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
             'email' => Yii::t('models', 'Email'),
             'firstname' => Yii::t('models', 'Firstname'),
             'lastname' => Yii::t('models', 'Lastname'),
+            'auth_key' => Yii::t('models', 'Auth Key'),
             'activation_key' => Yii::t('models', 'Activation Key'),
+            'access_token' => Yii::t('models', 'Access Token'),
             'created_on' => Yii::t('models', 'Created On'),
             'updated_on' => Yii::t('models', 'Updated On'),
             'last_visit_on' => Yii::t('models', 'Last Visit On'),
@@ -130,7 +132,13 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
             $this->updated_on = date('Y-m-d H:i:s');
         }
 
-        return parent::beforeSave($insert);
+        if (parent::beforeSave($insert)) {
+            if ($this->isNewRecord) {
+                $this->auth_key = Yii::$app->getSecurity()->generateRandomString();
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -141,7 +149,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public static function findByUsername($username)
     {
-        return self::find()->where(['username' => $username])->one();
+        return self::findOne(['username' => $username]);
     }
 
     /**
@@ -167,7 +175,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public static function findIdentity($id)
     {
-        return self::find()->where(['id' => $id])->one();
+        return self::findOne(['id' => $id]);
     }
 
     /**
@@ -180,7 +188,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
+        return static::findOne(['access_token' => $token]);
     }
 
     /**
@@ -196,7 +204,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function getAuthKey()
     {
-        return Yii::$app->security->hashData($this->id, $this->password);
+        return $this->auth_key;
     }
 
     /**
@@ -205,7 +213,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
      */
     public function validateAuthKey($authKey)
     {
-        return Yii::$app->security->validateData($authKey, $this->getAuthKey());
+        return $this->getAuthKey() === $authKey;
     }
 
     /**
