@@ -20,30 +20,15 @@ if ($identity instanceof EditableIdentityInterface) {
 }
 ?>
 
-<?php if (isset($attributesMap['username'])): ?>
-    <?= $form->field($model, 'username', ['inputOptions' => ['autofocus' => true, 'class' => 'form-control']]) ?>
-<?php endif; ?>
-
-<?php if (isset($attributesMap['email'])): ?>
-    <?= $form->field($model, 'email') ?>
-<?php endif; ?>
-
-<?php if ($model->scenario !== 'register'): ?>
-    <?= $form->field($model, 'password')->passwordInput() ?>
-<?php endif; ?>
-
+<?= isset($attributesMap['username']) ? $form->field($model, 'username', ['inputOptions' => ['autofocus' => true, 'class' => 'form-control']]) : '' ?>
+<?= isset($attributesMap['email']) ? $form->field($model, 'email') : '' ?>
+<?= $model->scenario !== 'register' ? $form->field($model, 'password')->passwordInput() : '' ?>
 <?= $this->render('_newpassword', ['form' => $form, 'model' => $passwordForm, 'focus' => false]) ?>
+<?= isset($attributesMap['firstName']) ? $form->field($model, 'firstName') : '' ?>
+<?= isset($attributesMap['lastName']) ? $form->field($model, 'lastName') : '' ?>
 
-<?php if (isset($attributesMap['firstName'])): ?>
-    <?= $form->field($model, 'firstName') ?>
-<?php endif; ?>
-
-<?php if (isset($attributesMap['lastName'])): ?>
-    <?= $form->field($model, 'lastName') ?>
-<?php endif; ?>
-
-<?php if ($model->getIdentity() instanceof PictureIdentityInterface && !empty($model->pictureUploadRules)): ?>
-    <?php $picture = $model->getIdentity()->getPictureUrl(80, 80);
+<?php if ($identity instanceof PictureIdentityInterface && !empty($model->pictureUploadRules)): ?>
+    <?php $picture = $identity->getPictureUrl(80, 80);
     if ($picture !== false) {
         $picture['alt'] = Yii::t('usr', 'Profile picture');
         $url = $picture['url'];
