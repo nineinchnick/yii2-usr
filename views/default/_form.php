@@ -14,18 +14,18 @@ use \nineinchnick\usr\components\EditableIdentityInterface;
  */
 
 $identity = $model->getIdentity();
-$attributesMap = [];
-if ($identity instanceof EditableIdentityInterface) {
-    $attributesMap = $identity->identityAttributesMap();
-}
+$attributes = $identity instanceof EditableIdentityInterface
+    ? array_flip($identity->identityAttributesMap())
+    : ['username', 'email', 'firstName', 'lastName'];
+
 ?>
 
-<?= isset($attributesMap['username']) ? $form->field($model, 'username', ['inputOptions' => ['autofocus' => true, 'class' => 'form-control']]) : '' ?>
-<?= isset($attributesMap['email']) ? $form->field($model, 'email') : '' ?>
+<?= in_array('username', $attributes) ? $form->field($model, 'username', ['inputOptions' => ['autofocus' => true, 'class' => 'form-control']]) : '' ?>
+<?= in_array('email', $attributes) ? $form->field($model, 'email') : '' ?>
 <?= $model->scenario !== 'register' ? $form->field($model, 'password')->passwordInput() : '' ?>
 <?= $this->render('_newpassword', ['form' => $form, 'model' => $passwordForm, 'focus' => false]) ?>
-<?= isset($attributesMap['firstName']) ? $form->field($model, 'firstName') : '' ?>
-<?= isset($attributesMap['lastName']) ? $form->field($model, 'lastName') : '' ?>
+<?= in_array('firstName', $attributes) ? $form->field($model, 'firstName') : '' ?>
+<?= in_array('lastName', $attributes) ? $form->field($model, 'lastName') : '' ?>
 
 <?php if ($identity instanceof PictureIdentityInterface && !empty($model->pictureUploadRules)): ?>
     <?php $picture = $identity->getPictureUrl(80, 80);
