@@ -23,13 +23,13 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <div class="<?php echo $this->context->module->formCssClass; ?>">
 
-<?php $form = ActiveForm::begin([
-    'id' => 'profile-form',
-    'enableAjaxValidation' => true,
-    'enableClientValidation' => false,
-    'validateOnSubmit' => $model->getBehavior('captcha') === null,
-    'options' => ['enctype' => 'multipart/form-data'],
-]); ?>
+    <?php $form = ActiveForm::begin([
+        'id' => 'profile-form',
+        'enableAjaxValidation' => true,
+        'enableClientValidation' => false,
+        'validateOnSubmit' => $model->getBehavior('captcha') === null,
+        'options' => ['enctype' => 'multipart/form-data'],
+    ]); ?>
 
     <p class="note"><?= Yii::t('usr', 'Fields marked with <span class="required">*</span> are required.') ?></p>
 
@@ -38,15 +38,15 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="row">
         <div class="col-lg-5">
 
-<?= $this->render('_form', [
-    'form' => $form,
-    'model' => $model,
-    'passwordForm' => $passwordForm,
-]); ?>
+            <?= $this->render('_form', [
+                'form' => $form,
+                'model' => $model,
+                'passwordForm' => $passwordForm,
+            ]); ?>
 
-<?php if ($model->getBehavior('captcha') !== null): ?>
-<?= $this->render('_captcha', ['form' => $form, 'model' => $model]) ?>
-<?php endif; ?>
+            <?php if ($model->getBehavior('captcha') !== null): ?>
+            <?= $this->render('_captcha', ['form' => $form, 'model' => $model]) ?>
+            <?php endif; ?>
 
             <div class="form-group">
                 <?= Html::submitButton(Yii::t('usr', 'Submit'), ['class' => 'btn btn-primary']) ?>
