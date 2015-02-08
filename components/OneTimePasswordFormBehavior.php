@@ -171,7 +171,7 @@ class OneTimePasswordFormBehavior extends FormModelBehavior
     public function validOneTimePassword($attribute, $params)
     {
         if ($this->owner->hasErrors()) {
-            return;
+            return false;
         }
         $this->loadOneTimePasswordConfig();
         // extracts: $secret, $previousCode, $previousCounter

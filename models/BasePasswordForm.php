@@ -2,6 +2,8 @@
 
 namespace nineinchnick\usr\models;
 
+use nineinchnick\usr\components\IdentityInterface;
+use nineinchnick\usr\components\PasswordHistoryIdentityInterface;
 use Yii;
 
 /**
@@ -121,13 +123,13 @@ abstract class BasePasswordForm extends BaseUsrForm
     public function unusedNewPassword()
     {
         if ($this->hasErrors()) {
-            return;
+            return false;
         }
 
         /** @var IdentityInterface */
         $identity = $this->getIdentity();
         // check if new password hasn't been used before
-        if ($identity instanceof \nineinchnick\usr\components\PasswordHistoryIdentityInterface) {
+        if ($identity instanceof PasswordHistoryIdentityInterface) {
             if (($lastUsed = $identity->getPasswordDate($this->newPassword)) !== null) {
                 $this->addError('newPassword', Yii::t('usr', 'New password has been used before, last set on {date}.', ['date' => $lastUsed]));
 

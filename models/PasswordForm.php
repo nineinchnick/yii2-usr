@@ -68,7 +68,7 @@ class PasswordForm extends BasePasswordForm
     public function authenticate($attribute, $params)
     {
         if ($this->hasErrors()) {
-            return;
+            return false;
         }
         if (($identity = $this->getIdentity()) === null) {
             throw new \yii\base\Exception('Current user has not been found in the database.');
@@ -89,7 +89,7 @@ class PasswordForm extends BasePasswordForm
     public function resetPassword($identity = null)
     {
         if ($this->hasErrors()) {
-            return;
+            return false;
         }
         if ($identity === null) {
             $identity = $this->getIdentity();

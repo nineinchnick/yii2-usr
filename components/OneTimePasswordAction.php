@@ -41,9 +41,7 @@ class OneTimePasswordAction extends Action
         if ($identity->getOneTimePasswordSecret() !== null) {
             $identity->setOneTimePasswordSecret(null);
             Yii::$app->response->cookies->remove(OneTimePasswordFormBehavior::OTP_COOKIE);
-            $this->controller->redirect(['profile']);
-
-            return;
+            return $this->controller->redirect(['profile']);
         }
 
         $model->setMode($this->configuration['mode'])->setAuthenticator($this->configuration['authenticator']);

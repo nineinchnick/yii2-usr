@@ -173,9 +173,10 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     /**
      * Finds an identity by the given secrete token.
      *
-     * @param  string            $token the secrete token
-     * @param  mixed             $type the type of the token. The value of this parameter depends on the implementation.
+     * @param  string $token the secrete token
+     * @param  mixed $type   the type of the token. The value of this parameter depends on the implementation.
      * @return IdentityInterface the identity object that matches the given token.
+     * @throws NotSupportedException
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
@@ -213,13 +214,13 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     public function authenticate($password)
     {
         if (!$this->is_active) {
-            return array(self::ERROR_INACTIVE, Yii::t('usr', 'User account has not been activated yet.'));
+            return [self::ERROR_INACTIVE, Yii::t('usr', 'User account has not been activated yet.')];
         }
         if ($this->is_disabled) {
-            return array(self::ERROR_DISABLED, Yii::t('usr', 'User account has been disabled.'));
+            return [self::ERROR_DISABLED, Yii::t('usr', 'User account has been disabled.')];
         }
         if (!$this->verifyPassword($password)) {
-            return array(self::ERROR_INVALID, Yii::t('usr', 'Invalid username or password.'));
+            return [self::ERROR_INVALID, Yii::t('usr', 'Invalid username or password.')];
         }
 
         $this->last_visit_on = date('Y-m-d H:i:s');
@@ -355,7 +356,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     // {{{ ActivatedIdentityInterface
 
     /**
-     * Checkes if user account is active. This should not include disabled (banned) status.
+     * Checks if user account is active. This should not include disabled (banned) status.
      * This could include if the email address has been verified.
      * Same checks should be done in the authenticate() method, because this method is not called before logging in.
      * @return boolean
@@ -366,7 +367,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     }
 
     /**
-     * Checkes if user account is disabled (banned). This should not include active status.
+     * Checks if user account is disabled (banned). This should not include active status.
      * @return boolean
      */
     public function isDisabled()
@@ -375,7 +376,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     }
 
     /**
-     * Checkes if user email address is verified.
+     * Checks if user email address is verified.
      * @return boolean
      */
     public function isVerified()
@@ -402,6 +403,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     /**
      * Verifies if specified activation key matches the saved one and if it's not too old.
      * This method should not alter any saved data.
+     * @param string $activationKey
      * @return integer the verification error code. If there is an error, the error code will be non-zero.
      */
     public function verifyActivationKey($activationKey)

@@ -125,7 +125,7 @@ class ProfileForm extends BaseUsrForm
     public function uniqueIdentity($attribute, $params)
     {
         if ($this->hasErrors()) {
-            return;
+            return false;
         }
         $identityClass = $this->webUser->identityClass;
         $existingIdentity = $identityClass::find()->where([$attribute => $this->$attribute])->one();
@@ -144,7 +144,7 @@ class ProfileForm extends BaseUsrForm
     public function validCurrentPassword($attribute, $params)
     {
         if ($this->hasErrors()) {
-            return;
+            return false;
         }
         if (($identity = $this->getIdentity()) === null) {
             throw new \yii\base\Exception('Current user has not been found in the database.');
