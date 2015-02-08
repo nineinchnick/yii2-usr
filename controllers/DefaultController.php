@@ -263,17 +263,21 @@ class DefaultController extends UsrController
                             Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to send an email.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
                         }
                     }
-                    if ($model->getIdentity()->isActive()) {
-                        if ($model->login()) {
-                            return $this->afterLogin();
+                    if ($model->getIdentity() instanceof \nineinchnick\usr\components\ActivatedIdentityInterface) {
+                        if ($model->getIdentity()->isActive()) {
+                            if ($model->login()) {
+                                return $this->afterLogin();
+                            } else {
+                                Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to log in.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
+                            }
                         } else {
-                            Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to log in.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
+                            if (!Yii::$app->session->hasFlash('success')) {
+                                Yii::$app->session->setFlash('success', Yii::t('usr', 'Please wait for the account to be activated. A notification will be send to provided email address.'));
+                            }
+
+                            return $this->redirect(['login']);
                         }
                     } else {
-                        if (!Yii::$app->session->hasFlash('success')) {
-                            Yii::$app->session->setFlash('success', Yii::t('usr', 'Please wait for the account to be activated. A notification will be send to provided email address.'));
-                        }
-
                         return $this->redirect(['login']);
                     }
                 }
