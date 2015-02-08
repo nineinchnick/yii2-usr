@@ -3,6 +3,7 @@
 namespace nineinchnick\usr\models;
 
 use Yii;
+use yii\base\ModelEvent;
 
 /**
  * LoginForm class.
@@ -96,7 +97,7 @@ class LoginForm extends BasePasswordForm
     public function authenticate($attribute, $params)
     {
         if ($this->hasErrors()) {
-            return;
+            return false;
         }
         $identity = $this->getIdentity();
         if (!$identity) {
@@ -116,6 +117,7 @@ class LoginForm extends BasePasswordForm
      * A wrapper for the passwordHasNotExpired method from ExpiredPasswordBehavior.
      * @param $attribute string
      * @param $params array
+     * @return boolean
      */
     public function passwordHasNotExpired($attribute, $params)
     {
@@ -130,6 +132,7 @@ class LoginForm extends BasePasswordForm
      * A wrapper for the validOneTimePassword method from OneTimePasswordBehavior.
      * @param $attribute string
      * @param $params array
+     * @return boolean
      */
     public function validOneTimePassword($attribute, $params)
     {
@@ -147,7 +150,7 @@ class LoginForm extends BasePasswordForm
     public function resetPassword()
     {
         if ($this->hasErrors()) {
-            return;
+            return false;
         }
         $identity = $this->getIdentity();
         $trx = $identity->db->transaction !== null ? null : $identity->db->beginTransaction();
@@ -192,7 +195,7 @@ class LoginForm extends BasePasswordForm
      */
     protected function beforeLogin()
     {
-        $event = new \yii\base\ModelEvent();
+        $event = new ModelEvent();
         $this->trigger(self::EVENT_BEFORE_LOGIN, $event);
 
         return $event->isValid;
@@ -206,6 +209,6 @@ class LoginForm extends BasePasswordForm
      */
     protected function afterLogin()
     {
-        $this->trigger(self::EVENT_AFTER_LOGIN, new \yii\base\ModelEvent());
+        $this->trigger(self::EVENT_AFTER_LOGIN, new ModelEvent());
     }
 }

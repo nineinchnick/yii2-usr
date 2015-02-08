@@ -2,6 +2,7 @@
 
 namespace nineinchnick\usr\models;
 
+use nineinchnick\usr\components\IdentityInterface;
 use Yii;
 
 /**

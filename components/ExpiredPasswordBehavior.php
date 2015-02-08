@@ -54,7 +54,7 @@ class ExpiredPasswordBehavior extends FormModelBehavior
     public function passwordHasNotExpired()
     {
         if ($this->owner->hasErrors()) {
-            return;
+            return false;
         }
 
         $identity = $this->owner->getIdentity();

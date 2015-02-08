@@ -1,3 +1,4 @@
 /tests/report
 /tests/runtime
 *.swp
+/.idea

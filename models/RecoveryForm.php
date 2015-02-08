@@ -90,7 +90,7 @@ class RecoveryForm extends BasePasswordForm
     public function existingIdentity($attribute, $params)
     {
         if ($this->hasErrors()) {
-            return;
+            return false;
         }
         $identity = $this->getIdentity();
         if ($identity === null) {
@@ -118,7 +118,7 @@ class RecoveryForm extends BasePasswordForm
     public function validActivationKey($attribute, $params)
     {
         if ($this->hasErrors()) {
-            return;
+            return false;
         }
         if (($identity = $this->getIdentity()) === null) {
             return false;
