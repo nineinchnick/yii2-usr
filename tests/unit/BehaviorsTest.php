@@ -2,7 +2,6 @@
 
 namespace nineinchnick\usr\tests\unit;
 
-use nineinchnick\usr\Module as Module;
 use nineinchnick\usr\tests\TestCase as TestCase;
 
 class BehaviorsTest extends TestCase

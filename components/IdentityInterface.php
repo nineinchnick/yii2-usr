@@ -10,8 +10,8 @@ interface IdentityInterface extends \yii\web\IdentityInterface
     const ERROR_DISABLED = 3;
     /**
      * Authenticates a user.
-     * @param  string  $password
-     * @return mixed boolean true whether authentication succeeds or an array of error code and error message.
+     * @param  string $password
+     * @return mixed  boolean true whether authentication succeeds or an array of error code and error message.
      */
     public function authenticate($password);
 }

@@ -46,6 +46,7 @@ class AuthController extends UsrController
         $message = Yii::t('usr', 'Redirecting, please wait...');
         $response =  Yii::$app->getResponse();
         $response->content = "<html><body onload=\"window.opener.location.href='$url';window.close();\">$message</body></html>";
+
         return $response;
     }
 
@@ -121,6 +122,7 @@ class AuthController extends UsrController
                 if ($this->module->registrationEnabled) {
                     $localProfile = $this->registerLocalProfile($localProfile, $remoteLogin, $localIdentity);
                 }
+
                 return $this->render('associate', [
                     'remoteLogin' => $remoteLogin,
                     'localLogin' => $localLogin,
@@ -154,7 +156,7 @@ class AuthController extends UsrController
      * @param  LoginForm                     $localLogin
      * @param  AuthForm                      $remoteLogin
      * @param  boolean|UserIdentityInterface $localIdentity if not false, try to authenticate this identity instead
-     * @return LoginForm validated $localLogin
+     * @return LoginForm                     validated $localLogin
      */
     protected function performLocalLogin(LoginForm $localLogin, AuthForm $remoteLogin, $localIdentity = false)
     {

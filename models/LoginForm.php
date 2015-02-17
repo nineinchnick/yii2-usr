@@ -102,11 +102,13 @@ class LoginForm extends BasePasswordForm
         $identity = $this->getIdentity();
         if (!$identity) {
             $this->addError($attribute, Yii::t('usr', 'Invalid username or password.'));
+
             return false;
         }
         if (($error = $identity->authenticate($this->scenario === 'reset' ? $this->newPassword : $this->password)) !== true) {
             list($code, $message) = $error;
             $this->addError($attribute, $message);
+
             return false;
         }
 
@@ -172,7 +174,7 @@ class LoginForm extends BasePasswordForm
     /**
      * Logs in the user using the given username and password in the model.
      * @param  integer $duration For how long the user will be logged in without any activity, in seconds.
-     * @return mixed boolean true whether login is successful or an error message
+     * @return mixed   boolean true whether login is successful or an error message
      */
     public function login($duration = 0)
     {
@@ -181,8 +183,10 @@ class LoginForm extends BasePasswordForm
             if ($result) {
                 $this->afterLogin();
             }
+
             return $result;
         }
+
         return false;
     }
 

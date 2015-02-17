@@ -9,7 +9,7 @@ interface ManagedIdentityInterface
     const STATUS_IS_DISABLED = 'is_disabled';
     /**
      * Returns a data provider filled with User identity instances.
-     * @param  SearchForm    $searchForm
+     * @param  SearchForm   $searchForm
      * @return DataProvider
      */
     public function getDataProvider(\nineinchnick\usr\models\SearchForm $searchForm);

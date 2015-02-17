@@ -136,8 +136,10 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
             if ($this->isNewRecord) {
                 $this->auth_key = Yii::$app->getSecurity()->generateRandomString();
             }
+
             return true;
         }
+
         return false;
     }
 
@@ -181,9 +183,9 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     /**
      * Finds an identity by the given secrete token.
      *
-     * @param  string $token the secrete token
-     * @param  mixed $type   the type of the token. The value of this parameter depends on the implementation.
-     * @return IdentityInterface the identity object that matches the given token.
+     * @param  string                $token the secrete token
+     * @param  mixed                 $type  the type of the token. The value of this parameter depends on the implementation.
+     * @return IdentityInterface     the identity object that matches the given token.
      * @throws NotSupportedException
      */
     public static function findIdentityByAccessToken($token, $type = null)
@@ -233,6 +235,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
 
         $this->last_visit_on = date('Y-m-d H:i:s');
         $this->save(false);
+
         return true;
     }
 
@@ -411,7 +414,7 @@ abstract class ExampleUser extends \yii\db\ActiveRecord
     /**
      * Verifies if specified activation key matches the saved one and if it's not too old.
      * This method should not alter any saved data.
-     * @param string $activationKey
+     * @param  string  $activationKey
      * @return integer the verification error code. If there is an error, the error code will be non-zero.
      */
     public function verifyActivationKey($activationKey)

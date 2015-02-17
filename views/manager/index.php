@@ -67,24 +67,24 @@ $this->registerJs($script);
             'attribute' => 'updatedOn',
             'format' => 'datetime',
             'label' => Yii::t('manager', 'Updated On'),
-            'value' => function($data){return $data->getTimestamps("updatedOn");},
+            'value' => function ($data) {return $data->getTimestamps("updatedOn");},
         ],
         [
             'attribute' => 'lastVisitOn',
             'format' => 'datetime',
             'label' => Yii::t('manager', 'Last Visit On'),
-            'value' => function($data){return $data->getTimestamps("lastVisitOn");},
+            'value' => function ($data) {return $data->getTimestamps("lastVisitOn");},
         ],
         [
             'attribute' => 'emailVerified',
             'format' => 'raw',
             'label' => Yii::t('manager', 'Email Verified'),
             'filter' => $booleanFilter,
-            'value' => function($data){
+            'value' => function ($data) {
                 return Html::a(
                     $data->isVerified() ? Yii::t("manager", "Verified") : Yii::t("manager", "Unverified"),
-                    array("verify", "id"=>$data->id),
-                    array("class"=>"actionButton", "title"=>Yii::t("manager", "Toggle"))
+                    array("verify", "id" => $data->id),
+                    array("class" => "actionButton", "title" => Yii::t("manager", "Toggle"))
                 );
             },
         ],
@@ -93,11 +93,11 @@ $this->registerJs($script);
             'format' => 'raw',
             'label' => Yii::t('manager', 'Is Active'),
             'filter' => $booleanFilter,
-            'value' => function($data){
+            'value' => function ($data) {
                 return Html::a(
                     $data->isActive() ? Yii::t("manager", "Active") : Yii::t("manager", "Not active"),
-                    array("activate", "id"=>$data->id),
-                    array("class"=>"actionButton", "title"=>Yii::t("manager", "Toggle"))
+                    array("activate", "id" => $data->id),
+                    array("class" => "actionButton", "title" => Yii::t("manager", "Toggle"))
                 );
             },
         ],
@@ -106,18 +106,18 @@ $this->registerJs($script);
             'format' => 'raw',
             'label' => Yii::t('manager', 'Is Disabled'),
             'filter' => $booleanFilter,
-            'value' => function($data){
+            'value' => function ($data) {
                 return Html::a(
                     $data->isDisabled() ? Yii::t("manager", "Disabled") : Yii::t("manager", "Enabled"),
-                    array("disable", "id"=>$data->id),
-                    array("class"=>"actionButton", "title"=>Yii::t("manager", "Toggle"))
+                    array("disable", "id" => $data->id),
+                    array("class" => "actionButton", "title" => Yii::t("manager", "Toggle"))
                 );
             },
         ],
         [
             'class' => 'yii\grid\ActionColumn',
             'template' => '{update} {delete}', // {activate} {deactivate} {enable} {disable} {verify} {unverify}',
-            'urlCreator' => function($action, $model, $key, $index) {
+            'urlCreator' => function ($action, $model, $key, $index) {
                 return \yii\helpers\Url::toRoute([$action, 'id' => $model->primaryKey]);
             },
             'buttons' => [

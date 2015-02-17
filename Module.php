@@ -46,14 +46,14 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
      * @var string CSS class for html forms.
      */
     public $formCssClass = 'well';
-	/**
-	 * @var string Class name for detail view widget.
-	 */
-	public $detailViewClass = '\yii\widgets\DetailView';
-	/**
-	 * @var string CSS class for the form submit buttons.
-	 */
-	public $submitButtonCssClass = '';
+    /**
+     * @var string Class name for detail view widget.
+     */
+    public $detailViewClass = '\yii\widgets\DetailView';
+    /**
+     * @var string CSS class for the form submit buttons.
+     */
+    public $submitButtonCssClass = '';
     /**
      * @var boolean If true a link for generating passwords will be rendered under new password field.
      */

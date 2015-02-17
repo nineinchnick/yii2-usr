@@ -25,8 +25,8 @@ abstract class UsrController extends \yii\web\Controller
             $subject = $mode == 'recovery' ? Yii::t('usr', 'Password recovery') : Yii::t('usr', 'Email address verification');
             $params['actionUrl'] = \yii\helpers\Url::toRoute([
                 $this->module->id.'/default/'.$mode,
-                'activationKey'=>$model->getIdentity()->getActivationKey(),
-                'username'=>$model->getIdentity()->username,
+                'activationKey' => $model->getIdentity()->getActivationKey(),
+                'username' => $model->getIdentity()->username,
             ], true);
             break;
         case 'oneTimePassword':

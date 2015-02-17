@@ -6,7 +6,6 @@ use nineinchnick\usr\components\IdentityInterface;
 use nineinchnick\usr\components\OneTimePasswordFormBehavior;
 use nineinchnick\usr\components\OneTimePasswordIdentityInterface;
 use Yii;
-use nineinchnick\usr\Module;
 
 /**
  * OneTimePasswordForm class.

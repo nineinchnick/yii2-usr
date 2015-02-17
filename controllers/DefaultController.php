@@ -145,6 +145,7 @@ class DefaultController extends UsrController
             }
         }
         list($view, $params) = $this->getScenarioView($model->scenario, 'login');
+
         return $this->render($view, array_merge(['model' => $model], $params));
     }
 

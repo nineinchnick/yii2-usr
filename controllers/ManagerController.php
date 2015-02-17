@@ -63,6 +63,7 @@ class ManagerController extends UsrController
                 return $this->redirect(isset($_REQUEST['returnUrl']) ? $_REQUEST['returnUrl'] : ['index']);
             }
         }
+
         return $result;
     }
 
@@ -155,6 +156,7 @@ class ManagerController extends UsrController
                     if (!Yii::$app->session->hasFlash('success')) {
                         Yii::$app->session->setFlash('success', Yii::t('manager', 'User account has been successfully created or updated.'));
                     }
+
                     return $this->redirect(['index']);
                 }
             }

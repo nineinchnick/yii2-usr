@@ -4,7 +4,6 @@ namespace nineinchnick\usr\components;
 
 use Yii;
 use yii\base\Action;
-use nineinchnick\usr\Module;
 
 /**
  * Called from the updateProfile action, enables or disables one time passwords for two step authentication.
@@ -41,6 +40,7 @@ class OneTimePasswordAction extends Action
         if ($identity->getOneTimePasswordSecret() !== null) {
             $identity->setOneTimePasswordSecret(null);
             Yii::$app->response->cookies->remove(OneTimePasswordFormBehavior::OTP_COOKIE);
+
             return $this->controller->redirect(['profile']);
         }
 

@@ -98,6 +98,7 @@ class AuthForm extends BaseUsrForm
             }
             $this->_authClient = $collection->getClient($this->provider);
         }
+
         return $this->_authClient;
     }
 
@@ -137,6 +138,7 @@ class AuthForm extends BaseUsrForm
         if ($client instanceof OAuth1 || $client instanceof OAuth2) {
             return ($accessToken = $client->getAccessToken()) !== null && is_object($accessToken) && $accessToken->getIsValid();
         }
+
         return false;
     }
 
