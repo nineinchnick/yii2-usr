@@ -169,6 +169,8 @@ To use the provided migrations it's best to copy them to your migrations directo
 
 A simple implementation of a Diceware Passphrase generator is provided to aid users when they need to create a good, long but also easy to remember passphrase.
 
+Install the `nineinchnick/diceware` composer package to use it.
+
 Read more at [the Diceware Passphrase homepage](http://world.std.com/~reinhold/diceware.html).
 
 # Usage scenarios

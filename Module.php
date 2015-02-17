@@ -61,7 +61,7 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
     /**
      * @var integer Number of words in password generated using the diceware component.
      */
-    public $dicewareLength = 4;
+    public $dicewareLength = 6;
     /**
      * @var boolean Should an extra digit be added in password generated using the diceware component.
      */

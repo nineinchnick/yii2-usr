@@ -6,6 +6,8 @@ use Yii;
 use yii\web\BadRequestHttpException;
 use yii\web\AccessDeniedHttpException;
 use yii\web\NotFoundHttpException;
+use nineinchnick\usr\components\PictureIdentityInterface;
+use nineinchnick\usr\components\ActivatedIdentityInterface;
 
 /**
  * The default controller providing all basic actions.
@@ -13,11 +15,15 @@ use yii\web\NotFoundHttpException;
  */
 class DefaultController extends UsrController
 {
+    /**
+     * @inheritdoc
+     */
     public function actions()
     {
         $actions = [];
         if ($this->module->captcha !== null) {
-            // captcha action renders the CAPTCHA image displayed on the register and recovery page
+            // captcha action renders the CAPTCHA image
+            // displayed on the register and recovery page
             $actions['captcha'] = [
                 'class' => '\yii\captcha\CaptchaAction',
                 'backColor' => 0xFFFFFF,
@@ -241,7 +247,7 @@ class DefaultController extends UsrController
 
         if ($model->load($_POST)) {
             $passwordForm->load($_POST);
-            if ($model->getIdentity() instanceof \nineinchnick\usr\components\PictureIdentityInterface && !empty($model->pictureUploadRules)) {
+            if ($model->getIdentity() instanceof PictureIdentityInterface && !empty($model->pictureUploadRules)) {
                 $model->picture = \yii\web\UploadedFile::getInstance($model, 'picture');
             }
             if (Yii::$app->request->isAjax) {
@@ -263,7 +269,7 @@ class DefaultController extends UsrController
                             Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to send an email.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
                         }
                     }
-                    if ($model->getIdentity()->isActive()) {
+                    if (!($model->getIdentity() instanceof ActivatedIdentityInterface) || $model->getIdentity()->isActive()) {
                         if ($model->login()) {
                             return $this->afterLogin();
                         } else {
@@ -297,7 +303,7 @@ class DefaultController extends UsrController
         /** @var PasswordForm */
         $passwordForm = $this->module->createFormModel('PasswordForm');
         $loadedPassword = isset($_POST[$passwordForm->formName()]) && trim($_POST[$passwordForm->formName()]['newPassword']) !== '' && $passwordForm->load($_POST);
-        if ($loadedModel && $model->getIdentity() instanceof \nineinchnick\usr\components\PictureIdentityInterface && !empty($model->pictureUploadRules)) {
+        if ($loadedModel && $model->getIdentity() instanceof PictureIdentityInterface && !empty($model->pictureUploadRules)) {
             $model->picture = \yii\web\UploadedFile::getInstance($model, 'picture');
             $passwordForm->password = $model->password;
         }
@@ -375,8 +381,11 @@ class DefaultController extends UsrController
     {
         /** @var ProfileForm */
         $model = $this->module->createFormModel('ProfileForm');
-        if (!(($identity = $model->getIdentity()) instanceof \nineinchnick\usr\components\PictureIdentityInterface)) {
-            throw new ForbiddenException(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($identity), 'interface' => 'PictureIdentityInterface']));
+        if (!(($identity = $model->getIdentity()) instanceof PictureIdentityInterface)) {
+            throw new ForbiddenException(Yii::t('usr', 'The {class} class must implement the {interface} interface.', [
+                'class' => get_class($identity),
+                'interface' => 'PictureIdentityInterface',
+            ]));
         }
         $picture = $identity->getPicture($id);
         if ($picture === null) {
