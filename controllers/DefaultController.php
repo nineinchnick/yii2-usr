@@ -329,12 +329,10 @@ class DefaultController extends UsrController
          * The current password could have been used to authorize other changes.
          */
         if ($loadedPassword) {
-            if ($passwordForm->validate()) {
-                if ($passwordForm->resetPassword($model->getIdentity())) {
-                    $flashes['success'][] = Yii::t('usr', 'Changes have been saved successfully.');
-                } else {
-                    $flashes['error'][] = Yii::t('usr', 'Failed to change password.');
-                }
+            if ($passwordForm->validate() && $passwordForm->resetPassword($model->getIdentity())) {
+                $flashes['success'][] = Yii::t('usr', 'Changes have been saved successfully.');
+            } else {
+                $flashes['error'][] = Yii::t('usr', 'Failed to change password.');
             }
         }
         if ($loadedModel && empty($flashes['error'])) {
