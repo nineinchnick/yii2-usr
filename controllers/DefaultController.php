@@ -304,8 +304,10 @@ class DefaultController extends UsrController
         /** @var PasswordForm */
         $passwordForm = $this->module->createFormModel('PasswordForm');
         $loadedPassword = isset($_POST[$passwordForm->formName()]) && trim($_POST[$passwordForm->formName()]['newPassword']) !== '' && $passwordForm->load($_POST);
-        if ($loadedModel && $model->getIdentity() instanceof PictureIdentityInterface && !empty($model->pictureUploadRules)) {
-            $model->picture = \yii\web\UploadedFile::getInstance($model, 'picture');
+        if ($loadedModel) {
+            if ($model->getIdentity() instanceof PictureIdentityInterface && !empty($model->pictureUploadRules)) {
+                $model->picture = \yii\web\UploadedFile::getInstance($model, 'picture');
+            }
             $passwordForm->password = $model->password;
         }
 
