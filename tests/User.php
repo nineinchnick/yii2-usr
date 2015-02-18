@@ -21,7 +21,7 @@ class User extends \nineinchnick\usr\models\ExampleUser
 
     public function resetPassword($password)
     {
-        $hashedPassword = Yii::$app->security->generatePasswordHash($password);
+        $hashedPassword = \Yii::$app->security->generatePasswordHash($password);
         $usedPassword = new UserUsedPassword();
         $usedPassword->setAttributes([
             'user_id' => $this->id,

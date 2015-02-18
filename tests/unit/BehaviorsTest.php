@@ -12,7 +12,7 @@ class BehaviorsTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->mockApplication($this->getParam('app'), '\yii\web\Application');
+        $this->mockApplication($this->getParam('app'), '\yii\console\Application');
 
         $this->identity = $this->getMock('nineinchnick\usr\tests\User', ['getPasswordDate', 'getOneTimePasswordSecret', 'getOneTimePassword']);
         $this->identity->expects($this->any())->method('getPasswordDate')->will($this->returnValue('2013-10-10'));
