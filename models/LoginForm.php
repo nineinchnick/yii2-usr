@@ -65,11 +65,11 @@ class LoginForm extends BasePasswordForm
      */
     public function attributeLabels()
     {
-        return array_merge($this->getBehaviorLabels(), parent::attributeLabels(), [
-            'username'        => Yii::t('usr', 'Username'),
-            'password'        => Yii::t('usr', 'Password'),
-            'rememberMe'    => Yii::t('usr', 'Remember me when logging in next time'),
-        ]);
+        return array_merge(parent::attributeLabels(), [
+            'username'   => Yii::t('usr', 'Username'),
+            'password'   => Yii::t('usr', 'Password'),
+            'rememberMe' => Yii::t('usr', 'Remember me when logging in next time'),
+        ], $this->getBehaviorLabels());
     }
 
     /**

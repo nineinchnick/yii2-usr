@@ -47,11 +47,11 @@ class RecoveryForm extends BasePasswordForm
      */
     public function attributeLabels()
     {
-        return array_merge($this->getBehaviorLabels(), parent::attributeLabels(), [
+        return array_merge(parent::attributeLabels(), [
             'username'        => Yii::t('usr', 'Username'),
             'email'            => Yii::t('usr', 'Email'),
             'activationKey'    => Yii::t('usr', 'Activation Key'),
-        ]);
+        ], $this->getBehaviorLabels());
     }
 
     /**
