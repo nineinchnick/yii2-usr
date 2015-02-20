@@ -17,10 +17,10 @@ class ProfileFormTest extends DatabaseTestCase
             [
                 'scenario' => '',
                 'attributes' => [
-                    'username' => 'trin',
-                    'email' => 'trinity@matrix.com',
-                    'firstName' => 'Trinity',
-                    'lastName' => 'Latex',
+                    'username' => 'smith',
+                    'email' => 'smith+3@matrix.com',
+                    'firstName' => 'Agent',
+                    'lastName' => 'Smith',
                 ],
             ],
         ];
@@ -52,12 +52,13 @@ class ProfileFormTest extends DatabaseTestCase
     public function testWithBehavior()
     {
         $form = new models\ProfileForm();
+        $form->webUser = \Yii::$app->user;
         $formAttributes = $form->attributes();
         $formRules = $form->rules();
         $formLabels = $form->attributeLabels();
         $form->attachBehavior('captcha', ['class' => '\nineinchnick\usr\components\CaptchaFormBehavior']);
         $behaviorAttributes = $form->getBehavior('captcha')->attributes();
-        $behaviorRules = $form->getBehavior('captcha')->rules();
+        $behaviorRules = $form->getBehavior('captcha')->filterRules();
         $behaviorLabels = $form->getBehavior('captcha')->attributeLabels();
         $this->assertEquals(array_merge($formAttributes, $behaviorAttributes), $form->attributes());
         $this->assertEquals(array_merge($behaviorRules, $formRules), $form->rules());
@@ -73,6 +74,7 @@ class ProfileFormTest extends DatabaseTestCase
     public function testValid($scenario, $attributes)
     {
         $form = new models\ProfileForm($scenario);
+        $form->webUser = \Yii::$app->user;
         $form->setAttributes($attributes);
         $this->assertTrue($form->validate(), 'Failed with following validation errors: '.print_r($form->getErrors(), true));
         $this->assertEmpty($form->getErrors());
@@ -84,6 +86,7 @@ class ProfileFormTest extends DatabaseTestCase
     public function testInvalid($scenario, $attributes, $errors)
     {
         $form = new models\ProfileForm();
+        $form->webUser = \Yii::$app->user;
         $form->setScenario($scenario);
         $form->setAttributes($attributes);
         $this->assertFalse($form->validate());

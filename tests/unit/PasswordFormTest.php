@@ -56,7 +56,7 @@ class PasswordFormTest extends DatabaseTestCase
     public function testValid($scenario, $attributes)
     {
         $form = new models\PasswordForm($scenario);
-        $form->setIdentity(User::find(['username' => 'neo']));
+        $form->setIdentity(User::findOne(['username' => 'neo']));
         $form->setAttributes($attributes);
         $this->assertTrue($form->validate(), 'Failed with following validation errors: '.print_r($form->getErrors(), true));
         $this->assertEmpty($form->getErrors());
@@ -68,7 +68,7 @@ class PasswordFormTest extends DatabaseTestCase
     public function testInvalid($scenario, $attributes, $errors)
     {
         $form = new models\PasswordForm($scenario);
-        $form->setIdentity(User::find(['username' => 'neo']));
+        $form->setIdentity(User::findOne(['username' => 'neo']));
         $form->setAttributes($attributes);
         $this->assertFalse($form->validate());
         $this->assertEquals($errors, $form->getErrors());

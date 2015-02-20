@@ -10,20 +10,18 @@ class ModuleTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->mockApplication($this->getParam('app'), '\yii\web\Application');
-    }
-
-    public function testModule()
-    {
-        $module = new Module('usr', \Yii::$app);
-        $composer = json_decode(file_get_contents(dirname(__FILE__).'/../../composer.json'));
-        $this->assertEquals($module->getVersion(), $composer->version);
+        $this->mockApplication($this->getParam('app'), '\yii\console\Application');
     }
 
     public function testCreateForm()
     {
         $module = new Module('usr', \Yii::$app);
-        $module->passwordTimeout = 300;
+        $module->loginFormBehaviors = [
+            'expiredPasswordBehavior' => [
+                'class' => '\nineinchnick\usr\components\ExpiredPasswordBehavior',
+                'passwordTimeout' => 300,
+            ],
+        ];
         $form = $module->createFormModel('LoginForm');
         $this->assertTrue($form->getBehavior('expiredPasswordBehavior') instanceof \nineinchnick\usr\components\ExpiredPasswordBehavior);
     }

@@ -13,7 +13,7 @@ $composerAutoload = __DIR__.'/../../../autoload.php';
 if (is_file($composerAutoload)) {
     require_once $composerAutoload;
 }
-require_once __DIR__.'/../../../yiisoft/yii2/yii/Yii.php';
+require_once __DIR__.'/../../../yiisoft/yii2/Yii.php';
 
 Yii::setAlias('@nineinchnick/usr', __DIR__.'/..');
 

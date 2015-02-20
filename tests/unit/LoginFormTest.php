@@ -59,12 +59,13 @@ class LoginFormTest extends DatabaseTestCase
     public function testWithBehavior()
     {
         $form = new models\LoginForm();
+        $form->webUser = \Yii::$app->user;
         $formAttributes = $form->attributes();
         $formRules = $form->rules();
         $formLabels = $form->attributeLabels();
         $form->attachBehavior('captcha', ['class' => 'nineinchnick\usr\components\CaptchaFormBehavior']);
         $behaviorAttributes = $form->getBehavior('captcha')->attributes();
-        $behaviorRules = $form->getBehavior('captcha')->rules();
+        $behaviorRules = $form->getBehavior('captcha')->filterRules();
         $behaviorLabels = $form->getBehavior('captcha')->attributeLabels();
         $this->assertEquals(array_merge($formAttributes, $behaviorAttributes), $form->attributes());
         $this->assertEquals(array_merge($formRules, $behaviorRules), $form->rules());
@@ -80,6 +81,7 @@ class LoginFormTest extends DatabaseTestCase
     public function testValid($scenario, $attributes)
     {
         $form = new models\LoginForm($scenario);
+        $form->webUser = \Yii::$app->user;
         $form->setAttributes($attributes);
         $this->assertTrue($form->validate(), 'Failed with following validation errors: '.print_r($form->getErrors(), true));
         $this->assertEmpty($form->getErrors());
@@ -91,6 +93,7 @@ class LoginFormTest extends DatabaseTestCase
     public function testInvalid($scenario, $attributes, $errors)
     {
         $form = new models\LoginForm($scenario);
+        $form->webUser = \Yii::$app->user;
         $form->setAttributes($attributes);
         $this->assertFalse($form->validate());
         $this->assertEquals($errors, $form->getErrors());

@@ -9,7 +9,7 @@ abstract class DatabaseTestCase extends TestCase
         parent::setUp();
         $appConfig = $this->getParam('app');
         $appConfig['components']['db'] = $this->getParam('db');
-        $this->mockApplication($appConfig, '\yii\web\Application');
+        $this->mockApplication($appConfig, '\yii\console\Application');
         $this->runMigrations();
         $this->runFixtures();
     }
@@ -21,7 +21,7 @@ abstract class DatabaseTestCase extends TestCase
 
     protected function getDbConnection()
     {
-        return \Yii::$app->getComponent('db');
+        return \Yii::$app->get('db');
     }
 
     protected function runMigrations()
