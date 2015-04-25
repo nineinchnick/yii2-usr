@@ -125,8 +125,8 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
             'sourceLanguage' => 'en-US',
             'basePath' => '@usr/messages',
         ];
-        if (\Yii::$app->mail !== null) {
-            \Yii::$app->mail->viewPath = '@usr/views/emails';
+        if (\Yii::$app->mailer !== null) {
+            \Yii::$app->mailer->viewPath = '@usr/views/emails';
         }
     }
 

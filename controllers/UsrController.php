@@ -34,7 +34,7 @@ abstract class UsrController extends \yii\web\Controller
             $params['code'] = $model->getNewCode();
             break;
         }
-        $message = Yii::$app->mail->compose($mode, $params);
+        $message = Yii::$app->mailer->compose($mode, $params);
         $message->setTo([$model->getIdentity()->getEmail() => $model->getIdentity()->username]);
         $message->setSubject($subject);
 
