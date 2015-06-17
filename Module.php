@@ -53,7 +53,7 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
     /**
      * @var string CSS class for the form submit buttons.
      */
-    public $submitButtonCssClass = '';
+    public $submitButtonCssClass = 'btn btn-primary';
     /**
      * @var boolean If true a link for generating passwords will be rendered under new password field.
      */

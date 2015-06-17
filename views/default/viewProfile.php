@@ -23,7 +23,10 @@ if (isset($this->context->module->loginFormBehaviors['oneTimePasswordBehavior'])
 
 <?php
 $attributes = ['username', 'email', 'firstName', 'lastName'];
-if (isset($otp) && $otp['mode'] === nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_TIME || $otp['mode'] === nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_COUNTER) {
+if (isset($otp)
+    && ($otp['mode'] === nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_TIME
+    || $otp['mode'] === nineinchnick\usr\components\OneTimePasswordFormBehavior::OTP_COUNTER)
+) {
     $attributes[] = [
         'name' => 'twoStepAuth',
         'format' => 'raw',

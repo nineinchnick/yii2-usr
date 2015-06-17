@@ -15,7 +15,7 @@ $authManager = Yii::$app->getAuthManager();
 $assignedRoles = $id === null ? [] : $authManager->getRolesByUser($id);
 $allRoles = $authManager->getRoles();
 
-$this->title = $id === null ? Yii::t('manager', 'Create user') : Yii::t('manager', 'Update user {id}', ['{id}' => $id]);
+$this->title = $id === null ? Yii::t('manager', 'Create user') : Yii::t('manager', 'Update user {id}', ['id' => $profileForm->username]);
 
 $this->params['menu'] = [
     ['label' => Yii::t('manager', 'List users'), 'url' => ['index']],
@@ -106,7 +106,7 @@ $detailViewClass = $this->context->module->detailViewClass;
 <?php if (Yii::$app->user->can('usr.update.auth') && !empty($allRoles)): ?>
     <div class="control-group">
         <?php echo Html::label(Yii::t('manager', 'Authorization roles'), 'roles'); ?>
-        <?php echo Html::checkBoxList('roles', array_keys($assignedRoles), Html::listData($allRoles, 'name', 'description'), ['template' => '{beginLabel}{input}{labelTitle}{endLabel}']); ?>
+        <?php echo Html::checkBoxList('roles', array_keys($assignedRoles), \yii\helpers\ArrayHelper::map($allRoles, 'name', 'description'), ['template' => '{beginLabel}{input}{labelTitle}{endLabel}']); ?>
     </div>
 <?php endif; ?>
 
