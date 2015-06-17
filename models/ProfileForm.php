@@ -77,6 +77,9 @@ class ProfileForm extends BaseUsrForm
         if (!isset($scenarios['register'])) {
             $scenarios['register'] = $scenarios[self::SCENARIO_DEFAULT];
         }
+        if (!isset($scenarios['manage'])) {
+            $scenarios['manage'] = $scenarios[self::SCENARIO_DEFAULT];
+        }
 
         return $scenarios;
     }
