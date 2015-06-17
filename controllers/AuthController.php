@@ -165,7 +165,7 @@ class AuthController extends UsrController
         }
         if (is_object($localIdentity)) {
             // force to authorize against the $localIdentity
-            $attributes = $localIdentity->getAttributes();
+            $attributes = $localIdentity->getIdentityAttributes();
             if (isset($attributes['username'])) {
                 $_POST['LoginForm']['username'] = $attributes['username'];
             }
