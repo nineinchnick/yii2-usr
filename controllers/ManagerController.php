@@ -111,7 +111,7 @@ class ManagerController extends UsrController
         }
         $loadedProfile = $profileForm->load($_POST);
         /** @var PasswordForm */
-        $passwordForm = $this->module->createFormModel('PasswordForm', 'manage');
+        $passwordForm = $this->module->createFormModel('PasswordForm', 'register');
         $loadedPassword = isset($_POST[$passwordForm->formName()]) && trim($_POST[$passwordForm->formName()]['newPassword']) !== '' && $passwordForm->load($_POST);
 
         if (Yii::$app->request->isAjax) {
