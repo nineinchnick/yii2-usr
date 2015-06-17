@@ -91,6 +91,10 @@ class ManagerController extends UsrController
      * Updates a particular model.
      * If update is successful, the browser will be redirected to the 'index' page.
      * @param integer $id the ID of the model to be updated
+     * @return string|\yii\web\Response
+     * @throws \yii\db\Exception
+     * @throws \yii\web\ForbiddenHttpException
+     * @throws \yii\web\NotFoundHttpException
      */
     public function actionUpdate($id = null)
     {
@@ -99,7 +103,7 @@ class ManagerController extends UsrController
         }
 
         /** @var ProfileForm */
-        $profileForm = $this->module->createFormModel('ProfileForm', 'register');
+        $profileForm = $this->module->createFormModel('ProfileForm', 'manage');
         $profileForm->detachBehavior('captcha');
         if ($id !== null) {
             $profileForm->setIdentity($identity = $this->loadModel($id));
@@ -107,7 +111,7 @@ class ManagerController extends UsrController
         }
         $loadedProfile = $profileForm->load($_POST);
         /** @var PasswordForm */
-        $passwordForm = $this->module->createFormModel('PasswordForm', 'register');
+        $passwordForm = $this->module->createFormModel('PasswordForm', 'manage');
         $loadedPassword = isset($_POST[$passwordForm->formName()]) && trim($_POST[$passwordForm->formName()]['newPassword']) !== '' && $passwordForm->load($_POST);
 
         if (Yii::$app->request->isAjax) {

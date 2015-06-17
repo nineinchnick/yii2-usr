@@ -67,7 +67,7 @@ class ProfileForm extends BaseUsrForm
             ['email', 'email'],
 
             ['removePicture', 'boolean'],
-            ['password', 'validCurrentPassword', 'except' => 'register', 'skipOnEmpty' => false],
+            ['password', 'validCurrentPassword', 'except' => ['register', 'manage'], 'skipOnEmpty' => false],
         ], $this->pictureUploadRules));
     }
 
@@ -87,13 +87,13 @@ class ProfileForm extends BaseUsrForm
     public function attributeLabels()
     {
         return array_merge($this->getBehaviorLabels(), [
-            'username'        => Yii::t('usr', 'Username'),
-            'email'            => Yii::t('usr', 'Email'),
-            'firstName'        => Yii::t('usr', 'First name'),
-            'lastName'        => Yii::t('usr', 'Last name'),
-            'picture'        => Yii::t('usr', 'Profile picture'),
-            'removePicture'    => Yii::t('usr', 'Remove picture'),
-            'password'        => Yii::t('usr', 'Current password'),
+            'username'      => Yii::t('usr', 'Username'),
+            'email'         => Yii::t('usr', 'Email'),
+            'firstName'     => Yii::t('usr', 'First name'),
+            'lastName'      => Yii::t('usr', 'Last name'),
+            'picture'       => Yii::t('usr', 'Profile picture'),
+            'removePicture' => Yii::t('usr', 'Remove picture'),
+            'password'      => Yii::t('usr', 'Current password'),
         ]);
     }
 
@@ -109,8 +109,15 @@ class ProfileForm extends BaseUsrForm
             } else {
                 $this->_identity = $this->webUser->getIdentity();
             }
-            if ($this->_identity !== null && !($this->_identity instanceof \nineinchnick\usr\components\EditableIdentityInterface)) {
-                throw new \yii\base\Exception(Yii::t('usr', 'The {class} class must implement the {interface} interface.', ['class' => get_class($this->_identity), 'interface' => '\nineinchnick\usr\components\EditableIdentityInterface']));
+            if ($this->_identity !== null
+                && !($this->_identity instanceof \nineinchnick\usr\components\EditableIdentityInterface)
+            ) {
+                throw new \yii\base\Exception(
+                    Yii::t('usr', 'The {class} class must implement the {interface} interface.', [
+                        'class' => get_class($this->_identity),
+                        'interface' => '\nineinchnick\usr\components\EditableIdentityInterface',
+                    ])
+                );
             }
         }
 
@@ -129,8 +136,13 @@ class ProfileForm extends BaseUsrForm
         }
         $identityClass = $this->webUser->identityClass;
         $existingIdentity = $identityClass::find()->where([$attribute => $this->$attribute])->one();
-        if ($existingIdentity !== null && ($this->scenario == 'register' || (($identity = $this->getIdentity()) !== null && $existingIdentity->getId() != $identity->getId()))) {
-            $this->addError($attribute, Yii::t('usr', '{attribute} has already been used by another user.', ['attribute' => $this->$attribute]));
+        if ($existingIdentity !== null
+            && ($this->scenario == 'register'
+                || (($identity = $this->getIdentity()) !== null && $existingIdentity->getId() != $identity->getId()))
+        ) {
+            $this->addError($attribute, Yii::t('usr', '{attribute} has already been used by another user.', [
+                'attribute' => $this->$attribute,
+            ]));
 
             return false;
         }
