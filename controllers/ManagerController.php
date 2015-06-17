@@ -107,7 +107,7 @@ class ManagerController extends UsrController
         $profileForm->detachBehavior('captcha');
         if ($id !== null) {
             $profileForm->setIdentity($identity = $this->loadModel($id));
-            $profileForm->setAttributes($identity->getAttributes());
+            $profileForm->setAttributes($identity->getIdentityAttributes());
         }
         $loadedProfile = $profileForm->load($_POST);
         /** @var PasswordForm */
