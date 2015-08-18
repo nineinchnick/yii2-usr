@@ -106,9 +106,10 @@ class ProfileForm extends BaseUsrForm
     public function getIdentity()
     {
         if ($this->_identity === null) {
-            if ($this->scenario == 'register') {
+            if ($this->scenario === 'register' || $this->scenario === 'manage') {
                 $identityClass = $this->webUser->identityClass;
                 $this->_identity = new $identityClass();
+                $this->_identity->loadDefaultValues();
             } else {
                 $this->_identity = $this->webUser->getIdentity();
             }
