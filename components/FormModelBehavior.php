@@ -11,7 +11,7 @@ namespace nineinchnick\usr\components;
  * FormModelBehavior is a base class for behaviors that are attached to a form model component.
  * The model should extend from {@link CFormModel} or its child classes.
  *
- * @property CFormModel $owner The owner model that this behavior is attached to.
+ * @property \yii\base\Model $owner The owner model that this behavior is attached to.
  *
  * @author Jan Was <jwas@nets.com.pl>
  */

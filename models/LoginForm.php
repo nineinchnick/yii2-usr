@@ -105,7 +105,8 @@ class LoginForm extends BasePasswordForm
 
             return false;
         }
-        if (($error = $identity->authenticate($this->scenario === 'reset' ? $this->newPassword : $this->password)) !== true) {
+        $password = $this->scenario === 'reset' ? $this->newPassword : $this->password;
+        if (($error = $identity->authenticate($password)) !== true) {
             list($code, $message) = $error;
             $this->addError($attribute, $message);
 

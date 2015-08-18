@@ -3,6 +3,7 @@
 namespace nineinchnick\usr;
 
 use Yii;
+use yii\base\Model;
 
 /**
  * @author Jan Was <jwas@nets.com.pl>
@@ -22,18 +23,21 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
      */
     public $recoveryEnabled = true;
     /**
-     * @var integer For how long the user will be logged in without any activity, in seconds. Defaults to 3600*24*30 seconds (30 days).
+     * @var integer For how long the user will be logged in without any activity, in seconds.
+     * Defaults to 3600*24*30 seconds (30 days).
      */
     public $rememberMeDuration = 2592000;
     /**
-     * @var array Set of rules to measure the password strength when choosing new password in the registration or recovery forms.
+     * @var array Set of rules to measure the password strength when choosing new password
+     * in the registration or recovery forms.
      * Rules should NOT include attribute name, it will be added when they are used.
      * If null, defaults to minimum 8 characters and at least one of each: lower and upper case character and a digit.
      * @see BasePasswordForm
      */
     public $passwordStrengthRules;
     /**
-     * @var array Set of rules that restricts what images can be uploaded as user picture. If null, picture upload is disabled.
+     * @var array Set of rules that restricts what images can be uploaded as user picture.
+     * If null, picture upload is disabled.
      * Rules should NOT include attribute name, it will be added when they are used.
      * This should probably include a 'file' validator, like in the following example:
      * [
@@ -71,25 +75,28 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
      */
     public $dicewareExtraChar = false;
     /**
-     * @var array list of identity attribute names that should be passed to UserIdentity::find() to find a local identity matching a remote one.
-     * If one is found, user must authorize to associate it. If none has been found, a new local identity is automatically registered.
+     * @var array list of identity attribute names that should be passed to UserIdentity::find() to find
+     * a local identity matching a remote one.
+     * If one is found, user must authorize to associate it. If none has been found, a new local identity
+     * is automatically registered.
      * If the attribute list is empty a full pre-filled registration and login forms are displayed.
      */
     public $associateByAttributes = ['email'];
 
     /**
-     * @var array If not null, CAPTCHA will be enabled on the registration and recovery form and this will be passed as arguments to the CCaptcha widget.
+     * @var array If not null, CAPTCHA will be enabled on the registration and recovery form and this will be
+     * passed as arguments to the Captcha widget.
      * Remember to include the 'captchaAction'=>'/usr/default/captcha' property. Adjust the module id.
      */
     public $captcha;
     /**
-     * @var array Extra behaviors to attach to the profile form. If the view/update views are overriden in a theme
+     * @var array Extra behaviors to attach to the profile form. If the view/update views are overridden in a theme
      * this can be used to display/update extra profile fields. @see FormModelBehavior
      */
     public $profileFormBehaviors;
 
     /**
-     * @var array Extra behaviors to attach to the login form. If the views are overriden in a theme
+     * @var array Extra behaviors to attach to the login form. If the views are overridden in a theme
      * this can be used to placed extra logic. @see FormModelBehavior
      */
     public $loginFormBehaviors;
@@ -120,18 +127,21 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
     {
         parent::init();
         \Yii::setAlias('@usr', dirname(__FILE__));
-        \Yii::$app->i18n->translations['usr'] = \Yii::$app->i18n->translations['manager'] = \Yii::$app->i18n->translations['auth'] = [
+        \Yii::$app->i18n->translations['manager'] = \Yii::$app->i18n->translations['auth'] = [
             'class' => 'yii\i18n\PhpMessageSource',
             'sourceLanguage' => 'en-US',
             'basePath' => '@usr/messages',
         ];
+        \Yii::$app->i18n->translations['usr'] = \Yii::$app->i18n->translations['manager'];
+
         if (\Yii::$app->mailer !== null) {
             \Yii::$app->mailer->viewPath = '@usr/views/emails';
         }
     }
 
     /**
-     * A factory to create pre-configured form models. Only model class names from the nineinchnick\usr\models namespace are allowed.
+     * A factory to create pre-configured form models. Only model class names
+     * from the nineinchnick\usr\models namespace are allowed.
      * Sets scenario, password strength rules for models extending BasePasswordForm and attaches behaviors.
      *
      * @param  string $class    without the namespace
@@ -162,11 +172,14 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
                         $form->attachBehavior($name, $config);
                     }
                 }
+                // no break
             case 'RecoveryForm':
                 if ($this->captcha !== null && \yii\captcha\Captcha::checkRequirements()) {
                     $form->attachBehavior('captcha', [
                         'class' => 'nineinchnick\usr\components\CaptchaFormBehavior',
-                        'ruleOptions' => $class == 'ProfileForm' ? ['on' => 'register'] : ['except' => ['reset', 'verify']],
+                        'ruleOptions' => $class == 'ProfileForm'
+                            ? ['on' => 'register']
+                            : ['except' => ['reset', 'verify']],
                     ]);
                 }
                 break;
