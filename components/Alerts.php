@@ -24,9 +24,14 @@ class Alerts extends \yii\base\Widget
     {
         if (($flashMessages = Yii::$app->session->getAllFlashes())) {
             echo '<div class="flashes">';
-            foreach ($flashMessages as $key => $message) {
+            foreach ($flashMessages as $key => $messages) {
                 $cssClasses = 'alert alert-'.(isset($this->_map[$key]) ? $this->_map[$key] : $key);
-                echo '<div class="'.$cssClasses.'">'.$message.'</div>';
+                if (!is_array($messages)) {
+                    $messages = [$messages];
+                }
+                foreach ($messages as $message) {
+                    echo '<div class="'.$cssClasses.'">'.$message.'</div>';
+                }
             }
             echo '</div>';
         }
