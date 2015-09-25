@@ -209,7 +209,7 @@ class ManagerController extends UsrController
      */
     public function actionDisable($id)
     {
-        $this->loadModel($id)->toggleStatus(\nineinchnick\usr\components\IManagedIdentityInterface::STATUS_IS_DISABLED);
+        $this->loadModel($id)->toggleStatus(\nineinchnick\usr\components\ManagedIdentityInterface::STATUS_IS_DISABLED);
     }
 
     /**
