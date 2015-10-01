@@ -198,8 +198,10 @@ class ProfileForm extends BaseUsrForm
         if (($identity = $this->getIdentity()) === null) {
             return false;
         }
-
-        $identity->setIdentityAttributes($this->getAttributes());
+        $attributes = $this->getAttributes();
+        unset($attributes['owner']);
+        unset($attributes['webUser']);
+        $identity->setIdentityAttributes($attributes);
         if ($identity->saveIdentity($requireVerifiedEmail)) {
             if ((!($this->picture instanceof \yii\web\UploadedFile) || $identity->savePicture($this->picture)) && (!$this->removePicture || $identity->removePicture())) {
                 $this->_identity = $identity;
