@@ -199,8 +199,7 @@ class ProfileForm extends BaseUsrForm
             return false;
         }
         $attributes = $this->getAttributes();
-        unset($attributes['owner']);
-        unset($attributes['webUser']);
+        unset($attributes['owner'], $attributes['webUser'], $attributes['picture'], $attributes['removePicture'], $attributes['password']);
         $identity->setIdentityAttributes($attributes);
         if ($identity->saveIdentity($requireVerifiedEmail)) {
             if ((!($this->picture instanceof \yii\web\UploadedFile) || $identity->savePicture($this->picture)) && (!$this->removePicture || $identity->removePicture())) {
