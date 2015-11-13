@@ -6,7 +6,7 @@ use yii\widgets\ActiveForm;
 
 /**
  * @var yii\web\View $this
- * @var models\SearchForm $model
+ * @var \nineinchnick\usr\models\SearchForm $model
  * @var ActiveForm $form
  */
 $this->title = Yii::t('manager', 'List users');
@@ -67,13 +67,17 @@ $this->registerJs($script);
             'attribute' => 'updatedOn',
             'format' => 'datetime',
             'label' => Yii::t('manager', 'Updated On'),
-            'value' => function ($data) {return $data->getTimestamps("updatedOn");},
+            'value' => function ($data) {
+                return $data->getTimestamps("updatedOn");
+            },
         ],
         [
             'attribute' => 'lastVisitOn',
             'format' => 'datetime',
             'label' => Yii::t('manager', 'Last Visit On'),
-            'value' => function ($data) {return $data->getTimestamps("lastVisitOn");},
+            'value' => function ($data) {
+                return $data->getTimestamps("lastVisitOn");
+            },
         ],
         [
             'attribute' => 'emailVerified',
@@ -83,8 +87,8 @@ $this->registerJs($script);
             'value' => function ($data) {
                 return Html::a(
                     $data->isVerified() ? Yii::t("manager", "Verified") : Yii::t("manager", "Unverified"),
-                    array("verify", "id" => $data->id),
-                    array("class" => "actionButton", "title" => Yii::t("manager", "Toggle"))
+                    ["verify", "id" => $data->id],
+                    ["class" => "actionButton", "title" => Yii::t("manager", "Toggle")]
                 );
             },
         ],
@@ -96,8 +100,8 @@ $this->registerJs($script);
             'value' => function ($data) {
                 return Html::a(
                     $data->isActive() ? Yii::t("manager", "Active") : Yii::t("manager", "Not active"),
-                    array("activate", "id" => $data->id),
-                    array("class" => "actionButton", "title" => Yii::t("manager", "Toggle"))
+                    ["activate", "id" => $data->id],
+                    ["class" => "actionButton", "title" => Yii::t("manager", "Toggle")]
                 );
             },
         ],
@@ -109,8 +113,8 @@ $this->registerJs($script);
             'value' => function ($data) {
                 return Html::a(
                     $data->isDisabled() ? Yii::t("manager", "Disabled") : Yii::t("manager", "Enabled"),
-                    array("disable", "id" => $data->id),
-                    array("class" => "actionButton", "title" => Yii::t("manager", "Toggle"))
+                    ["disable", "id" => $data->id],
+                    ["class" => "actionButton", "title" => Yii::t("manager", "Toggle")]
                 );
             },
         ],

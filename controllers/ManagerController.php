@@ -2,7 +2,15 @@
 
 namespace nineinchnick\usr\controllers;
 
+use nineinchnick\usr\components\ManagedIdentityInterface;
+use nineinchnick\usr\components\PictureIdentityInterface;
+use nineinchnick\usr\models\PasswordForm;
+use nineinchnick\usr\models\ProfileForm;
+use nineinchnick\usr\models\SearchForm;
 use Yii;
+use yii\filters\ContentNegotiator;
+use yii\rest\Serializer;
+use yii\web\Response;
 
 /**
  * The controller handling user accounts managment.
@@ -47,6 +55,13 @@ class ManagerController extends UsrController
                         'actions' => ['verify', 'activate', 'disable'],
                         'roles' => ['usr.update.status'],
                     ],
+                ],
+            ],
+            'contentNegotiator' => [
+                'class' => ContentNegotiator::className(),
+                'formats' => [
+                    'text/html' => Response::FORMAT_HTML,
+                    'application/json' => Response::FORMAT_JSON,
                 ],
             ],
         ];
@@ -102,7 +117,7 @@ class ManagerController extends UsrController
             throw new \yii\web\ForbiddenHttpException(Yii::t('yii', 'You are not authorized to perform this action.'));
         }
 
-        /** @var ProfileForm */
+        /** @var ProfileForm $profileForm */
         $profileForm = $this->module->createFormModel('ProfileForm', 'manage');
         $profileForm->detachBehavior('captcha');
         if ($id !== null) {
@@ -110,9 +125,11 @@ class ManagerController extends UsrController
             $profileForm->setAttributes($identity->getIdentityAttributes());
         }
         $loadedProfile = $profileForm->load($_POST);
-        /** @var PasswordForm */
+        /** @var PasswordForm $passwordForm */
         $passwordForm = $this->module->createFormModel('PasswordForm', 'register');
-        $loadedPassword = isset($_POST[$passwordForm->formName()]) && trim($_POST[$passwordForm->formName()]['newPassword']) !== '' && $passwordForm->load($_POST);
+        $loadedPassword = isset($_POST[$passwordForm->formName()])
+            && trim($_POST[$passwordForm->formName()]['newPassword']) !== ''
+            && $passwordForm->load($_POST);
 
         if (Yii::$app->request->isAjax) {
             Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
@@ -135,16 +152,19 @@ class ManagerController extends UsrController
 
         $flashes = ['success' => [], 'error' => []];
         if ($loadedProfile) {
-            if ($profileForm->getIdentity() instanceof \nineinchnick\usr\components\PictureIdentityInterface && !empty($profileForm->pictureUploadRules)) {
+            if ($profileForm->getIdentity() instanceof PictureIdentityInterface && !empty($profileForm->pictureUploadRules)) {
                 $profileForm->picture = \yii\web\UploadedFile::getInstance($profileForm, 'picture');
             }
             $updatePassword = $canUpdatePassword && $loadedPassword;
             if ($profileForm->validate() && (!$updatePassword || $passwordForm->validate())) {
                 $trx = Yii::$app->db->beginTransaction();
                 $oldEmail = $profileForm->getIdentity()->getEmail();
-                if (($canUpdateAttributes && !$profileForm->save($this->module->requireVerifiedEmail)) || ($updatePassword && !$passwordForm->resetPassword($profileForm->getIdentity()))) {
+                if (($canUpdateAttributes && !$profileForm->save($this->module->requireVerifiedEmail))
+                    || ($updatePassword && !$passwordForm->resetPassword($profileForm->getIdentity()))
+                ) {
                     $trx->rollback();
-                    Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to register a new user.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
+                    Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to register a new user.') . ' '
+                        . Yii::t('usr', 'Try again or contact the site administrator.'));
                 } else {
                     if ($canUpdateAuth) {
                         $this->updateAuthItems($id, $profileForm);
@@ -154,7 +174,8 @@ class ManagerController extends UsrController
                         if ($this->sendEmail($profileForm, 'verify')) {
                             Yii::$app->session->setFlash('success', Yii::t('usr', 'An email containing further instructions has been sent to the provided email address.'));
                         } else {
-                            Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to send an email.').' '.Yii::t('usr', 'Try again or contact the site administrator.'));
+                            Yii::$app->session->setFlash('error', Yii::t('usr', 'Failed to send an email.') . ' '
+                                . Yii::t('usr', 'Try again or contact the site administrator.'));
                         }
                     }
                     if (!Yii::$app->session->hasFlash('success')) {
@@ -191,7 +212,7 @@ class ManagerController extends UsrController
      */
     public function actionVerify($id)
     {
-        $this->loadModel($id)->toggleStatus(\nineinchnick\usr\components\ManagedIdentityInterface::STATUS_EMAIL_VERIFIED);
+        $this->loadModel($id)->toggleStatus(ManagedIdentityInterface::STATUS_EMAIL_VERIFIED);
     }
 
     /**
@@ -200,7 +221,7 @@ class ManagerController extends UsrController
      */
     public function actionActivate($id)
     {
-        $this->loadModel($id)->toggleStatus(\nineinchnick\usr\components\ManagedIdentityInterface::STATUS_IS_ACTIVE);
+        $this->loadModel($id)->toggleStatus(ManagedIdentityInterface::STATUS_IS_ACTIVE);
     }
 
     /**
@@ -209,7 +230,7 @@ class ManagerController extends UsrController
      */
     public function actionDisable($id)
     {
-        $this->loadModel($id)->toggleStatus(\nineinchnick\usr\components\ManagedIdentityInterface::STATUS_IS_DISABLED);
+        $this->loadModel($id)->toggleStatus(ManagedIdentityInterface::STATUS_IS_DISABLED);
     }
 
     /**
@@ -217,12 +238,18 @@ class ManagerController extends UsrController
      */
     public function actionIndex()
     {
+        /** @var SearchForm $model */
         $model = $this->module->createFormModel('SearchForm');
         if (isset($_REQUEST['SearchForm'])) {
             $model->attributes = $_REQUEST['SearchForm'];
             $model->validate();
             $errors = $model->getErrors();
             $model->setAttributes(array_fill_keys(array_keys($errors), null));
+        }
+
+        if (Yii::$app->response->format === Response::FORMAT_JSON) {
+            $serializer = new Serializer;
+            return $serializer->serialize($model->getIdentity()->getDataProvider($model));
         }
 
         return $this->render('index', ['model' => $model]);
@@ -237,6 +264,7 @@ class ManagerController extends UsrController
      */
     public function loadModel($id)
     {
+        /** @var SearchForm $model */
         $searchForm = $this->module->createFormModel('SearchForm');
         if (($model = $searchForm->getIdentity($id)) === null) {
             throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
